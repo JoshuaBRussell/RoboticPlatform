@@ -1,0 +1,16 @@
+Carly_Haptic_Trials/
+Carly_Standing_Trials/
+CoP_Trials/
+New_Walking_Studies/
+Postural_Stability/
+Standing_Tests/
+Walking_Combined/
+
+*.DAT
+*.csv
+
+Phase_Exp/*
+MS_Study_Trials/*
+
+!Phase_Exp/code
+!MS_Study_Trials/code
