@@ -1,31 +1,35 @@
-%% Setup, Filtering and Data Visualization settings
+
+
 close all
 clear all
+
+%% ----Constants---- %%
+%Insert subject initial and name.
+%Make sure it matches the format for naming
+SUB_INITIAL='M';
+SUB_NAME='M';
+
+NUM_PERT=40;                  %Number of perturbation you actually ran
+
+INERTIAL_LOWER_LIM  = 0.01;   %Inertial Parametrs Lower/Upper Limits
+INERTIAL_UPPER_LIMIT = 0.2;
+
+% Flag == 1 -> Shows Figures
+PLOT_FIGS_FLAG=1;
+% plot_figs_constrained=0;
+PLOT_HISTOGRAM_FLAG=1;        %Ankle position histogram
+PLOT_TORQUE_FLAG=1;           %Torque plot comparison figure
+
+SHIFT_VAL=0;
+
+BOOTSTRAPPING_LOOPS=100;      %Number of bootstrapping loops
+
+TRIAL_EXCLUDE_VEC=[];         %Trial number to be excluded from analysis
+
+%% Setup, Filtering and Data Visualization settings
+
 % Getting the MVC values
 mvc_evaluation;
-% Insert subject initial and name.
-%Make sure it matches the format for naming
-sub_initial='N';
-sub_name='NAME';
-%Add number of perturbation you actually ran
-num_pert=40;
-% insert lower limit of inertia of foot in the fit
-% u_lim is the upper limit of the inertia and lim
-% is the lower limit
-lim=0.01;
-u_lim=0.2;
-% change these flags to 1 for figures (normal fit and constrained fit)
-plot_figs=1;
-% plot_figs_constrained=0;
-% Change to 1 to get ankle position histogram
-plot_hist=1;
-%  Change to get torque plot comparison figure
-plot_torque=1;
-shift=0;
-%add the number of loops you want to run bootstrapping here
-loops=100;
-% Add the trials you want to exclude in here
-exclude=[];%exclude=[1,2];
 d3 = designfilt('lowpassiir','FilterOrder',4,'HalfPowerFrequency',...
     5,'DesignMethod','butter','Samplerate',2000);
 d1 = designfilt('lowpassiir','FilterOrder',4,'HalfPowerFrequency',15,...
@@ -50,11 +54,11 @@ p7=1;
 % trials you actually run
 for trials=1:10
     
-    if(ismember(trials,exclude)==0)
+    if(ismember(trials,TRIAL_EXCLUDE_VEC)==0)
         if(trials<10)
-            h = fopen(strcat(sub_initial,'W0',num2str(trials),'.dat'));
+            h = fopen(strcat(SUB_INITIAL,'W0',num2str(trials),'.dat'));
         else
-            h = fopen(strcat(sub_initial,'W',num2str(trials),'.dat'));
+            h = fopen(strcat(SUB_INITIAL,'W',num2str(trials),'.dat'));
         end
         
         live_data=fread(h);
@@ -64,9 +68,9 @@ for trials=1:10
         [x,img_st]=findpeaks(diff(Img_flag));
         img_st=round(img_st(1)/20);
         if(trials<10)
-            Img=csvread(strcat(sub_name,'_00',num2str(trials),'.csv'));
+            Img=csvread(strcat(SUB_NAME,'_00',num2str(trials),'.csv'));
         else
-            Img=csvread(strcat(sub_name,'_0',num2str(trials),'.csv'));
+            Img=csvread(strcat(SUB_NAME,'_0',num2str(trials),'.csv'));
         end
         % obtaining data from channels
         pert_torque=filtfilt(d1,Input1.data(:,7));
@@ -118,7 +122,7 @@ for trials=1:10
                 weight1(p1,:)=w1(peaks(i)-400:peaks(i)+2000)-w1(peaks(i)-360);%+w2(peaks(i)-400:peaks(i)+2000)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+2000)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+2000)-w4(peaks(i)-20);
                 p1_plat_torque(p1,:)=pert_torque(peaks(i)-400:peaks(i)+2000)-pert_torque(peaks(i)+50);
                 p1_plat_pos(p1,:)=plat_pos_data(peaks(i)-179:peaks(i)+2221);
-                p1_foot_pos(p1,:)=foot_pos_data(peaks(i)-179+shift:peaks(i)+2221+shift);
+                p1_foot_pos(p1,:)=foot_pos_data(peaks(i)-179+SHIFT_VAL:peaks(i)+2221+SHIFT_VAL);
                 p1_phase(p1,:)=rigid_phase_tot(peaks(i)-400:peaks(i)+2000);
                 p1_pert(p1,:)=perturb_start(peaks(i)-400:peaks(i)+2000);
                 img1_pos(p1)=getmin(peaks(i),img_st,Img);
@@ -139,7 +143,7 @@ for trials=1:10
                 weight2(p2,:)=w1(peaks(i)-400:peaks(i)+2000)-w1(peaks(i)-360);%+w2(peaks(i)-400:peaks(i)+2000)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+2000)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+2000)-w4(peaks(i)-20);
                 p2_plat_torque(p2,:)=pert_torque(peaks(i)-400:peaks(i)+2000)-pert_torque(peaks(i)+50);
                 p2_plat_pos(p2,:)=plat_pos_data(peaks(i)-179:peaks(i)+2221);
-                p2_foot_pos(p2,:)=foot_pos_data(peaks(i)-179+shift:peaks(i)+2221+shift);
+                p2_foot_pos(p2,:)=foot_pos_data(peaks(i)-179+SHIFT_VAL:peaks(i)+2221+SHIFT_VAL);
                 p2_phase(p2,:)=rigid_phase_tot(peaks(i)-400:peaks(i)+2000);
                 p2_pert(p2,:)=perturb_start(peaks(i)-400:peaks(i)+2000);
                 img2_pos(p2)=getmin(peaks(i),img_st,Img);
@@ -160,7 +164,7 @@ for trials=1:10
                 weight3(p3,:)=w1(peaks(i)-400:peaks(i)+2000)-w1(peaks(i)-360);%+w2(peaks(i)-400:peaks(i)+2000)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+2000)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+2000)-w4(peaks(i)-20);
                 p3_plat_torque(p3,:)=1*(pert_torque(peaks(i)-400:peaks(i)+2000)-pert_torque(peaks(i)+50));
                 p3_plat_pos(p3,:)=plat_pos_data(peaks(i)-179:peaks(i)+2221);
-                p3_foot_pos(p3,:)=foot_pos_data(peaks(i)-179+shift:peaks(i)+2221+shift);
+                p3_foot_pos(p3,:)=foot_pos_data(peaks(i)-179+SHIFT_VAL:peaks(i)+2221+SHIFT_VAL);
                 p3_phase(p3,:)=rigid_phase_tot(peaks(i)-400:peaks(i)+2000);
                 p3_pert(p3,:)=perturb_start(peaks(i)-400:peaks(i)+2000);
                 img3_pos(p3)=getmin(peaks(i),img_st,Img);
@@ -184,7 +188,7 @@ for trials=1:10
                 weight4(p0,:)=w1(peaks(i)-400:peaks(i)+2000)-w1(peaks(i)-360);%+w2(peaks(i)-400:peaks(i)+2000)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+2000)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+2000)-w4(peaks(i)-20);
                 p0_plat_torque(p0,:)=pert_torque(peaks(i)-400:peaks(i)+2000)-pert_torque(peaks(i)+50);
                 p0_plat_pos(p0,:)=plat_pos_data(peaks(i)-179:peaks(i)+2221);
-                p0_foot_pos(p0,:)=foot_pos_data(peaks(i)-179+shift:peaks(i)+2221+shift);
+                p0_foot_pos(p0,:)=foot_pos_data(peaks(i)-179+SHIFT_VAL:peaks(i)+2221+SHIFT_VAL);
                 p0_phase(p0,:)=rigid_phase_tot(peaks(i)-400:peaks(i)+2000);
                 p0_pert(p0,:)=perturb_start(peaks(i)-400:peaks(i)+2000);
                 img0_pos(p0)=getmin(peaks(i),img_st,Img);
@@ -208,7 +212,7 @@ for trials=1:10
                 weight3(p4,:)=w1(peaks(i)-400:peaks(i)+2000)-w1(peaks(i)-360);%+w2(peaks(i)-400:peaks(i)+2000)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+2000)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+2000)-w4(peaks(i)-20);
                 p4_plat_torque(p4,:)=pert_torque(peaks(i)-400:peaks(i)+2000)-pert_torque(peaks(i)+50);
                 p4_plat_pos(p4,:)=plat_pos_data(peaks(i)-179:peaks(i)+2221);
-                p4_foot_pos(p4,:)=foot_pos_data(peaks(i)-179+shift:peaks(i)+2221+shift);
+                p4_foot_pos(p4,:)=foot_pos_data(peaks(i)-179+SHIFT_VAL:peaks(i)+2221+SHIFT_VAL);
                 p4_phase(p4,:)=haptic_phase_tot(peaks(i)-400:peaks(i)+2000);
                 p4_pert(p4,:)=perturb_start(peaks(i)-400:peaks(i)+2000);
                 img4_pos(p4)=getmin(peaks(i),img_st,Img);
@@ -263,7 +267,7 @@ for i=1:p0-1
 end
 
 
-if plot_hist==1
+if PLOT_HISTOGRAM_FLAG==1
     im=[img0_pos img1_pos img2_pos img3_pos img4_pos];
 end
 
@@ -680,7 +684,7 @@ for i=1:analysis_value-1
     C1=[diff_p1_foot_pos(i,100:300)' diff_p1_foot_vel(i,100:300)' diff_p1_foot_acc(i,100:300)'];
     d1=diff_p1_plat_torqueimp(i,100:300)';
     A1=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-    B1=[0 ;0 ;1000;1000;-1*lim;u_lim];
+    B1=[0 ;0 ;1000;1000;-1*INERTIAL_LOWER_LIM;INERTIAL_UPPER_LIMIT];
     if(isnan(d1(1))==0)
         p1imp(i,:)=lsqlin(C1,d1,A1,B1);
         
@@ -696,7 +700,7 @@ p1impm=regress(diff_p1_plat_torqueimpm(100:300)',[diff_p1_foot_posm(100:300)' di
 C=[diff_p1_foot_posm(100:300)' diff_p1_foot_velm(100:300)' diff_p1_foot_accm(100:300)'];
 d=diff_p1_plat_torqueimpm(100:300)';
 A=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-B=[0 ;0 ;1000;1000;-1*lim;u_lim];
+B=[0 ;0 ;1000;1000;-1*INERTIAL_LOWER_LIM;INERTIAL_UPPER_LIMIT];
 p1impm2=lsqlin(C,d,A,B);
 
 
@@ -705,7 +709,7 @@ for i=1:analysis_value-1
     C1=[diff_p2_foot_pos(i,100:300)' diff_p2_foot_vel(i,100:300)' diff_p2_foot_acc(i,100:300)'];
     d1=diff_p2_plat_torqueimp(i,100:300)';
     A1=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-    B1=[0 ;0 ;1000;1000;-1*lim;u_lim];
+    B1=[0 ;0 ;1000;1000;-1*INERTIAL_LOWER_LIM;INERTIAL_UPPER_LIMIT];
     
     if(isnan(d1(1))==0)
         p2imp(i,:)=lsqlin(C1,d1,A1,B1);
@@ -723,7 +727,7 @@ p2impm=regress(diff_p2_plat_torqueimpm(100:300)',[diff_p2_foot_posm(100:300)' di
 C=[diff_p2_foot_posm(100:300)' diff_p2_foot_velm(100:300)' diff_p2_foot_accm(100:300)'];
 d=diff_p2_plat_torqueimpm(100:300)';
 A=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-B=[0 ;0 ;1000;1000;-1*lim;u_lim];
+B=[0 ;0 ;1000;1000;-1*INERTIAL_LOWER_LIM;INERTIAL_UPPER_LIMIT];
 p2impm2=lsqlin(C,d,A,B);
 
 for i=1:analysis_value-1
@@ -731,7 +735,7 @@ for i=1:analysis_value-1
     C1=[diff_p3_foot_pos(i,100:300)' diff_p3_foot_vel(i,100:300)' diff_p3_foot_acc(i,100:300)'];
     d1=diff_p3_plat_torqueimp(i,100:300)';
     A1=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-    B1=[0 ;0 ;1000;1000;-1*lim;u_lim];
+    B1=[0 ;0 ;1000;1000;-1*INERTIAL_LOWER_LIM;INERTIAL_UPPER_LIMIT];
     
     if(isnan(d1(1))==0)
         p3imp(i,:)=lsqlin(C1,d1,A1,B1);
@@ -750,7 +754,7 @@ p3impm=regress(diff_p3_plat_torqueimpm(100:300)',[diff_p3_foot_posm(100:300)' di
 C=[diff_p3_foot_posm(100:300)' diff_p3_foot_velm(100:300)' diff_p3_foot_accm(100:300)'];
 d=diff_p3_plat_torqueimpm(100:300)';
 A=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-B=[0 ;0 ;1000;1000;-1*lim;u_lim];
+B=[0 ;0 ;1000;1000;-1*INERTIAL_LOWER_LIM;INERTIAL_UPPER_LIMIT];
 p3impm2=lsqlin(C,d,A,B);
 
 exc_haptic=[p4];
@@ -782,7 +786,7 @@ for i=1:analysis_value-1
     C1=[diff_p4_foot_pos(i,100:300)' diff_p4_foot_vel(i,100:300)' diff_p4_foot_acc(i,100:300)'];
     d1=diff_p4_plat_torqueimp(i,100:300)';
     A1=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-    B1=[0 ;0 ;1000;1000;-1*lim;u_lim];
+    B1=[0 ;0 ;1000;1000;-1*INERTIAL_LOWER_LIM;INERTIAL_UPPER_LIMIT];
     
     if(isnan(d1(1))==0)
         p4imp(i,:)=lsqlin(C1,d1,A1,B1);
@@ -800,7 +804,7 @@ p4impm=regress(diff_p4_plat_torqueimpm(100:300)',[diff_p4_foot_posm(100:300)' di
 C=[diff_p4_foot_posm(100:300)' diff_p4_foot_velm(100:300)' diff_p4_foot_accm(100:300)'];
 d=diff_p4_plat_torqueimpm(100:300)';
 A=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-B=[0 ;0 ;1000;1000;-1*lim;u_lim];
+B=[0 ;0 ;1000;1000;-1*INERTIAL_LOWER_LIM;INERTIAL_UPPER_LIMIT];
 p4impm2=lsqlin(C,d,A,B);
 
 
@@ -833,6 +837,6 @@ p4impm2=lsqlin(C,d,A,B);
 
 individual_impedance
 best_boot
-if(plot_figs==1)
+if(PLOT_FIGS_FLAG==1)
     fit_figures_bootstrapping;
 end

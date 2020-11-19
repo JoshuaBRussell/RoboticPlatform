@@ -1,4 +1,3 @@
-clear all
 h = fopen('MVC.dat')
 live_data=fread(h);
 Input3= SimulinkRealTime.utils.getFileScopeData(live_data);

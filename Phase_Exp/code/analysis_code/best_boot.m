@@ -1,5 +1,5 @@
 
-ideal=floor(num_pert*0.7);
+ideal=floor(NUM_PERT*0.7);
 
 diff_p1_plat_torqueimpvm=mean(diff_p1_plat_torqueimpv);
 diff_p1_foot_posvm=mean(diff_p1_foot_posv);
@@ -22,7 +22,7 @@ diff_p4_foot_velvm=mean(diff_p4_foot_velv);
 diff_p4_foot_accvm=mean(diff_p4_foot_accv);
 
 
-for i=1:loops
+for i=1:BOOTSTRAPPING_LOOPS
     unique1=0;
     unique2=0;
     unique3=0;
@@ -81,7 +81,7 @@ for i=1:loops
     C=[p_bunch1m(100:300)' v_bunch1m(100:300)' a_bunch1m(100:300)'];
     d=bunch1m(100:300)';
     A=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-    B=[0 ;0 ;1000;1000;-1*lim;u_lim];
+    B=[0 ;0 ;1000;1000;-1*INERTIAL_LOWER_LIM;INERTIAL_UPPER_LIMIT];
     boot_impv1(i,:)=lsqlin(C,d,A,B);
     
     bunch2m=nanmean(bunch2);
@@ -93,7 +93,7 @@ for i=1:loops
     C=[p_bunch2m(100:300)' v_bunch2m(100:300)' a_bunch2m(100:300)'];
     d=bunch2m(100:300)';
     A=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-    B=[0 ;0 ;1000;1000;-1*lim;u_lim];
+    B=[0 ;0 ;1000;1000;-1*INERTIAL_LOWER_LIM;INERTIAL_UPPER_LIMIT];
     boot_impv2(i,:)=lsqlin(C,d,A,B);
     
     bunch3m=nanmean(bunch3);
@@ -105,7 +105,7 @@ for i=1:loops
     C=[p_bunch3m(100:300)' v_bunch3m(100:300)' a_bunch3m(100:300)'];
     d=bunch3m(100:300)';
     A=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-    B=[0 ;0 ;1000;1000;-1*lim;u_lim];
+    B=[0 ;0 ;1000;1000;-1*INERTIAL_LOWER_LIM;INERTIAL_UPPER_LIMIT];
     boot_impv3(i,:)=lsqlin(C,d,A,B);
     
     
@@ -118,7 +118,7 @@ for i=1:loops
     C=[p_bunch4m(100:300)' v_bunch4m(100:300)' a_bunch4m(100:300)'];
     d=bunch4m(100:300)';
     A=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-    B=[0 ;0 ;1000;1000;-1*lim;u_lim];
+    B=[0 ;0 ;1000;1000;-1*INERTIAL_LOWER_LIM;INERTIAL_UPPER_LIMIT];
     boot_impv4(i,:)=lsqlin(C,d,A,B);
    
 end
