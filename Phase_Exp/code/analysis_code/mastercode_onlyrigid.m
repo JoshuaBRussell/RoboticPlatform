@@ -902,5 +902,13 @@ p4impm2=lsqlin(C,d,A,B);
 individual_impedance
 best_boot
 if(PLOT_FIGS_FLAG==1)
-    fit_figures_bootstrapping;
+    %fit_figures_bootstrapping;
+    plot_regression_results(diff_p1_foot_posv, diff_p1_foot_velv, diff_p1_foot_accv, diff_p1_plat_torqueimpv, ...
+        boot_impv(1, 1:3), '31%');
+    plot_regression_results(diff_p2_foot_posv, diff_p2_foot_velv, diff_p2_foot_accv, diff_p2_plat_torqueimpv, ...
+        boot_impv(2, 1:3), '44%');
+    plot_regression_results(diff_p3_foot_posv, diff_p3_foot_velv, diff_p3_foot_accv, diff_p3_plat_torqueimpv, ...
+        boot_impv(3, 1:3), '57%');
+    plot_regression_results(diff_p4_foot_posv, diff_p4_foot_velv, diff_p4_foot_accv, diff_p4_plat_torqueimpv, ...
+        boot_impv(4, 1:3), '18%');
 end
