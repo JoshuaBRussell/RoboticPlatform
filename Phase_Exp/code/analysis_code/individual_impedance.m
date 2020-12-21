@@ -1,4 +1,4 @@
-ideal=floor(num_pert*0.7);
+ideal=floor(NUM_PERT*0.7);
 
 for i=1:analysis_value-1
 if(isnan(p1impg(i))==1)

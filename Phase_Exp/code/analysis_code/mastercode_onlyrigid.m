@@ -1,31 +1,99 @@
-%% Setup, Filtering and Data Visualization settings
 close all
 clear all
+
+%% ----Constants---- %%
+%Insert subject initial and name.
+%Make sure it matches the format for naming
+SUB_INITIAL='M';
+SUB_NAME='M';
+
+NUM_PERT=40;                  %Number of perturbation you actually ran
+
+INERTIAL_LOWER_LIM  = 0.01;   %Inertial Parametrs Lower/Upper Limits
+INERTIAL_UPPER_LIMIT = 0.2;
+
+% Flag == 1 -> Shows Figures
+PLOT_FIGS_FLAG=1;
+% plot_figs_constrained=0;
+PLOT_HISTOGRAM_FLAG=1;        %Ankle position histogram
+PLOT_TORQUE_FLAG=1;           %Torque plot comparison figure
+
+SHIFT_VAL=0;
+
+BOOTSTRAPPING_LOOPS=100;      %Number of bootstrapping loops
+
+TRIAL_EXCLUDE_VEC=[];         %Trial number to be excluded from analysis
+
+VOLTS_TO_NEWTONS_SCALAR = 53.4;
+
+%DATA File Input Channels
+TA_EMG_CHANN =  1;
+SOL_EMG_CHANN = 2;
+PL_EMG_CHANN =  3;
+GCA_EMG_CHANN = 4;
+
+FORCE_SENSOR_1_CHANN = 9;
+FORCE_SENSOR_2_CHANN = 10;
+FORCE_SENSOR_3_CHANN = 11;
+FORCE_SENSOR_4_CHANN = 12;
+FORCE_SENSOR_5_CHANN = 20;
+FORCE_SENSOR_6_CHANN = 21;
+
+ANN_RIGID_PHASE_CHANN = 15;
+ANN_COMP_PHASE_CHANN = 16;
+
+WEIGHT_CHANN = 18;
+COP_CHANN =    19;
+
+IMG_FLAG_CHANN = 6;
+PERT_START_FLAG_CHANN = 22;
+DP_TORQUE_CHANN = 7;
+IE_TORQUE_CHANN = 8;
+
+FOOT_POS_CHANN = 13;
+PLAT_POS_CHANN = 14;
+
+%Window/Timing Constants
+PRE_PURT_TRIG_SAMPLES = 400;
+POST_PURT_TRIG_SAMPLES = 2000;
+
+FORCE_BASELINE_SHIFT = 360;
+WEIGHT_BASELINE_SHIFT = 360;
+PERT_TORQUE_SHIFT = 50;
+
+GONIOMETER_SAMPLE_DELAY = 221; 
+
+PRE_PERT_SAMPLES = 100;
+POST_PERT_SAMPLES = 300;
+
+REGRESSION_START_INDEX = 100;
+REGRESSION_END_INDEX = 300;
+
+PERT_POINT1_PERC = 0.18;
+PERT_POINT2_PERC = 0.31;
+PERT_POINT3_PERC = 0.44;
+PERT_POINT4_PERC = 0.57;
+
+FORCE_PLATE_DIST_X = 0.0;
+FORCE_PLATE_DIST_Y = 0.0;
+FORCE_PLATE_DIST_A = 0.0;
+FORCE_PLATE_DIST_B = 0.0;
+
+SAMPLE_TIME = 1/2000; 
+
+
+PLAT_DP_INERTIA = 0.1945;
+PLAT_IE_INERTIA = 0.0;
+
+
+IMG_POS_CUTOFF_LIMIT = 500;
+
+
+
+%% Setup, Filtering and Data Visualization settings
+
 % Getting the MVC values
 mvc_evaluation;
-% Insert subject initial and name.
-%Make sure it matches the format for naming
-sub_initial='N';
-sub_name='NAME';
-%Add number of perturbation you actually ran
-num_pert=40;
-% insert lower limit of inertia of foot in the fit
-% u_lim is the upper limit of the inertia and lim
-% is the lower limit
-lim=0.01;
-u_lim=0.2;
-% change these flags to 1 for figures (normal fit and constrained fit)
-plot_figs=1;
-% plot_figs_constrained=0;
-% Change to 1 to get ankle position histogram
-plot_hist=1;
-%  Change to get torque plot comparison figure
-plot_torque=1;
-shift=0;
-%add the number of loops you want to run bootstrapping here
-loops=100;
-% Add the trials you want to exclude in here
-exclude=[];%exclude=[1,2];
 d3 = designfilt('lowpassiir','FilterOrder',4,'HalfPowerFrequency',...
     5,'DesignMethod','butter','Samplerate',2000);
 d1 = designfilt('lowpassiir','FilterOrder',4,'HalfPowerFrequency',15,...
@@ -50,56 +118,56 @@ p7=1;
 % trials you actually run
 for trials=1:10
     
-    if(ismember(trials,exclude)==0)
+    if(ismember(trials,TRIAL_EXCLUDE_VEC)==0)
         if(trials<10)
-            h = fopen(strcat(sub_initial,'W0',num2str(trials),'.dat'));
+            h = fopen(strcat(SUB_INITIAL,'W0',num2str(trials),'.dat'));
         else
-            h = fopen(strcat(sub_initial,'W',num2str(trials),'.dat'));
+            h = fopen(strcat(SUB_INITIAL,'W',num2str(trials),'.dat'));
         end
         
         live_data=fread(h);
         Input1= SimulinkRealTime.utils.getFileScopeData(live_data);
         siz=size(Input1.data);
-        Img_flag=Input1.data(:,6);
+        Img_flag=Input1.data(:,IMG_FLAG_CHANN);
         [x,img_st]=findpeaks(diff(Img_flag));
         img_st=round(img_st(1)/20);
         if(trials<10)
-            Img=csvread(strcat(sub_name,'_00',num2str(trials),'.csv'));
+            Img=csvread(strcat(SUB_NAME,'_00',num2str(trials),'.csv'));
         else
-            Img=csvread(strcat(sub_name,'_0',num2str(trials),'.csv'));
+            Img=csvread(strcat(SUB_NAME,'_0',num2str(trials),'.csv'));
         end
         % obtaining data from channels
-        pert_torque=filtfilt(d1,Input1.data(:,7));
-        f1=Input1.data(:,9)*53.4;
+        pert_torque=filtfilt(d1,Input1.data(:,DP_TORQUE_CHANN));
+        f1=Input1.data(:,FORCE_SENSOR_1_CHANN)*VOLTS_TO_NEWTONS_SCALAR;
         f1=filtfilt(d1,f1);
-        f2=Input1.data(:,10)*53.4;
+        f2=Input1.data(:,FORCE_SENSOR_2_CHANN)*VOLTS_TO_NEWTONS_SCALAR;
         f2=filtfilt(d1,f2);
-        f3=Input1.data(:,11)*53.4;
+        f3=Input1.data(:,FORCE_SENSOR_3_CHANN)*VOLTS_TO_NEWTONS_SCALAR;
         f3=filtfilt(d1,f3);
-        f4=Input1.data(:,12)*53.4;
+        f4=Input1.data(:,FORCE_SENSOR_4_CHANN)*VOLTS_TO_NEWTONS_SCALAR;
         f4=filtfilt(d1,f4);
-        f5=Input1.data(:,20)*53.4/2;
+        f5=Input1.data(:,FORCE_SENSOR_5_CHANN)*VOLTS_TO_NEWTONS_SCALAR/2;
         f5=filtfilt(d1,f5);
-        f6=Input1.data(:,21)*53.4/2;
+        f6=Input1.data(:,FORCE_SENSOR_6_CHANN)*VOLTS_TO_NEWTONS_SCALAR/2;
         f6=filtfilt(d1,f6);
-        ta=Input1.data(:,1);
+        ta=Input1.data(:,TA_EMG_CHANN);
         ta=abs(ta-off_TA)*100/mvc_ta;
-        sol=Input1.data(:,2);
+        sol=Input1.data(:,SOL_EMG_CHANN);
         sol=abs(sol-off_SOL)*100/mvc_sol;
-        pl=Input1.data(:,3);
+        pl=Input1.data(:,PL_EMG_CHANN);
         pl=abs(pl-off_PL)*100/mvc_pl;
-        gca=Input1.data(:,4);
+        gca=Input1.data(:,GCA_EMG_CHANN);
         gca=abs(gca-off_GCA)*100/mvc_gca;
-        w1=filtfilt(d1,Input1.data(:,18));
-        cop=filtfilt(d1,Input1.data(:,19));
-        flag=Input1.data(:,17);
-        rigid_phase_tot=Input1.data(:,15);
-        haptic_phase_tot=Input1.data(:,16);
-        perturb_start=Input1.data(:,22);
-        foot_pos_data=filtfilt(d1,Input1.data(:,13));
+        w1=filtfilt(d1,Input1.data(:,WEIGHT_CHANN));
+        cop=filtfilt(d1,Input1.data(:,COP_CHANN));
+        flag=Input1.data(:, 17);
+        rigid_phase_tot=Input1.data(:,ANN_RIGID_PHASE_CHANN);
+
+        perturb_start=Input1.data(:,PERT_START_FLAG_CHANN);
+        foot_pos_data=filtfilt(d1,Input1.data(:,FOOT_POS_CHANN));
         foot_pos_data=((foot_pos_data-mean(foot_pos_data))...
             *DP_foot_gonio*pi/180);
-        plat_pos_data=filtfilt(d1,Input1.data(:,14));
+        plat_pos_data=filtfilt(d1,Input1.data(:,PLAT_POS_CHANN));
         plat_pos_data=((plat_pos_data-mean(plat_pos_data))...
             *DP_plat_gonio*pi/180);
         % 17 records an impulse everytime a
@@ -109,86 +177,86 @@ for trials=1:10
      % Each test value corresponds to a different pert       
             time=[-200:0.5:1000];
             if test(i)==1
-                force1_1(p1,:)=f1(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                force1_2(p1,:)=f2(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                force1_3(p1,:)=f3(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                force1_4(p1,:)=f4(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                force1_5(p1,:)=f5(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                force1_6(p1,:)=f6(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                weight1(p1,:)=w1(peaks(i)-400:peaks(i)+2000)-w1(peaks(i)-360);%+w2(peaks(i)-400:peaks(i)+2000)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+2000)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+2000)-w4(peaks(i)-20);
-                p1_plat_torque(p1,:)=pert_torque(peaks(i)-400:peaks(i)+2000)-pert_torque(peaks(i)+50);
+                force1_1(p1,:)=f1(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                force1_2(p1,:)=f2(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                force1_3(p1,:)=f3(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                force1_4(p1,:)=f4(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                force1_5(p1,:)=f5(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                force1_6(p1,:)=f6(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                weight1(p1,:)=w1(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-w1(peaks(i)-WEIGHT_BASELINE_SHIFT);%+w2(peaks(i)-400:peaks(i)+2000)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+2000)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+2000)-w4(peaks(i)-20);
+                p1_plat_torque(p1,:)=pert_torque(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-pert_torque(peaks(i)+50);
                 p1_plat_pos(p1,:)=plat_pos_data(peaks(i)-179:peaks(i)+2221);
-                p1_foot_pos(p1,:)=foot_pos_data(peaks(i)-179+shift:peaks(i)+2221+shift);
-                p1_phase(p1,:)=rigid_phase_tot(peaks(i)-400:peaks(i)+2000);
-                p1_pert(p1,:)=perturb_start(peaks(i)-400:peaks(i)+2000);
+                p1_foot_pos(p1,:)=foot_pos_data(peaks(i)-179+SHIFT_VAL:peaks(i)+2221+SHIFT_VAL);
+                p1_phase(p1,:)=rigid_phase_tot(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES);
+                p1_pert(p1,:)=perturb_start(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES);
                 img1_pos(p1)=getmin(peaks(i),img_st,Img);
-                cop1(p1,:)=cop(peaks(i)-400:peaks(i)+2000);
+                cop1(p1,:)=cop(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES);
                 [a,b]=findpeaks(diff(p1_pert(p1,:)));
                 p1_peakst(p1)=b;
                 p1=p1+1;
                 
             end
             if test(i)==2
-                force2_1(p2,:)=f1(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                force2_2(p2,:)=f2(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                force2_3(p2,:)=f3(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                force2_4(p2,:)=f4(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                force2_5(p2,:)=f5(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                force2_6(p2,:)=f6(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
+                force2_1(p2,:)=f1(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                force2_2(p2,:)=f2(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                force2_3(p2,:)=f3(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                force2_4(p2,:)=f4(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                force2_5(p2,:)=f5(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                force2_6(p2,:)=f6(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
                 
-                weight2(p2,:)=w1(peaks(i)-400:peaks(i)+2000)-w1(peaks(i)-360);%+w2(peaks(i)-400:peaks(i)+2000)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+2000)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+2000)-w4(peaks(i)-20);
-                p2_plat_torque(p2,:)=pert_torque(peaks(i)-400:peaks(i)+2000)-pert_torque(peaks(i)+50);
+                weight2(p2,:)=w1(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-w1(peaks(i)-WEIGHT_BASELINE_SHIFT);%+w2(peaks(i)-400:peaks(i)+2000)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+2000)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+2000)-w4(peaks(i)-20);
+                p2_plat_torque(p2,:)=pert_torque(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-pert_torque(peaks(i)+50);
                 p2_plat_pos(p2,:)=plat_pos_data(peaks(i)-179:peaks(i)+2221);
-                p2_foot_pos(p2,:)=foot_pos_data(peaks(i)-179+shift:peaks(i)+2221+shift);
-                p2_phase(p2,:)=rigid_phase_tot(peaks(i)-400:peaks(i)+2000);
-                p2_pert(p2,:)=perturb_start(peaks(i)-400:peaks(i)+2000);
+                p2_foot_pos(p2,:)=foot_pos_data(peaks(i)-179+SHIFT_VAL:peaks(i)+2221+SHIFT_VAL);
+                p2_phase(p2,:)=rigid_phase_tot(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES);
+                p2_pert(p2,:)=perturb_start(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES);
                 img2_pos(p2)=getmin(peaks(i),img_st,Img);
-                cop2(p2,:)=cop(peaks(i)-400:peaks(i)+2000);
+                cop2(p2,:)=cop(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES);
                 [a,b]=findpeaks(diff(p2_pert(p2,:)));
 
                 p2_peakst(p2)=b;
                 p2=p2+1;
             end
             if test(i)==3
-                force3_1(p3,:)=f1(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                force3_2(p3,:)=f2(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                force3_3(p3,:)=f3(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                force3_4(p3,:)=f4(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                force3_5(p3,:)=f5(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                force3_6(p3,:)=f6(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
+                force3_1(p3,:)=f1(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                force3_2(p3,:)=f2(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                force3_3(p3,:)=f3(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                force3_4(p3,:)=f4(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                force3_5(p3,:)=f5(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                force3_6(p3,:)=f6(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
                 
-                weight3(p3,:)=w1(peaks(i)-400:peaks(i)+2000)-w1(peaks(i)-360);%+w2(peaks(i)-400:peaks(i)+2000)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+2000)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+2000)-w4(peaks(i)-20);
-                p3_plat_torque(p3,:)=1*(pert_torque(peaks(i)-400:peaks(i)+2000)-pert_torque(peaks(i)+50));
+                weight3(p3,:)=w1(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-w1(peaks(i)-WEIGHT_BASELINE_SHIFT);%+w2(peaks(i)-400:peaks(i)+2000)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+2000)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+2000)-w4(peaks(i)-20);
+                p3_plat_torque(p3,:)=1*(pert_torque(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-pert_torque(peaks(i)+50));
                 p3_plat_pos(p3,:)=plat_pos_data(peaks(i)-179:peaks(i)+2221);
-                p3_foot_pos(p3,:)=foot_pos_data(peaks(i)-179+shift:peaks(i)+2221+shift);
-                p3_phase(p3,:)=rigid_phase_tot(peaks(i)-400:peaks(i)+2000);
-                p3_pert(p3,:)=perturb_start(peaks(i)-400:peaks(i)+2000);
+                p3_foot_pos(p3,:)=foot_pos_data(peaks(i)-179+SHIFT_VAL:peaks(i)+2221+SHIFT_VAL);
+                p3_phase(p3,:)=rigid_phase_tot(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES);
+                p3_pert(p3,:)=perturb_start(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES);
                 img3_pos(p3)=getmin(peaks(i),img_st,Img);
-                cop3(p3,:)=cop(peaks(i)-400:peaks(i)+2000);
+                cop3(p3,:)=cop(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES);
                 [a,b]=findpeaks(diff(p3_pert(p3,:)));
                 p3_peakst(p3)=b;
                 p3=p3+1;
             end
             if test(i)==4
-                force0_1(p0,:)=f1(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                force0_2(p0,:)=f2(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                force0_3(p0,:)=f3(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                force0_4(p0,:)=f4(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                force0_5(p0,:)=f5(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                force0_6(p0,:)=f6(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
+                force0_1(p0,:)=f1(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                force0_2(p0,:)=f2(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                force0_3(p0,:)=f3(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                force0_4(p0,:)=f4(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                force0_5(p0,:)=f5(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                force0_6(p0,:)=f6(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
                 
-                ta_emg(p0,:)=ta(peaks(i)-400:peaks(i)+2000);
-                sol_emg(p0,:)=sol(peaks(i)-400:peaks(i)+2000);
-                pl_emg(p0,:)=pl(peaks(i)-400:peaks(i)+2000);
-                gca_emg(p0,:)=gca(peaks(i)-400:peaks(i)+2000);
-                weight4(p0,:)=w1(peaks(i)-400:peaks(i)+2000)-w1(peaks(i)-360);%+w2(peaks(i)-400:peaks(i)+2000)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+2000)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+2000)-w4(peaks(i)-20);
-                p0_plat_torque(p0,:)=pert_torque(peaks(i)-400:peaks(i)+2000)-pert_torque(peaks(i)+50);
+                ta_emg(p0,:)=ta(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES);
+                sol_emg(p0,:)=sol(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES);
+                pl_emg(p0,:)=pl(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES);
+                gca_emg(p0,:)=gca(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES);
+                weight4(p0,:)=w1(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-w1(peaks(i)-WEIGHT_BASELINE_SHIFT);%+w2(peaks(i)-400:peaks(i)+2000)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+2000)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+2000)-w4(peaks(i)-20);
+                p0_plat_torque(p0,:)=pert_torque(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-pert_torque(peaks(i)+50);
                 p0_plat_pos(p0,:)=plat_pos_data(peaks(i)-179:peaks(i)+2221);
-                p0_foot_pos(p0,:)=foot_pos_data(peaks(i)-179+shift:peaks(i)+2221+shift);
-                p0_phase(p0,:)=rigid_phase_tot(peaks(i)-400:peaks(i)+2000);
-                p0_pert(p0,:)=perturb_start(peaks(i)-400:peaks(i)+2000);
+                p0_foot_pos(p0,:)=foot_pos_data(peaks(i)-179+SHIFT_VAL:peaks(i)+2221+SHIFT_VAL);
+                p0_phase(p0,:)=rigid_phase_tot(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES);
+                p0_pert(p0,:)=perturb_start(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES);
                 img0_pos(p0)=getmin(peaks(i),img_st,Img);
-                cop4(p0,:)=cop(peaks(i)-400:peaks(i)+2000);
+                cop4(p0,:)=cop(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES);
                 [a,b]=findpeaks(diff(p0_pert(p0,:)));
 
                 p0_peakst(p0)=b;
@@ -199,18 +267,18 @@ for trials=1:10
                 p0=p0+1;
             end
             if test(i)==5
-                force4_1(p4,:)=f1(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                force4_2(p4,:)=f2(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                force4_3(p4,:)=f3(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                force4_4(p4,:)=f4(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                force4_5(p4,:)=f5(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                force4_6(p4,:)=f6(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
-                weight3(p4,:)=w1(peaks(i)-400:peaks(i)+2000)-w1(peaks(i)-360);%+w2(peaks(i)-400:peaks(i)+2000)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+2000)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+2000)-w4(peaks(i)-20);
-                p4_plat_torque(p4,:)=pert_torque(peaks(i)-400:peaks(i)+2000)-pert_torque(peaks(i)+50);
+                force4_1(p4,:)=f1(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                force4_2(p4,:)=f2(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                force4_3(p4,:)=f3(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                force4_4(p4,:)=f4(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                force4_5(p4,:)=f5(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                force4_6(p4,:)=f6(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-f1(peaks(i)-FORCE_BASELINE_SHIFT);
+                weight3(p4,:)=w1(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-w1(peaks(i)-WEIGHT_BASELINE_SHIFT);%+w2(peaks(i)-400:peaks(i)+2000)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+2000)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+2000)-w4(peaks(i)-20);
+                p4_plat_torque(p4,:)=pert_torque(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES)-pert_torque(peaks(i)+50);
                 p4_plat_pos(p4,:)=plat_pos_data(peaks(i)-179:peaks(i)+2221);
-                p4_foot_pos(p4,:)=foot_pos_data(peaks(i)-179+shift:peaks(i)+2221+shift);
-                p4_phase(p4,:)=haptic_phase_tot(peaks(i)-400:peaks(i)+2000);
-                p4_pert(p4,:)=perturb_start(peaks(i)-400:peaks(i)+2000);
+                p4_foot_pos(p4,:)=foot_pos_data(peaks(i)-179+SHIFT_VAL:peaks(i)+2221+SHIFT_VAL);
+                %p4_phase(p4,:)=haptic_phase_tot(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES);
+                p4_pert(p4,:)=perturb_start(peaks(i)-PRE_PURT_TRIG_SAMPLES:peaks(i)+POST_PURT_TRIG_SAMPLES);
                 img4_pos(p4)=getmin(peaks(i),img_st,Img);
                 [a,b]=findpeaks(diff(p4_pert(p4,:)));
 
@@ -242,28 +310,28 @@ p4_er=0;
 
 %% removing outliers using motion capture data: Its redundant but I left it as it wont really change anything
 for i=1:p1-1
-    if(img1_pos(i)>500)
+    if(img1_pos(i)>IMG_POS_CUTOFF_LIMIT)
         img1_pos(i)=NaN;
     end
 end
 for i=1:p2-1
-    if(img2_pos(i)>500)
+    if(img2_pos(i)>IMG_POS_CUTOFF_LIMIT)
         img2_pos(i)=NaN;
     end
 end
 for i=1:p3-1
-    if(img3_pos(i)>500)
+    if(img3_pos(i)>IMG_POS_CUTOFF_LIMIT)
         img3_pos(i)=NaN;
     end
 end
 for i=1:p0-1
-    if(img0_pos(i)>500)
+    if(img0_pos(i)>IMG_POS_CUTOFF_LIMIT)
         img0_pos(i)=NaN;
     end
 end
 
 
-if plot_hist==1
+if PLOT_HISTOGRAM_FLAG==1
     im=[img0_pos img1_pos img2_pos img3_pos img4_pos];
 end
 
@@ -357,8 +425,8 @@ pl_emgm=trimmean(pl_emg,30);
 gca_emgm=trimmean(gca_emg,30);
 
 %% Rigid and Haptic no perturbation torque;
-% the torque is collected from 100 samples prior
-% to 300 samples post perturbation (heel strike)
+% the torque is collected from PRE_PERT_SAMPLES samples prior
+% to POST_PERT_SAMPLES samples post perturbation (heel strike)
 %It is then subtracted from observed torque to get
 %differential torque.
 %Excluded uses min number of perturbations so that
@@ -366,37 +434,37 @@ gca_emgm=trimmean(gca_emg,30);
 excluded=[p1,p2,p3,p4];
 analysis_value=min(excluded);
 for i=1:p0-1
-    point_i=floor((p0_peakend(i)-p0_peakst(i))*0.18)+p0_peakst(i)
-    p0_plat_torque15(i,:)=p0_act_torque(i,point_i-100:point_i+300);
-    p0_cop_torque15(i,:)=p0_cop_torque(i,point_i-100:point_i+300);
-    p0_foot_pos15(i,:)=p0_foot_pos(i,point_i-100:point_i+300);
+    point_i=floor((p0_peakend(i)-p0_peakst(i))*PERT_POINT1_PERC)+p0_peakst(i)
+    p0_plat_torque15(i,:)=p0_act_torque(i,point_i-PRE_PERT_SAMPLES:point_i+POST_PERT_SAMPLES);
+    p0_cop_torque15(i,:)=p0_cop_torque(i,point_i-PRE_PERT_SAMPLES:point_i+POST_PERT_SAMPLES);
+    p0_foot_pos15(i,:)=p0_foot_pos(i,point_i-PRE_PERT_SAMPLES:point_i+POST_PERT_SAMPLES);
     
-    point_j=floor((p0_peakend(i)-p0_peakst(i))*0.31)+p0_peakst(i)
-    p0_plat_torque30(i,:)=p0_act_torque(i,point_j-100:point_j+300);
-    p0_cop_torque30(i,:)=p0_cop_torque(i,point_j-100:point_j+300);
-    p0_foot_pos30(i,:)=p0_foot_pos(i,point_j-100:point_j+300);
+    point_j=floor((p0_peakend(i)-p0_peakst(i))*PERT_POINT2_PERC)+p0_peakst(i)
+    p0_plat_torque30(i,:)=p0_act_torque(i,point_j-PRE_PERT_SAMPLES:point_j+POST_PERT_SAMPLES);
+    p0_cop_torque30(i,:)=p0_cop_torque(i,point_j-PRE_PERT_SAMPLES:point_j+POST_PERT_SAMPLES);
+    p0_foot_pos30(i,:)=p0_foot_pos(i,point_j-PRE_PERT_SAMPLES:point_j+POST_PERT_SAMPLES);
     
-    point_k=floor((p0_peakend(i)-p0_peakst(i))*0.44)+p0_peakst(i)
-    p0_plat_torque45(i,:)=p0_act_torque(i,point_k-100:point_k+300);
-    p0_cop_torque45(i,:)=p0_cop_torque(i,point_k-100:point_k+300);
-    p0_foot_pos45(i,:)=p0_foot_pos(i,point_k-100:point_k+300);
+    point_k=floor((p0_peakend(i)-p0_peakst(i))*PERT_POINT3_PERC)+p0_peakst(i)
+    p0_plat_torque45(i,:)=p0_act_torque(i,point_k-PRE_PERT_SAMPLES:point_k+POST_PERT_SAMPLES);
+    p0_cop_torque45(i,:)=p0_cop_torque(i,point_k-PRE_PERT_SAMPLES:point_k+POST_PERT_SAMPLES);
+    p0_foot_pos45(i,:)=p0_foot_pos(i,point_k-PRE_PERT_SAMPLES:point_k+POST_PERT_SAMPLES);
     
-    point_k=floor((p0_peakend(i)-p0_peakst(i))*0.57)+p0_peakst(i)
-    p0_plat_torque60(i,:)=p0_act_torque(i,point_k-100:point_k+300);
-    p0_cop_torque60(i,:)=p0_cop_torque(i,point_k-100:point_k+300);
-    p0_foot_pos60(i,:)=p0_foot_pos(i,point_k-100:point_k+300);
+    point_k=floor((p0_peakend(i)-p0_peakst(i))*PERT_POINT4_PERC)+p0_peakst(i)
+    p0_plat_torque60(i,:)=p0_act_torque(i,point_k-PRE_PERT_SAMPLES:point_k+POST_PERT_SAMPLES);
+    p0_cop_torque60(i,:)=p0_cop_torque(i,point_k-PRE_PERT_SAMPLES:point_k+POST_PERT_SAMPLES);
+    p0_foot_pos60(i,:)=p0_foot_pos(i,point_k-PRE_PERT_SAMPLES:point_k+POST_PERT_SAMPLES);
 end
 
 % Weight during perturbation
 for i=1:p0-1
-    point_i=floor((p0_peakend(i)-p0_peakst(i))*0.18)+p0_peakst(i)
-    weightr15(i,:)=weight4(i,point_i-100:point_i+300);
-    point_j=floor((p0_peakend(i)-p0_peakst(i))*0.31)+p0_peakst(i)
-    weightr30(i,:)=weight4(i,point_j-100:point_j+300);
-    point_k=floor((p0_peakend(i)-p0_peakst(i))*0.44)+p0_peakst(i)
-    weightr45(i,:)=weight4(i,point_k-100:point_k+300);
-    point_k=floor((p0_peakend(i)-p0_peakst(i))*0.57)+p0_peakst(i)
-    weightr60(i,:)=weight4(i,point_k-100:point_k+300);
+    point_i=floor((p0_peakend(i)-p0_peakst(i))*PERT_POINT1_PERC)+p0_peakst(i)
+    weightr15(i,:)=weight4(i,point_i-PRE_PERT_SAMPLES:point_i+POST_PERT_SAMPLES);
+    point_j=floor((p0_peakend(i)-p0_peakst(i))*PERT_POINT2_PERC)+p0_peakst(i)
+    weightr30(i,:)=weight4(i,point_j-PRE_PERT_SAMPLES:point_j+POST_PERT_SAMPLES);
+    point_k=floor((p0_peakend(i)-p0_peakst(i))*PERT_POINT3_PERC)+p0_peakst(i)
+    weightr45(i,:)=weight4(i,point_k-PRE_PERT_SAMPLES:point_k+POST_PERT_SAMPLES);
+    point_k=floor((p0_peakend(i)-p0_peakst(i))*PERT_POINT4_PERC)+p0_peakst(i)
+    weightr60(i,:)=weight4(i,point_k-PRE_PERT_SAMPLES:point_k+POST_PERT_SAMPLES);
     
 end
 
@@ -420,25 +488,25 @@ end
 
 
 for i=1:p0-1
-    point_i=floor((p0_peakend(i)-p0_peakst(i))*0.18)+p0_peakst(i)
+    point_i=floor((p0_peakend(i)-p0_peakst(i))*PERT_POINT1_PERC)+p0_peakst(i)
     ta15(i)=mean(ta_emg(i,point_i-2:point_i+2));
     pl15(i)=mean(pl_emg(i,point_i-25:point_i+25));
     sol15(i)=mean(sol_emg(i,point_i-25:point_i+25));
     gca15(i)=mean(gca_emg(i,point_i-25:point_i+25));
    
-    point_j=floor((p0_peakend(i)-p0_peakst(i))*0.31)+p0_peakst(i)
+    point_j=floor((p0_peakend(i)-p0_peakst(i))*PERT_POINT2_PERC)+p0_peakst(i)
     ta30(i)=mean(ta_emg(i,point_j-25:point_j+25));
     pl30(i)=mean(pl_emg(i,point_j-25:point_j+25));
     sol30(i)=mean(sol_emg(i,point_j-25:point_j+25));
     gca30(i)=mean(gca_emg(i,point_j-25:point_j+25));
     
-    point_k=floor((p0_peakend(i)-p0_peakst(i))*0.44)+p0_peakst(i)
+    point_k=floor((p0_peakend(i)-p0_peakst(i))*PERT_POINT3_PERC)+p0_peakst(i)
     ta45(i)=mean(ta_emg(i,point_k-25:point_k+25));
     pl45(i)=mean(pl_emg(i,point_k-25:point_k+25));
     sol45(i)=mean(sol_emg(i,point_k-25:point_k+25));
     gca45(i)=mean(gca_emg(i,point_k-25:point_k+25));
     
-    point_k=floor((p0_peakend(i)-p0_peakst(i))*0.57)+p0_peakst(i)
+    point_k=floor((p0_peakend(i)-p0_peakst(i))*PERT_POINT4_PERC)+p0_peakst(i)
     ta60(i)=mean(ta_emg(i,point_k-25:point_k+25));
     pl60(i)=mean(pl_emg(i,point_k-25:point_k+25));
     sol60(i)=mean(sol_emg(i,point_k-25:point_k+25));
@@ -473,8 +541,8 @@ sol60m=mean(sol60);
 gca60m=mean(gca60);
 emg_final=[ta15m,pl15m,sol15m,gca15m;ta30m,pl30m,sol30m,gca30m;ta45m,pl45m,sol45m,gca45m;ta60m,pl60m,sol60m,gca60m;];
 %% Obtaining differential data for impedance analysis
-% data is broken into chunks of 400 points:100
-% before pert and 300 after pert. 
+% data is broken into chunks of 400 points:PRE_PERT_SAMPLES
+% before pert and POST_PERT_SAMPLES after pert. 
 
 for i=1:analysis_value-1
     p1_foot_pos(i,:)=p1_foot_pos(i,:)-p0_foot_posm;
@@ -482,24 +550,24 @@ for i=1:analysis_value-1
     p3_foot_pos(i,:)=p3_foot_pos(i,:)-p0_foot_posm;
     p4_foot_pos(i,:)=p4_foot_pos(i,:)-p0_foot_posm;
     
-    diff_p1_plat_pos(i,:)=p1_plat_pos(i,p1_peakst(i)-100:p1_peakst(i)+300);
-    diff_p2_plat_pos(i,:)=p2_plat_pos(i,p2_peakst(i)-100:p2_peakst(i)+300);
-    diff_p3_plat_pos(i,:)=p3_plat_pos(i,p3_peakst(i)-100:p3_peakst(i)+300);
-    diff_p1_plat_torque(i,:)=p1_act_torque(i,p1_peakst(i)-100:p1_peakst(i)+300);
-    diff_p2_plat_torque(i,:)=p2_act_torque(i,p2_peakst(i)-100:p2_peakst(i)+300);
-    diff_p3_plat_torque(i,:)=p3_act_torque(i,p3_peakst(i)-100:p3_peakst(i)+300);
+    diff_p1_plat_pos(i,:)=p1_plat_pos(i,p1_peakst(i)-PRE_PERT_SAMPLES:p1_peakst(i)+POST_PERT_SAMPLES);
+    diff_p2_plat_pos(i,:)=p2_plat_pos(i,p2_peakst(i)-PRE_PERT_SAMPLES:p2_peakst(i)+POST_PERT_SAMPLES);
+    diff_p3_plat_pos(i,:)=p3_plat_pos(i,p3_peakst(i)-PRE_PERT_SAMPLES:p3_peakst(i)+POST_PERT_SAMPLES);
+    diff_p1_plat_torque(i,:)=p1_act_torque(i,p1_peakst(i)-PRE_PERT_SAMPLES:p1_peakst(i)+POST_PERT_SAMPLES);
+    diff_p2_plat_torque(i,:)=p2_act_torque(i,p2_peakst(i)-PRE_PERT_SAMPLES:p2_peakst(i)+POST_PERT_SAMPLES);
+    diff_p3_plat_torque(i,:)=p3_act_torque(i,p3_peakst(i)-PRE_PERT_SAMPLES:p3_peakst(i)+POST_PERT_SAMPLES);
     
     diff_p1_plat_torque(i,:)=diff_p1_plat_torque(i,:)-p0_plat_torque30m;
     diff_p2_plat_torque(i,:)=diff_p2_plat_torque(i,:)-p0_plat_torque45m;
     diff_p3_plat_torque(i,:)=diff_p3_plat_torque(i,:)-p0_plat_torque60m;
     
-%     diff_p1_foot_pos(i,:)=p1_foot_pos(i,p1_peakst(i)-100:p1_peakst(i)+300)-p0_foot_pos30m;
-%     diff_p2_foot_pos(i,:)=p2_foot_pos(i,p2_peakst(i)-100:p2_peakst(i)+300)-p0_foot_pos45m;
-%     diff_p3_foot_pos(i,:)=p3_foot_pos(i,p3_peakst(i)-100:p3_peakst(i)+300)-p0_foot_pos60m;
+%     diff_p1_foot_pos(i,:)=p1_foot_pos(i,p1_peakst(i)-PRE_PERT_SAMPLES:p1_peakst(i)+300)-p0_foot_pos30m;
+%     diff_p2_foot_pos(i,:)=p2_foot_pos(i,p2_peakst(i)-PRE_PERT_SAMPLES:p2_peakst(i)+300)-p0_foot_pos45m;
+%     diff_p3_foot_pos(i,:)=p3_foot_pos(i,p3_peakst(i)-PRE_PERT_SAMPLES:p3_peakst(i)+300)-p0_foot_pos60m;
 
-    diff_p1_foot_pos(i,:)=p1_foot_pos(i,p1_peakst(i)-100:p1_peakst(i)+300);
-    diff_p2_foot_pos(i,:)=p2_foot_pos(i,p2_peakst(i)-100:p2_peakst(i)+300);
-    diff_p3_foot_pos(i,:)=p3_foot_pos(i,p3_peakst(i)-100:p3_peakst(i)+300);
+    diff_p1_foot_pos(i,:)=p1_foot_pos(i,p1_peakst(i)-PRE_PERT_SAMPLES:p1_peakst(i)+POST_PERT_SAMPLES);
+    diff_p2_foot_pos(i,:)=p2_foot_pos(i,p2_peakst(i)-PRE_PERT_SAMPLES:p2_peakst(i)+POST_PERT_SAMPLES);
+    diff_p3_foot_pos(i,:)=p3_foot_pos(i,p3_peakst(i)-PRE_PERT_SAMPLES:p3_peakst(i)+POST_PERT_SAMPLES);
     
 %      diff_p1_foot_pos(i,:)=diff_p1_foot_pos(i,:)-p0_foot_pos30m;
 %     diff_p2_foot_pos(i,:)=diff_p2_foot_pos(i,:)-p0_foot_pos45m;
@@ -565,13 +633,13 @@ for i=1:analysis_value-1
     end  
    
     
-    diff_p4_plat_pos(i,:)=p4_plat_pos(i,p4_peakst(i)-100:p4_peakst(i)+300);
-    diff_p4_plat_torque(i,:)=p4_act_torque(i,p4_peakst(i)-100:p4_peakst(i)+300);
+    diff_p4_plat_pos(i,:)=p4_plat_pos(i,p4_peakst(i)-PRE_PERT_SAMPLES:p4_peakst(i)+POST_PERT_SAMPLES);
+    diff_p4_plat_torque(i,:)=p4_act_torque(i,p4_peakst(i)-PRE_PERT_SAMPLES:p4_peakst(i)+POST_PERT_SAMPLES);
     
     diff_p4_plat_torque(i,:)=diff_p4_plat_torque(i,:)-p0_plat_torque15m;
     
-%     diff_p4_foot_pos(i,:)=p4_foot_pos(i,p4_peakst(i)-100:p4_peakst(i)+300)-p0_foot_pos15m;
-    diff_p4_foot_pos(i,:)=p4_foot_pos(i,p4_peakst(i)-100:p4_peakst(i)+300);
+%     diff_p4_foot_pos(i,:)=p4_foot_pos(i,p4_peakst(i)-PRE_PERT_SAMPLES:p4_peakst(i)+POST_PERT_SAMPLES)-p0_foot_pos15m;
+    diff_p4_foot_pos(i,:)=p4_foot_pos(i,p4_peakst(i)-PRE_PERT_SAMPLES:p4_peakst(i)+POST_PERT_SAMPLES);
     diff_p4_foot_pos(i,:)=diff_p4_foot_pos(i,:)-diff_p4_foot_pos(i,100);
     
     
@@ -677,35 +745,35 @@ diff_p3_plat_torqueimpm=trimmean(diff_p3_plat_torqueimp,30);
 %Value is made NaN if foot position is not on
 %platform
 for i=1:analysis_value-1
-    C1=[diff_p1_foot_pos(i,100:300)' diff_p1_foot_vel(i,100:300)' diff_p1_foot_acc(i,100:300)'];
-    d1=diff_p1_plat_torqueimp(i,100:300)';
+    C1=[diff_p1_foot_pos(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)' diff_p1_foot_vel(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)' diff_p1_foot_acc(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)'];
+    d1=diff_p1_plat_torqueimp(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)';
     A1=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-    B1=[0 ;0 ;1000;1000;-1*lim;u_lim];
+    B1=[0 ;0 ;1000;1000;-1*INERTIAL_LOWER_LIM;INERTIAL_UPPER_LIMIT];
     if(isnan(d1(1))==0)
         p1imp(i,:)=lsqlin(C1,d1,A1,B1);
         
     else
         p1imp(i,:)=[NaN NaN NaN];
     end
-    vartor3=var(diff_p1_plat_torqueimp(i,100:300));
-    varimp3=var(diff_p1_plat_torqueimp(i,100:300)-(diff_p1_foot_pos(i,100:300)*p1imp(i,1)+diff_p1_foot_vel(i,100:300)*p1imp(i,2)+diff_p1_foot_acc(i,100:300)*p1imp(i,3)));
+    vartor3=var(diff_p1_plat_torqueimp(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX));
+    varimp3=var(diff_p1_plat_torqueimp(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)-(diff_p1_foot_pos(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)*p1imp(i,1)+diff_p1_foot_vel(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)*p1imp(i,2)+diff_p1_foot_acc(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)*p1imp(i,3)));
     p1impg(i)=100*(1-(varimp3/vartor3));
 end
 
-p1impm=regress(diff_p1_plat_torqueimpm(100:300)',[diff_p1_foot_posm(100:300)' diff_p1_foot_velm(100:300)' diff_p1_foot_accm(100:300)' ]);
-C=[diff_p1_foot_posm(100:300)' diff_p1_foot_velm(100:300)' diff_p1_foot_accm(100:300)'];
-d=diff_p1_plat_torqueimpm(100:300)';
+p1impm=regress(diff_p1_plat_torqueimpm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)',[diff_p1_foot_posm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)' diff_p1_foot_velm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)' diff_p1_foot_accm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)' ]);
+C=[diff_p1_foot_posm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)' diff_p1_foot_velm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)' diff_p1_foot_accm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)'];
+d=diff_p1_plat_torqueimpm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)';
 A=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-B=[0 ;0 ;1000;1000;-1*lim;u_lim];
+B=[0 ;0 ;1000;1000;-1*INERTIAL_LOWER_LIM;INERTIAL_UPPER_LIMIT];
 p1impm2=lsqlin(C,d,A,B);
 
 
 for i=1:analysis_value-1
     
-    C1=[diff_p2_foot_pos(i,100:300)' diff_p2_foot_vel(i,100:300)' diff_p2_foot_acc(i,100:300)'];
-    d1=diff_p2_plat_torqueimp(i,100:300)';
+    C1=[diff_p2_foot_pos(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)' diff_p2_foot_vel(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)' diff_p2_foot_acc(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)'];
+    d1=diff_p2_plat_torqueimp(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)';
     A1=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-    B1=[0 ;0 ;1000;1000;-1*lim;u_lim];
+    B1=[0 ;0 ;1000;1000;-1*INERTIAL_LOWER_LIM;INERTIAL_UPPER_LIMIT];
     
     if(isnan(d1(1))==0)
         p2imp(i,:)=lsqlin(C1,d1,A1,B1);
@@ -714,24 +782,24 @@ for i=1:analysis_value-1
         p2imp(i,:)=[NaN NaN NaN];
     end
     
-    vartor3=var(diff_p2_plat_torqueimp(i,100:300));
-    varimp3=var(diff_p2_plat_torqueimp(i,100:300)-(diff_p2_foot_pos(i,100:300)*p2imp(i,1)+diff_p2_foot_vel(i,100:300)*p2imp(i,2)+diff_p2_foot_acc(i,100:300)*p2imp(i,3)));
+    vartor3=var(diff_p2_plat_torqueimp(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX));
+    varimp3=var(diff_p2_plat_torqueimp(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)-(diff_p2_foot_pos(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)*p2imp(i,1)+diff_p2_foot_vel(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)*p2imp(i,2)+diff_p2_foot_acc(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)*p2imp(i,3)));
     p2impg(i)=100*(1-(varimp3/vartor3));
     
 end
-p2impm=regress(diff_p2_plat_torqueimpm(100:300)',[diff_p2_foot_posm(100:300)' diff_p2_foot_velm(100:300)' diff_p2_foot_accm(100:300)']);
-C=[diff_p2_foot_posm(100:300)' diff_p2_foot_velm(100:300)' diff_p2_foot_accm(100:300)'];
-d=diff_p2_plat_torqueimpm(100:300)';
+p2impm=regress(diff_p2_plat_torqueimpm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)',[diff_p2_foot_posm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)' diff_p2_foot_velm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)' diff_p2_foot_accm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)']);
+C=[diff_p2_foot_posm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)' diff_p2_foot_velm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)' diff_p2_foot_accm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)'];
+d=diff_p2_plat_torqueimpm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)';
 A=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-B=[0 ;0 ;1000;1000;-1*lim;u_lim];
+B=[0 ;0 ;1000;1000;-1*INERTIAL_LOWER_LIM;INERTIAL_UPPER_LIMIT];
 p2impm2=lsqlin(C,d,A,B);
 
 for i=1:analysis_value-1
     
-    C1=[diff_p3_foot_pos(i,100:300)' diff_p3_foot_vel(i,100:300)' diff_p3_foot_acc(i,100:300)'];
-    d1=diff_p3_plat_torqueimp(i,100:300)';
+    C1=[diff_p3_foot_pos(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)' diff_p3_foot_vel(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)' diff_p3_foot_acc(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)'];
+    d1=diff_p3_plat_torqueimp(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)';
     A1=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-    B1=[0 ;0 ;1000;1000;-1*lim;u_lim];
+    B1=[0 ;0 ;1000;1000;-1*INERTIAL_LOWER_LIM;INERTIAL_UPPER_LIMIT];
     
     if(isnan(d1(1))==0)
         p3imp(i,:)=lsqlin(C1,d1,A1,B1);
@@ -740,17 +808,17 @@ for i=1:analysis_value-1
         p3imp(i,:)=[NaN NaN NaN];
     end
     
-    vartor3=var(diff_p3_plat_torqueimp(i,100:300));
-    varimp3=var(diff_p3_plat_torqueimp(i,100:300)-(diff_p3_foot_pos(i,100:300)*p3imp(i,1)+diff_p3_foot_vel(i,100:300)*p3imp(i,2)+diff_p3_foot_acc(i,100:300)*p3imp(i,3)));
+    vartor3=var(diff_p3_plat_torqueimp(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX));
+    varimp3=var(diff_p3_plat_torqueimp(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)-(diff_p3_foot_pos(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)*p3imp(i,1)+diff_p3_foot_vel(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)*p3imp(i,2)+diff_p3_foot_acc(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)*p3imp(i,3)));
     p3impg(i)=100*(1-(varimp3/vartor3));
 end
 
-p3impm=regress(diff_p3_plat_torqueimpm(100:300)',[diff_p3_foot_posm(100:300)' diff_p3_foot_velm(100:300)' diff_p3_foot_accm(100:300)']);
+p3impm=regress(diff_p3_plat_torqueimpm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)',[diff_p3_foot_posm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)' diff_p3_foot_velm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)' diff_p3_foot_accm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)']);
 
-C=[diff_p3_foot_posm(100:300)' diff_p3_foot_velm(100:300)' diff_p3_foot_accm(100:300)'];
-d=diff_p3_plat_torqueimpm(100:300)';
+C=[diff_p3_foot_posm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)' diff_p3_foot_velm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)' diff_p3_foot_accm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)'];
+d=diff_p3_plat_torqueimpm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)';
 A=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-B=[0 ;0 ;1000;1000;-1*lim;u_lim];
+B=[0 ;0 ;1000;1000;-1*INERTIAL_LOWER_LIM;INERTIAL_UPPER_LIMIT];
 p3impm2=lsqlin(C,d,A,B);
 
 exc_haptic=[p4];
@@ -778,11 +846,11 @@ diff_p4_foot_accm=trimmean(diff_p4_foot_acc,30);
 
 for i=1:analysis_value-1
     
-    %     p4imp(i,:)=regress(diff_p4_plat_torqueimp(i,100:300)',[diff_p4_foot_pos(i,100:300)' diff_p4_foot_vel(i,100:300)' diff_p4_foot_acc(i,100:300)']);
-    C1=[diff_p4_foot_pos(i,100:300)' diff_p4_foot_vel(i,100:300)' diff_p4_foot_acc(i,100:300)'];
-    d1=diff_p4_plat_torqueimp(i,100:300)';
+    %     p4imp(i,:)=regress(diff_p4_plat_torqueimp(i,100:REGRESSION_END_INEX)',[diff_p4_foot_pos(i,100:REGRESSION_END_INEX)' diff_p4_foot_vel(i,100:REGRESSION_END_INEX)' diff_p4_foot_acc(i,100:REGRESSION_END_INEX)']);
+    C1=[diff_p4_foot_pos(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)' diff_p4_foot_vel(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)' diff_p4_foot_acc(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)'];
+    d1=diff_p4_plat_torqueimp(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)';
     A1=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-    B1=[0 ;0 ;1000;1000;-1*lim;u_lim];
+    B1=[0 ;0 ;1000;1000;-1*INERTIAL_LOWER_LIM;INERTIAL_UPPER_LIMIT];
     
     if(isnan(d1(1))==0)
         p4imp(i,:)=lsqlin(C1,d1,A1,B1);
@@ -791,16 +859,16 @@ for i=1:analysis_value-1
         p4imp(i,:)=[NaN NaN NaN];
     end
     
-    vartor3=var(diff_p4_plat_torqueimp(i,100:300));
-    varimp4=var(diff_p4_plat_torqueimp(i,100:300)-(diff_p4_foot_pos(i,100:300)*p4imp(i,1)+diff_p4_foot_vel(i,100:300)*p4imp(i,2)+diff_p4_foot_acc(i,100:300)*p4imp(i,3)));
+    vartor3=var(diff_p4_plat_torqueimp(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX));
+    varimp4=var(diff_p4_plat_torqueimp(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)-(diff_p4_foot_pos(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)*p4imp(i,1)+diff_p4_foot_vel(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)*p4imp(i,2)+diff_p4_foot_acc(i,REGRESSION_START_INDEX:REGRESSION_END_INDEX)*p4imp(i,3)));
     p4impg(i)=100*(1-(varimp4/vartor3));
     
 end
-p4impm=regress(diff_p4_plat_torqueimpm(100:300)',[diff_p4_foot_posm(100:300)' diff_p4_foot_velm(100:300)' diff_p4_foot_accm(100:300)']);
-C=[diff_p4_foot_posm(100:300)' diff_p4_foot_velm(100:300)' diff_p4_foot_accm(100:300)'];
-d=diff_p4_plat_torqueimpm(100:300)';
+p4impm=regress(diff_p4_plat_torqueimpm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)',[diff_p4_foot_posm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)' diff_p4_foot_velm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)' diff_p4_foot_accm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)']);
+C=[diff_p4_foot_posm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)' diff_p4_foot_velm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)' diff_p4_foot_accm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)'];
+d=diff_p4_plat_torqueimpm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)';
 A=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-B=[0 ;0 ;1000;1000;-1*lim;u_lim];
+B=[0 ;0 ;1000;1000;-1*INERTIAL_LOWER_LIM;INERTIAL_UPPER_LIMIT];
 p4impm2=lsqlin(C,d,A,B);
 
 
@@ -833,6 +901,14 @@ p4impm2=lsqlin(C,d,A,B);
 
 individual_impedance
 best_boot
-if(plot_figs==1)
-    fit_figures_bootstrapping;
+if(PLOT_FIGS_FLAG==1)
+    %fit_figures_bootstrapping;
+    plot_regression_results(diff_p1_foot_posv, diff_p1_foot_velv, diff_p1_foot_accv, diff_p1_plat_torqueimpv, ...
+        boot_impv(1, 1:3), '31%');
+    plot_regression_results(diff_p2_foot_posv, diff_p2_foot_velv, diff_p2_foot_accv, diff_p2_plat_torqueimpv, ...
+        boot_impv(2, 1:3), '44%');
+    plot_regression_results(diff_p3_foot_posv, diff_p3_foot_velv, diff_p3_foot_accv, diff_p3_plat_torqueimpv, ...
+        boot_impv(3, 1:3), '57%');
+    plot_regression_results(diff_p4_foot_posv, diff_p4_foot_velv, diff_p4_foot_accv, diff_p4_plat_torqueimpv, ...
+        boot_impv(4, 1:3), '18%');
 end

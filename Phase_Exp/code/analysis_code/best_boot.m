@@ -1,5 +1,5 @@
 
-ideal=floor(num_pert*0.7);
+ideal=floor(NUM_PERT*0.7);
 
 diff_p1_plat_torqueimpvm=mean(diff_p1_plat_torqueimpv);
 diff_p1_foot_posvm=mean(diff_p1_foot_posv);
@@ -22,7 +22,7 @@ diff_p4_foot_velvm=mean(diff_p4_foot_velv);
 diff_p4_foot_accvm=mean(diff_p4_foot_accv);
 
 
-for i=1:loops
+for i=1:BOOTSTRAPPING_LOOPS
     unique1=0;
     unique2=0;
     unique3=0;
@@ -78,10 +78,10 @@ for i=1:loops
     a_bunch1m=nanmean(a_bunch1);
     
     % boot_impv1{i}=regress(bunch1m(100:300)',[p_bunch1m(100:300)' v_bunch1m(100:300)' a_bunch1m(100:300)']);
-    C=[p_bunch1m(100:300)' v_bunch1m(100:300)' a_bunch1m(100:300)'];
-    d=bunch1m(100:300)';
+    C=[p_bunch1m(REGRESSION_START_INDEX:REGRESSION_END_INDEX)' v_bunch1m(REGRESSION_START_INDEX:REGRESSION_END_INDEX)' a_bunch1m(REGRESSION_START_INDEX:REGRESSION_END_INDEX)'];
+    d=bunch1m(REGRESSION_START_INDEX:REGRESSION_END_INDEX)';
     A=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-    B=[0 ;0 ;1000;1000;-1*lim;u_lim];
+    B=[0 ;0 ;1000;1000;-1*INERTIAL_LOWER_LIM;INERTIAL_UPPER_LIMIT];
     boot_impv1(i,:)=lsqlin(C,d,A,B);
     
     bunch2m=nanmean(bunch2);
@@ -90,10 +90,10 @@ for i=1:loops
     a_bunch2m=nanmean(a_bunch2);
     
     % boot_impv1{i}=regress(bunch2m(100:300)',[p_bunch2m(100:300)' v_bunch2m(100:300)' a_bunch2m(100:300)']);
-    C=[p_bunch2m(100:300)' v_bunch2m(100:300)' a_bunch2m(100:300)'];
-    d=bunch2m(100:300)';
+    C=[p_bunch2m(REGRESSION_START_INDEX:REGRESSION_END_INDEX)' v_bunch2m(REGRESSION_START_INDEX:REGRESSION_END_INDEX)' a_bunch2m(REGRESSION_START_INDEX:REGRESSION_END_INDEX)'];
+    d=bunch2m(REGRESSION_START_INDEX:REGRESSION_END_INDEX)';
     A=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-    B=[0 ;0 ;1000;1000;-1*lim;u_lim];
+    B=[0 ;0 ;1000;1000;-1*INERTIAL_LOWER_LIM;INERTIAL_UPPER_LIMIT];
     boot_impv2(i,:)=lsqlin(C,d,A,B);
     
     bunch3m=nanmean(bunch3);
@@ -102,10 +102,10 @@ for i=1:loops
     a_bunch3m=nanmean(a_bunch3);
     
     % boot_impv1{i}=regress(bunch3m(100:300)',[p_bunch3m(100:300)' v_bunch3m(100:300)' a_bunch3m(100:300)']);
-    C=[p_bunch3m(100:300)' v_bunch3m(100:300)' a_bunch3m(100:300)'];
-    d=bunch3m(100:300)';
+    C=[p_bunch3m(REGRESSION_START_INDEX:REGRESSION_END_INDEX)' v_bunch3m(REGRESSION_START_INDEX:REGRESSION_END_INDEX)' a_bunch3m(REGRESSION_START_INDEX:REGRESSION_END_INDEX)'];
+    d=bunch3m(REGRESSION_START_INDEX:REGRESSION_END_INDEX)';
     A=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-    B=[0 ;0 ;1000;1000;-1*lim;u_lim];
+    B=[0 ;0 ;1000;1000;-1*INERTIAL_LOWER_LIM;INERTIAL_UPPER_LIMIT];
     boot_impv3(i,:)=lsqlin(C,d,A,B);
     
     
@@ -115,10 +115,10 @@ for i=1:loops
     a_bunch4m=nanmean(a_bunch4);
     
     % boot_impv1{i}=regress(bunch4m(100:300)',[p_bunch4m(100:300)' v_bunch4m(100:300)' a_bunch4m(100:300)']);
-    C=[p_bunch4m(100:300)' v_bunch4m(100:300)' a_bunch4m(100:300)'];
-    d=bunch4m(100:300)';
+    C=[p_bunch4m(REGRESSION_START_INDEX:REGRESSION_END_INDEX)' v_bunch4m(REGRESSION_START_INDEX:REGRESSION_END_INDEX)' a_bunch4m(REGRESSION_START_INDEX:REGRESSION_END_INDEX)'];
+    d=bunch4m(REGRESSION_START_INDEX:REGRESSION_END_INDEX)';
     A=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-    B=[0 ;0 ;1000;1000;-1*lim;u_lim];
+    B=[0 ;0 ;1000;1000;-1*INERTIAL_LOWER_LIM;INERTIAL_UPPER_LIMIT];
     boot_impv4(i,:)=lsqlin(C,d,A,B);
    
 end
@@ -146,23 +146,23 @@ save('bootstrap_impv.mat','boot_impv');
 %%
 
 
-vartor1=var(diff_p1_plat_torqueimpvm(100:300));
-varimp1=var(diff_p1_plat_torqueimpvm(100:300)-(diff_p1_foot_posvm(100:300)*boot_impv(1,1)+diff_p1_foot_velvm(100:300)*boot_impv(1,2)+diff_p1_foot_accvm(100:300)*boot_impv(1,3)));
+vartor1=var(diff_p1_plat_torqueimpvm(REGRESSION_START_INDEX:REGRESSION_END_INDEX));
+varimp1=var(diff_p1_plat_torqueimpvm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)-(diff_p1_foot_posvm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)*boot_impv(1,1)+diff_p1_foot_velvm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)*boot_impv(1,2)+diff_p1_foot_accvm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)*boot_impv(1,3)));
 goodnessb(1,1)=100*(1-(varimp1/vartor1));
 
 
 
 
-vartor2=var(diff_p2_plat_torqueimpvm(100:300));
-varimp2=var(diff_p2_plat_torqueimpvm(100:300)-(diff_p2_foot_posvm(100:300)*boot_impv(2,1)+diff_p2_foot_velvm(100:300)*boot_impv(2,2)+diff_p2_foot_accvm(100:300)*boot_impv(2,3)));
+vartor2=var(diff_p2_plat_torqueimpvm(REGRESSION_START_INDEX:REGRESSION_END_INDEX));
+varimp2=var(diff_p2_plat_torqueimpvm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)-(diff_p2_foot_posvm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)*boot_impv(2,1)+diff_p2_foot_velvm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)*boot_impv(2,2)+diff_p2_foot_accvm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)*boot_impv(2,3)));
 goodnessb(2,1)=100*(1-(varimp2/vartor2))
 
-vartor3=var(diff_p3_plat_torqueimpvm(100:300));
-varimp3=var(diff_p3_plat_torqueimpvm(100:300)-(diff_p3_foot_posvm(100:300)*boot_impv(3,1)+diff_p3_foot_velvm(100:300)*boot_impv(3,2)+diff_p3_foot_accvm(100:300)*boot_impv(3,3)));
+vartor3=var(diff_p3_plat_torqueimpvm(REGRESSION_START_INDEX:REGRESSION_END_INDEX));
+varimp3=var(diff_p3_plat_torqueimpvm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)-(diff_p3_foot_posvm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)*boot_impv(3,1)+diff_p3_foot_velvm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)*boot_impv(3,2)+diff_p3_foot_accvm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)*boot_impv(3,3)));
 goodnessb(3,1)=100*(1-(varimp3/vartor3))
 
-vartor4=var(diff_p4_plat_torqueimpvm(100:300));
-varimp4=var(diff_p4_plat_torqueimpvm(100:300)-(diff_p4_foot_posvm(100:300)*boot_impv(4,1)+diff_p4_foot_velvm(100:300)*boot_impv(4,2)+diff_p4_foot_accvm(100:300)*boot_impv(4,3)));
+vartor4=var(diff_p4_plat_torqueimpvm(REGRESSION_START_INDEX:REGRESSION_END_INDEX));
+varimp4=var(diff_p4_plat_torqueimpvm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)-(diff_p4_foot_posvm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)*boot_impv(4,1)+diff_p4_foot_velvm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)*boot_impv(4,2)+diff_p4_foot_accvm(REGRESSION_START_INDEX:REGRESSION_END_INDEX)*boot_impv(4,3)));
 goodnessb(4,1)=100*(1-(varimp4/vartor1));
 
 
