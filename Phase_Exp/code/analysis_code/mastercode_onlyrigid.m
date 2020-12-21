@@ -900,7 +900,7 @@ p4impm2=lsqlin(C,d,A,B);
 % plottingemgweight;
 
 individual_impedance
-best_boot
+best_boot_no_avg
 if(PLOT_FIGS_FLAG==1)
     %fit_figures_bootstrapping;
     plot_regression_results(diff_p1_foot_posv, diff_p1_foot_velv, diff_p1_foot_accv, diff_p1_plat_torqueimpv, ...
