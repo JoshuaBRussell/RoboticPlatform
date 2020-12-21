@@ -834,4 +834,29 @@ end
 imp_vals_br = [p4_regressors'; p1_regressors'; p2_regressors'; p3_regressors'];
 
 
-                   
+[mean_p4, ci_p4, GoF_p4] = bootstrapping_regression(diff_p4_pos_data_vec', diff_p4_vel_data_vec', diff_p4_acc_data_vec', ...
+                         p4_torque_data_matrix', 0.7, A1, B1);
+[mean_p1, ci_p1, GoF_p1] = bootstrapping_regression(diff_p1_pos_data_vec', diff_p1_vel_data_vec', diff_p1_acc_data_vec', ...
+                         p1_torque_data_matrix', 0.7, A1, B1);
+          
+[mean_p2, ci_p2, GoF_p2] = bootstrapping_regression(diff_p2_pos_data_vec', diff_p2_vel_data_vec', diff_p2_acc_data_vec', ...
+                         p2_torque_data_matrix', 0.7, A1, B1);
+[mean_p3, ci_p3, GoF_p3] = bootstrapping_regression(diff_p3_pos_data_vec', diff_p3_vel_data_vec', diff_p3_acc_data_vec', ...
+                         p3_torque_data_matrix', 0.7, A1, B1);
+                     
+imp_vals_bs = [mean_p4; mean_p1; mean_p2; mean_p3];
+imp_vals_bs_s = [ci_p4; ci_p1; ci_p2; ci_p3];
+     
+if(plot_figs==1)
+    plot_regression_results(diff_p4_foot_pos(~p4_removed_ind, :), diff_p4_foot_vel(~p4_removed_ind, :), ...
+                            diff_p4_foot_acc(~p4_removed_ind, :), diff_p4_plat_torqueimp(~p4_removed_ind, :), mean_p4, '18')
+    plot_regression_results(diff_p1_foot_pos(~p1_removed_ind, :), diff_p1_foot_vel(~p1_removed_ind, :), ...
+                            diff_p1_foot_acc(~p1_removed_ind, :), diff_p1_plat_torqueimp(~p1_removed_ind, :), mean_p1, '31')
+    plot_regression_results(diff_p2_foot_pos(~p2_removed_ind, :), diff_p2_foot_vel(~p2_removed_ind, :), ...
+                            diff_p2_foot_acc(~p2_removed_ind, :), diff_p2_plat_torqueimp(~p2_removed_ind, :), mean_p2, '44')
+    plot_regression_results(diff_p3_foot_pos(~p3_removed_ind, :), diff_p3_foot_vel(~p3_removed_ind, :), ...
+                            diff_p3_foot_acc(~p3_removed_ind, :), diff_p3_plat_torqueimp(~p3_removed_ind, :), mean_p3, '57')
+
+end                     
+
+GoF_matrix = [GoF_p4; GoF_p1; GoF_p2; GoF_p3]
