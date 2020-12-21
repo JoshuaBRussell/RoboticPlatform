@@ -860,3 +860,8 @@ if(plot_figs==1)
 end                     
 
 GoF_matrix = [GoF_p4; GoF_p1; GoF_p2; GoF_p3]
+
+
+[weight_m, weight_s] = process_weight(weightr15, weightr30, weightr45, weightr60);
+[cop_m, cop_s] = process_cop(copr15, copr30, copr45, copr60);
+                   
