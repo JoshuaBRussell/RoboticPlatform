@@ -1,0 +1,1 @@
+c:\Users\vnalam\AppData\Local\Continuum\Anaconda2\python.exe scripts\mocap_blanks_removal_v1.py %*
