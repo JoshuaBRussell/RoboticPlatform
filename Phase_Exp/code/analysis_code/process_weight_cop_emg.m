@@ -1,6 +1,6 @@
 
 %% ---- Weight Data Points ---- %%
-for i=1:size(copf4,1) %number of pertubrations at that percentage
+for i=1:size(weightr15,1) %number of pertubrations at that percentage
 weightf_15(i)=mean(weightr15(i,99:101));
 weightf_30(i)=mean(weightr30(i,99:101));
 weightf_45(i)=mean(weightr45(i,99:101));
@@ -12,7 +12,7 @@ weightf_30m=mean(weightf_30);
 weightf_45m=mean(weightf_45);
 weightf_60m=mean(weightf_60);
 
-t=tinv([0.025 0.975],(size(copf4,1)))
+t=tinv([0.025 0.975],(size(weightr15,1)))
 weightf_15s=t(2)*std(weightf_15,'omitNaN')/sqrt(size(weightr15,1));
 weightf_30s=t(2)*std(weightf_30,'omitNaN')/sqrt(size(weightr15,1));
 weightf_45s=t(2)*std(weightf_45,'omitNaN')/sqrt(size(weightr15,1));
@@ -23,7 +23,7 @@ weight_s = [weightf_15s, weightf_30s,weightf_45s,weightf_60s]';
 
 %% ---- CoP Data Points ---- %%
 
-for i=1:size(cop4,1) %number of pertubrations at that percentage
+for i=1:size(copr15,1) %number of pertubrations at that percentage
 copf_15(i)=mean(copr15(i,99:101));
 copf_30(i)=mean(copr30(i,99:101));
 copf_45(i)=mean(copr45(i,99:101));
@@ -35,11 +35,11 @@ copf_30m=mean(copf_30);
 copf_45m=mean(copf_45);
 copf_60m=mean(copf_60);
 
-t=tinv([0.025 0.975],(size(copf4,1)));
-copf_15s=t(2)*std(copf_15,'omitNaN')/sqrt(size(copf4,1));
-copf_30s=t(2)*std(copf_30,'omitNaN')/sqrt(size(copf4,1));
-copf_45s=t(2)*std(copf_45,'omitNaN')/sqrt(size(copf4,1));
-copf_60s=t(2)*std(copf_60,'omitNaN')/sqrt(size(copf4,1));
+t=tinv([0.025 0.975],(size(copf_15,1)));
+copf_15s=t(2)*std(copf_15,'omitNaN')/sqrt(size(copf_15,1));
+copf_30s=t(2)*std(copf_30,'omitNaN')/sqrt(size(copf_30,1));
+copf_45s=t(2)*std(copf_45,'omitNaN')/sqrt(size(copf_45,1));
+copf_60s=t(2)*std(copf_60,'omitNaN')/sqrt(size(copf_60,1));
 
 cop_m = [copf_15m, copf_30m,copf_45m,copf_60m]';
 cop_s = [copf_15s, copf_30s,copf_45s,copf_60s]';
@@ -51,13 +51,15 @@ stance_phase_duration = p0_sample_length * (1/2000);
 
 
 %Preallocates memory
-data_total = zeros(40, max(p0_sample_length)+1);
+data_total = zeros(size(copr15, 1), max(p0_sample_length)+1);
 figure();
-for i = 1:length(stance_phase_duration)
-   time_i = 0:(1/2000):stance_phase_duration(i);
-   normalized_time_i = time_i/stance_phase_duration(i);
+for i = 1:size(copr15, 1)
+   time_i = 0:(1/2000):stance_phase_duration(p0_raw_data_ind(i));
+   normalized_time_i = time_i/stance_phase_duration(p0_raw_data_ind(i));
    
-   data_i = interp1(normalized_time_i', p0_cop_torque(i, p0_peakst(i):p0_peakend(i))./weight4(i, p0_peakst(i):p0_peakend(i)), 0:1/max(p0_sample_length):1);
+   cop_i = p0_cop_torque(i, p0_peakst(p0_raw_data_ind(i)):p0_peakend(p0_raw_data_ind(i)));
+   weight_i = weight4(p0_raw_data_ind(i), p0_peakst(p0_raw_data_ind(i)):p0_peakend(p0_raw_data_ind(i)));
+   data_i = interp1(normalized_time_i', cop_i./weight_i, 0:1/max(p0_sample_length):1);
    
    %plot(normalized_time_i, (p0_cop_torque(i, p0_peakst(i):p0_peakend(i))./weight4(i, p0_peakst(i):p0_peakend(i)));
    %plot(0:1/1441:1, data_i);
@@ -94,12 +96,12 @@ stance_phase_duration = p0_sample_length * (1/2000);
 
 
 %Preallocates memory
-data_total = zeros(40, max(p0_sample_length)+1);
-for i = 1:length(stance_phase_duration)
-   time_i = 0:(1/2000):stance_phase_duration(i);
-   normalized_time_i = time_i/stance_phase_duration(i);
+data_total = zeros(length(ta15), max(p0_sample_length)+1);
+for i = 1:size(data_total, 1)
+   time_i = 0:(1/2000):stance_phase_duration(p0_raw_data_ind(i));
+   normalized_time_i = time_i/stance_phase_duration(p0_raw_data_ind(i));
    
-   data_i = interp1(normalized_time_i', ta_emg(i, p0_peakst(i):p0_peakend(i)), 0:1/max(p0_sample_length):1);
+   data_i = interp1(normalized_time_i', ta_emg(p0_raw_data_ind(i), p0_peakst(p0_raw_data_ind(i)):p0_peakend(p0_raw_data_ind(i))), 0:1/max(p0_sample_length):1);
    
    %plot(normalized_time_i, (p0_cop_torque(i, p0_peakst(i):p0_peakend(i))./weight4(i, p0_peakst(i):p0_peakend(i)));
    %plot(0:1/1441:1, data_i);
@@ -127,11 +129,11 @@ xlabel('Gait Cycle (%)');
 ylabel('TA EMG');
 
 %PL
-for i = 1:length(stance_phase_duration)
-   time_i = 0:(1/2000):stance_phase_duration(i);
-   normalized_time_i = time_i/stance_phase_duration(i);
+for i = 1:size(data_total, 1)
+   time_i = 0:(1/2000):stance_phase_duration(p0_raw_data_ind(i));
+   normalized_time_i = time_i/stance_phase_duration(p0_raw_data_ind(i));
    
-   data_i = interp1(normalized_time_i', pl_emg(i, p0_peakst(i):p0_peakend(i)), 0:1/max(p0_sample_length):1);
+   data_i = interp1(normalized_time_i', pl_emg(p0_raw_data_ind(i), p0_peakst(p0_raw_data_ind(i)):p0_peakend(p0_raw_data_ind(i))), 0:1/max(p0_sample_length):1);
    
    %plot(normalized_time_i, (p0_cop_torque(i, p0_peakst(i):p0_peakend(i))./weight4(i, p0_peakst(i):p0_peakend(i)));
    %plot(0:1/1441:1, data_i);
@@ -158,11 +160,11 @@ xlabel('Gait Cycle (%)');
 ylabel('PL EMG');
 
 %SOL
-for i = 1:length(stance_phase_duration)
-   time_i = 0:(1/2000):stance_phase_duration(i);
-   normalized_time_i = time_i/stance_phase_duration(i);
+for i = 1:size(data_total, 1)
+   time_i = 0:(1/2000):stance_phase_duration(p0_raw_data_ind(i));
+   normalized_time_i = time_i/stance_phase_duration(p0_raw_data_ind(i));
    
-   data_i = interp1(normalized_time_i', sol_emg(i, p0_peakst(i):p0_peakend(i)), 0:1/max(p0_sample_length):1);
+   data_i = interp1(normalized_time_i', sol_emg(p0_raw_data_ind(i), p0_peakst(p0_raw_data_ind(i)):p0_peakend(p0_raw_data_ind(i))), 0:1/max(p0_sample_length):1);
    
    %plot(normalized_time_i, (p0_cop_torque(i, p0_peakst(i):p0_peakend(i))./weight4(i, p0_peakst(i):p0_peakend(i)));
    %plot(0:1/1441:1, data_i);
@@ -190,11 +192,11 @@ ylabel('SOL EMG');
 
 
 %GCA
-for i = 1:length(stance_phase_duration)
-   time_i = 0:(1/2000):stance_phase_duration(i);
-   normalized_time_i = time_i/stance_phase_duration(i);
+for i = 1:size(data_total, 1)
+   time_i = 0:(1/2000):stance_phase_duration(p0_raw_data_ind(i));
+   normalized_time_i = time_i/stance_phase_duration(p0_raw_data_ind(i));
    
-   data_i = interp1(normalized_time_i', gca_emg(i, p0_peakst(i):p0_peakend(i)), 0:1/max(p0_sample_length):1);
+   data_i = interp1(normalized_time_i', gca_emg(p0_raw_data_ind(i), p0_peakst(p0_raw_data_ind(i)):p0_peakend(p0_raw_data_ind(i))), 0:1/max(p0_sample_length):1);
    
    %plot(normalized_time_i, (p0_cop_torque(i, p0_peakst(i):p0_peakend(i))./weight4(i, p0_peakst(i):p0_peakend(i)));
    %plot(0:1/1441:1, data_i);
@@ -224,11 +226,11 @@ saveas(gcf,'emg_plot.jpg');
 
 
 %% Normalized (Time) Weight Plot
-for i = 1:length(stance_phase_duration)
-   time_i = 0:(1/2000):stance_phase_duration(i);
-   normalized_time_i = time_i/stance_phase_duration(i);
+for i = 1:size(data_total, 1)
+   time_i = 0:(1/2000):stance_phase_duration(p0_raw_data_ind(i));
+   normalized_time_i = time_i/stance_phase_duration(p0_raw_data_ind(i));
    
-   data_i = interp1(normalized_time_i', weight4(i, p0_peakst(i):p0_peakend(i)), 0:1/max(p0_sample_length):1);
+   data_i = interp1(normalized_time_i', weight4(p0_raw_data_ind(i), p0_peakst(p0_raw_data_ind(i)):p0_peakend(p0_raw_data_ind(i))), 0:1/max(p0_sample_length):1);
    
    %plot(normalized_time_i, (p0_cop_torque(i, p0_peakst(i):p0_peakend(i))./weight4(i, p0_peakst(i):p0_peakend(i)));
    %plot(0:1/1441:1, data_i);
