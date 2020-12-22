@@ -273,7 +273,8 @@ if plot_hist==1
 end
 
 p0_removed_ind = abs(img0_pos) > 2.0; 
-
+p0_raw_data_ind = find(~p0_removed_ind);
+p0_total_accepted = sum(~p0_removed_ind)
 %% Obtaining perturbation torque and CoP data from different trials the act_torque is calculated by using the foot position obtained form motion capture
 for i=1:p1-1
     if (isnan(p1_plat_torque(i,1))==1)
@@ -300,13 +301,19 @@ for i=1:p3-1
         p3_act_torque(i,:)=force3_1(i,:)*(0.315-(img3_pos(i)/100))+force3_4(i,:)*(0.315-(img3_pos(i)/100))-force3_2(i,:)*(0.105+(img3_pos(i)/100))-force3_3(i,:)*(0.105+(img3_pos(i)/100))-force3_5(i,:)*(0.095)-force3_6(i,:)*(0.095);
     end
 end
-for i=1:p0-1
+
+%The way this is implemented is only temporary, though the idea will remain
+%the same: Find out what data needs to be removed, then create all
+%proceeding variables from that selected data only. This is only being done
+%currently for the No-Perturbation case, as it affects everything along the
+%way. 
+for i=1:p0_total_accepted
     if (isnan(p0_plat_torque(i,1))==1)
         p0_act_torque(i,1:2201)=NaN;
         p0_cop_torque(i,1:2201)=NaN;
     else
-        p0_act_torque(i,:)=force0_1(i,:)*(0.315-(img0_pos(i)/100))+force0_4(i,:)*(0.315-(img0_pos(i)/100))-force0_2(i,:)*(0.105+(img0_pos(i)/100))-force0_3(i,:)*(0.105+(img0_pos(i)/100))-force0_5(i,:)*(0.095)-force0_6(i,:)*(0.095);
-        p0_cop_torque(i,:)=force0_1(i,:)*(0.315-(img0_pos(i)/100))+force0_4(i,:)*(0.315-(img0_pos(i)/100))-force0_2(i,:)*(0.105+(img0_pos(i)/100))-force0_3(i,:)*(0.105+(img0_pos(i)/100))-force0_5(i,:)*(0.025)-force0_6(i,:)*(0.025);
+        p0_act_torque(i,:)=force0_1(p0_raw_data_ind(i),:)*(0.315-(img0_pos(p0_raw_data_ind(i))/100))+force0_4(p0_raw_data_ind(i),:)*(0.315-(img0_pos(p0_raw_data_ind(i))/100))-force0_2(p0_raw_data_ind(i),:)*(0.105+(img0_pos(p0_raw_data_ind(i))/100))-force0_3(p0_raw_data_ind(i),:)*(0.105+(img0_pos(p0_raw_data_ind(i))/100))-force0_5(p0_raw_data_ind(i),:)*(0.095)-force0_6(p0_raw_data_ind(i),:)*(0.095);
+        p0_cop_torque(i,:)=force0_1(p0_raw_data_ind(i),:)*(0.315-(img0_pos(p0_raw_data_ind(i))/100))+force0_4(p0_raw_data_ind(i),:)*(0.315-(img0_pos(p0_raw_data_ind(i))/100))-force0_2(p0_raw_data_ind(i),:)*(0.105+(img0_pos(p0_raw_data_ind(i))/100))-force0_3(p0_raw_data_ind(i),:)*(0.105+(img0_pos(p0_raw_data_ind(i))/100))-force0_5(p0_raw_data_ind(i),:)*(0.025)-force0_6(p0_raw_data_ind(i),:)*(0.025);
         
     end
 end
@@ -329,9 +336,9 @@ end
 % 
 % cop4m=trimmean(p0_cop_torque,30);
 % 
-p0_plat_torquem=trimmean(p0_act_torque,30);
-p0_plat_posm=trimmean(p0_plat_pos,30);
-p0_foot_posm=nanmean(p0_foot_pos);
+p0_plat_torquem=trimmean(p0_act_torque,30); %NOT created from raw data. No need to remove outlier indices
+p0_plat_posm=trimmean(p0_plat_pos(~p0_removed_ind, :),30); %Created from raw data. Need to remove outlier indices
+p0_foot_posm=nanmean(p0_foot_pos(~p0_removed_ind, :)); %Created from raw data. Need to remove outlier indices
 p1_plat_torquem=trimmean(p1_act_torque,30);
 p1_plat_posm=trimmean(p1_plat_pos,30);
 p1_foot_posm=trimmean(p1_foot_pos,30);
@@ -371,84 +378,86 @@ gca_emgm=trimmean(gca_emg,30);
 %analysis is unifrom
 excluded=[p1,p2,p3,p4];
 analysis_value=min(excluded);
-for i=1:p0-1
-    point_i=floor((p0_peakend(i)-p0_peakst(i))*0.18)+p0_peakst(i)
+%p0_peakend/st come from raw data, hence the weird indexing.
+%p0_act_torque/p0_cop_torque come from outlier removed data. Hence no weird
+%indexing
+for i=1:p0_total_accepted
+    point_i=floor((p0_peakend(p0_raw_data_ind(i))-p0_peakst(p0_raw_data_ind(i)))*0.18)+p0_peakst(p0_raw_data_ind(i))
     p0_plat_torque15(i,:)=p0_act_torque(i,point_i-100:point_i+300);
     p0_cop_torque15(i,:)=p0_cop_torque(i,point_i-100:point_i+300);
-    p0_foot_pos15(i,:)=p0_foot_pos(i,point_i-100:point_i+300);
+    p0_foot_pos15(i,:)=p0_foot_pos(p0_raw_data_ind(i),point_i-100:point_i+300);
     
-    point_j=floor((p0_peakend(i)-p0_peakst(i))*0.31)+p0_peakst(i)
+    point_j=floor((p0_peakend(p0_raw_data_ind(i))-p0_peakst(p0_raw_data_ind(i)))*0.31)+p0_peakst(p0_raw_data_ind(i))
     p0_plat_torque30(i,:)=p0_act_torque(i,point_j-100:point_j+300);
     p0_cop_torque30(i,:)=p0_cop_torque(i,point_j-100:point_j+300);
-    p0_foot_pos30(i,:)=p0_foot_pos(i,point_j-100:point_j+300);
+    p0_foot_pos30(i,:)=p0_foot_pos(p0_raw_data_ind(i),point_j-100:point_j+300);
     
-    point_k=floor((p0_peakend(i)-p0_peakst(i))*0.44)+p0_peakst(i)
+    point_k=floor((p0_peakend(p0_raw_data_ind(i))-p0_peakst(p0_raw_data_ind(i)))*0.44)+p0_peakst(p0_raw_data_ind(i))
     p0_plat_torque45(i,:)=p0_act_torque(i,point_k-100:point_k+300);
     p0_cop_torque45(i,:)=p0_cop_torque(i,point_k-100:point_k+300);
-    p0_foot_pos45(i,:)=p0_foot_pos(i,point_k-100:point_k+300);
+    p0_foot_pos45(i,:)=p0_foot_pos(p0_raw_data_ind(i),point_k-100:point_k+300);
     
-    point_k=floor((p0_peakend(i)-p0_peakst(i))*0.57)+p0_peakst(i)
+    point_k=floor((p0_peakend(p0_raw_data_ind(i))-p0_peakst(p0_raw_data_ind(i)))*0.57)+p0_peakst(p0_raw_data_ind(i))
     p0_plat_torque60(i,:)=p0_act_torque(i,point_k-100:point_k+300);
     p0_cop_torque60(i,:)=p0_cop_torque(i,point_k-100:point_k+300);
-    p0_foot_pos60(i,:)=p0_foot_pos(i,point_k-100:point_k+300);
+    p0_foot_pos60(i,:)=p0_foot_pos(p0_raw_data_ind(i),point_k-100:point_k+300);
 end
 
 % Weight during perturbation
-for i=1:p0-1
-    point_i=floor((p0_peakend(i)-p0_peakst(i))*0.18)+p0_peakst(i)
-    weightr15(i,:)=weight4(i,point_i-100:point_i+300);
-    point_j=floor((p0_peakend(i)-p0_peakst(i))*0.31)+p0_peakst(i)
-    weightr30(i,:)=weight4(i,point_j-100:point_j+300);
-    point_k=floor((p0_peakend(i)-p0_peakst(i))*0.44)+p0_peakst(i)
-    weightr45(i,:)=weight4(i,point_k-100:point_k+300);
-    point_k=floor((p0_peakend(i)-p0_peakst(i))*0.57)+p0_peakst(i)
-    weightr60(i,:)=weight4(i,point_k-100:point_k+300);
+for i=1:p0_total_accepted
+    point_i=floor((p0_peakend(p0_raw_data_ind(i))-p0_peakst(p0_raw_data_ind(i)))*0.18)+p0_peakst(p0_raw_data_ind(i))
+    weightr15(i,:)=weight4(p0_raw_data_ind(i),point_i-100:point_i+300);
+    point_j=floor((p0_peakend(p0_raw_data_ind(i))-p0_peakst(p0_raw_data_ind(i)))*0.31)+p0_peakst(p0_raw_data_ind(i))
+    weightr30(i,:)=weight4(p0_raw_data_ind(i),point_j-100:point_j+300);
+    point_k=floor((p0_peakend(p0_raw_data_ind(i))-p0_peakst(p0_raw_data_ind(i)))*0.44)+p0_peakst(p0_raw_data_ind(i))
+    weightr45(i,:)=weight4(p0_raw_data_ind(i),point_k-100:point_k+300);
+    point_k=floor((p0_peakend(p0_raw_data_ind(i))-p0_peakst(p0_raw_data_ind(i)))*0.57)+p0_peakst(p0_raw_data_ind(i))
+    weightr60(i,:)=weight4(p0_raw_data_ind(i),point_k-100:point_k+300);
     
 end
 
 
 %CoP during perturbation
-for i=1:p0-1
- for j=1:length(weightr15)
-     copr15(i,j)=p0_cop_torque15(i,j)/weightr15(i,j);
- end
-for j=1:length(weightr30)
-     copr30(i,j)=p0_cop_torque30(i,j)/weightr30(i,j);
-end
-for j=1:length(weightr45)
-     copr45(i,j)=p0_cop_torque45(i,j)/weightr45(i,j);
-end
- for j=1:length(weightr60)
-     copr60(i,j)=p0_cop_torque60(i,j)/weightr60(i,j);
- end
-    
+for i=1:p0_total_accepted
+    for j=1:length(weightr15)
+        copr15(i,j)=p0_cop_torque15(i,j)/weightr15(i,j);
+    end
+    for j=1:length(weightr30)
+         copr30(i,j)=p0_cop_torque30(i,j)/weightr30(i,j);
+    end
+    for j=1:length(weightr45)
+         copr45(i,j)=p0_cop_torque45(i,j)/weightr45(i,j);
+    end
+    for j=1:length(weightr60)
+        copr60(i,j)=p0_cop_torque60(i,j)/weightr60(i,j);
+    end
 end
 
 
-for i=1:p0-1
-    point_i=floor((p0_peakend(i)-p0_peakst(i))*0.18)+p0_peakst(i)
-    ta15(i)=mean(ta_emg(i,point_i-2:point_i+2));
-    pl15(i)=mean(pl_emg(i,point_i-25:point_i+25));
-    sol15(i)=mean(sol_emg(i,point_i-25:point_i+25));
-    gca15(i)=mean(gca_emg(i,point_i-25:point_i+25));
+for i=1:p0_total_accepted
+    point_i=floor((p0_peakend(p0_raw_data_ind(i))-p0_peakst(p0_raw_data_ind(i)))*0.18)+p0_peakst(p0_raw_data_ind(i))
+    ta15(i)=mean(ta_emg(p0_raw_data_ind(i),point_i-2:point_i+2));
+    pl15(i)=mean(pl_emg(p0_raw_data_ind(i),point_i-25:point_i+25));
+    sol15(i)=mean(sol_emg(p0_raw_data_ind(i),point_i-25:point_i+25));
+    gca15(i)=mean(gca_emg(p0_raw_data_ind(i),point_i-25:point_i+25));
    
-    point_j=floor((p0_peakend(i)-p0_peakst(i))*0.31)+p0_peakst(i)
-    ta30(i)=mean(ta_emg(i,point_j-25:point_j+25));
-    pl30(i)=mean(pl_emg(i,point_j-25:point_j+25));
-    sol30(i)=mean(sol_emg(i,point_j-25:point_j+25));
-    gca30(i)=mean(gca_emg(i,point_j-25:point_j+25));
+    point_j=floor((p0_peakend(p0_raw_data_ind(i))-p0_peakst(p0_raw_data_ind(i)))*0.31)+p0_peakst(p0_raw_data_ind(i))
+    ta30(i)=mean(ta_emg(p0_raw_data_ind(i),point_j-25:point_j+25));
+    pl30(i)=mean(pl_emg(p0_raw_data_ind(i),point_j-25:point_j+25));
+    sol30(i)=mean(sol_emg(p0_raw_data_ind(i),point_j-25:point_j+25));
+    gca30(i)=mean(gca_emg(p0_raw_data_ind(i),point_j-25:point_j+25));
     
-    point_k=floor((p0_peakend(i)-p0_peakst(i))*0.44)+p0_peakst(i)
-    ta45(i)=mean(ta_emg(i,point_k-25:point_k+25));
-    pl45(i)=mean(pl_emg(i,point_k-25:point_k+25));
-    sol45(i)=mean(sol_emg(i,point_k-25:point_k+25));
-    gca45(i)=mean(gca_emg(i,point_k-25:point_k+25));
+    point_k=floor((p0_peakend(p0_raw_data_ind(i))-p0_peakst(i))*0.44)+p0_peakst(i)
+    ta45(i)=mean(ta_emg(p0_raw_data_ind(i),point_k-25:point_k+25));
+    pl45(i)=mean(pl_emg(p0_raw_data_ind(i),point_k-25:point_k+25));
+    sol45(i)=mean(sol_emg(p0_raw_data_ind(i),point_k-25:point_k+25));
+    gca45(i)=mean(gca_emg(p0_raw_data_ind(i),point_k-25:point_k+25));
     
-    point_k=floor((p0_peakend(i)-p0_peakst(i))*0.57)+p0_peakst(i)
-    ta60(i)=mean(ta_emg(i,point_k-25:point_k+25));
-    pl60(i)=mean(pl_emg(i,point_k-25:point_k+25));
-    sol60(i)=mean(sol_emg(i,point_k-25:point_k+25));
-    gca60(i)=mean(gca_emg(i,point_k-25:point_k+25));
+    point_k=floor((p0_peakend(p0_raw_data_ind(i))-p0_peakst(p0_raw_data_ind(i)))*0.57)+p0_peakst(p0_raw_data_ind(i))
+    ta60(i)=mean(ta_emg(p0_raw_data_ind(i),point_k-25:point_k+25));
+    pl60(i)=mean(pl_emg(p0_raw_data_ind(i),point_k-25:point_k+25));
+    sol60(i)=mean(sol_emg(p0_raw_data_ind(i),point_k-25:point_k+25));
+    gca60(i)=mean(gca_emg(p0_raw_data_ind(i),point_k-25:point_k+25));
 end
 
 p0_plat_torque15m=mean(p0_plat_torque15);
