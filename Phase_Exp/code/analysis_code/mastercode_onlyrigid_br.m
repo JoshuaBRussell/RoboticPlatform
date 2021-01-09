@@ -14,6 +14,38 @@ sub_initial='M';
 sub_name='Morgan';
 %Add number of perturbation you actually ran
 num_pert=40;
+VOLTS_TO_NEWTONS_SCALER = 53.4; 
+F1_SIG = 9;
+F2_SIG = 10;
+F3_SIG = 11;
+F4_SIG = 12;
+F5_SIG = 20;
+F6_SIG = 21;
+
+TA_EMG_SIG  = 1;
+SOL_EMG_SIG = 2;
+PL_EMG_SIG  = 3;
+GCA_EMG_SIG = 4;
+
+MOCAP_SAMPLE_INDEX_CONV_FACTOR = 20;
+IMG_ENABLED_SIG = 6;
+
+PERT_TORQUE_SIG = 7;
+
+FOOT_GON_POS_SIG = 13;
+PLAT_GON_POS_SIG = 14;
+
+RIGID_PHASE_PRED_SIG  = 15;
+HAPTIC_PHASE_PRED_SIG = 16;
+
+TRIAL_TYPE_FLAG = 17; %Also indicates start of trial
+
+WEIGHT_SIG = 18;
+COP_SIG = 19;
+
+PERT_START_SIG = 22;
+
+
 % insert lower limit of inertia of foot in the fit
 % u_lim is the upper limit of the inertia and lim
 % is the lower limit
@@ -65,51 +97,51 @@ for trials=1:10
         live_data=fread(h);
         Input1= SimulinkRealTime.utils.getFileScopeData(live_data);
         siz=size(Input1.data);
-        Img_flag=Input1.data(:,6);
+        Img_flag=Input1.data(:,IMG_ENABLED_SIG);
         [x,img_st]=findpeaks(diff(Img_flag));
-        img_st=round(img_st(1)/20);
+        img_st=round(img_st(1)/MOCAP_SAMPLE_INDEX_CONV_FACTOR);
         if(trials<10)
             Img=csvread(strcat(sub_name,'_00',num2str(trials),'.csv'));
         else
             Img=csvread(strcat(sub_name,'_0',num2str(trials),'.csv'));
         end
         % obtaining data from channels
-        pert_torque=filtfilt(d1,Input1.data(:,7));
-        f1=Input1.data(:,9)*53.4;
+        pert_torque=filtfilt(d1,Input1.data(:,PERT_TORQUE_SIG));
+        f1=Input1.data(:,F1_SIG)*VOLTS_TO_NEWTONS_SCALER;
         f1=filtfilt(d1,f1);
-        f2=Input1.data(:,10)*53.4;
+        f2=Input1.data(:,F2_SIG)*VOLTS_TO_NEWTONS_SCALER;
         f2=filtfilt(d1,f2);
-        f3=Input1.data(:,11)*53.4;
+        f3=Input1.data(:,F3_SIG)*VOLTS_TO_NEWTONS_SCALER;
         f3=filtfilt(d1,f3);
-        f4=Input1.data(:,12)*53.4;
+        f4=Input1.data(:,F4_SIG)*VOLTS_TO_NEWTONS_SCALER;
         f4=filtfilt(d1,f4);
-        f5=Input1.data(:,20)*53.4/2;
+        f5=Input1.data(:,F5_SIG)*VOLTS_TO_NEWTONS_SCALER/2;
         f5=filtfilt(d1,f5);
-        f6=Input1.data(:,21)*53.4/2;
+        f6=Input1.data(:,F6_SIG)*VOLTS_TO_NEWTONS_SCALER/2;
         f6=filtfilt(d1,f6);
-        ta=Input1.data(:,1);
+        ta=Input1.data(:,TA_EMG_SIG);
         ta=abs(ta-off_TA)*100/mvc_ta;
-        sol=Input1.data(:,2);
+        sol=Input1.data(:,SOL_EMG_SIG);
         sol=abs(sol-off_SOL)*100/mvc_sol;
-        pl=Input1.data(:,3);
+        pl=Input1.data(:,PL_EMG_SIG);
         pl=abs(pl-off_PL)*100/mvc_pl;
-        gca=Input1.data(:,4);
+        gca=Input1.data(:,GCA_EMG_SIG);
         gca=abs(gca-off_GCA)*100/mvc_gca;
-        w1=filtfilt(d1,Input1.data(:,18));
-        cop=filtfilt(d1,Input1.data(:,19));
-        flag=Input1.data(:,17);
-        rigid_phase_tot=Input1.data(:,15);
-        haptic_phase_tot=Input1.data(:,16);
-        perturb_start=Input1.data(:,22);
-        foot_pos_data=filtfilt(d1,Input1.data(:,13));
+        w1=filtfilt(d1,Input1.data(:,WEIGHT_SIG));
+        cop=filtfilt(d1,Input1.data(:,COP_SIG));
+        flag=Input1.data(:,TRIAL_TYPE_FLAG);
+        rigid_phase_tot=Input1.data(:,RIGID_PHASE_PRED_SIG);
+        haptic_phase_tot=Input1.data(:,HAPTIC_PHASE_PRED_SIG);
+        perturb_start=Input1.data(:,PERT_START_SIG);
+        foot_pos_data=filtfilt(d1,Input1.data(:,FOOT_GON_POS_SIG));
         foot_pos_data=((foot_pos_data-mean(foot_pos_data))...
             *DP_foot_gonio*pi/180);
-        plat_pos_data=filtfilt(d1,Input1.data(:,14));
+        plat_pos_data=filtfilt(d1,Input1.data(:,PLAT_GON_POS_SIG));
         plat_pos_data=((plat_pos_data-mean(plat_pos_data))...
             *DP_plat_gonio*pi/180);
         % 17 records an impulse everytime a
         % perturbation occurs with diff amplitudes
-        [test,peaks]=findpeaks(Input1.data(:,17));
+        [test,peaks]=findpeaks(Input1.data(:,TRIAL_TYPE_FLAG));
         for i=1:length(peaks)
      % Each test value corresponds to a different pert       
             time=[-200:0.5:1000];
