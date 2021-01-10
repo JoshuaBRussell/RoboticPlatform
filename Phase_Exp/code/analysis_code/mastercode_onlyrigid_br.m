@@ -28,6 +28,7 @@ PL_EMG_SIG  = 3;
 GCA_EMG_SIG = 4;
 
 MOCAP_SAMPLE_INDEX_CONV_FACTOR = 20;
+MOCAP_OUTLIER_LIMIT = 500;
 IMG_ENABLED_SIG = 6;
 
 PERT_TORQUE_SIG = 7;
@@ -308,27 +309,11 @@ p3_er=0;
 p4_er=0;
 
 %% removing outliers using motion capture data: Its redundant but I left it as it wont really change anything
-for i=1:p1-1
-    if(img1_pos(i)>500)
-        img1_pos(i)=NaN;
-    end
-end
-for i=1:p2-1
-    if(img2_pos(i)>500)
-        img2_pos(i)=NaN;
-    end
-end
-for i=1:p3-1
-    if(img3_pos(i)>500)
-        img3_pos(i)=NaN;
-    end
-end
-for i=1:p0-1
-    if(img0_pos(i)>500)
-        img0_pos(i)=NaN;
-    end
-end
-
+img0_pos(img0_pos > MOCAP_OUTLIER_LIMIT) = NaN;
+img1_pos(img1_pos > MOCAP_OUTLIER_LIMIT) = NaN;
+img2_pos(img2_pos > MOCAP_OUTLIER_LIMIT) = NaN;
+img3_pos(img3_pos > MOCAP_OUTLIER_LIMIT) = NaN;
+img4_pos(img4_pos > MOCAP_OUTLIER_LIMIT) = NaN;
 
 if plot_hist==1
     im=[img0_pos img1_pos img2_pos img3_pos img4_pos];
