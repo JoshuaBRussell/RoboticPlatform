@@ -14,6 +14,11 @@ sub_initial='M';
 sub_name='Morgan';
 %Add number of perturbation you actually ran
 num_pert=40;
+
+SAMPLE_RATE_HZ = 2000;
+SAMPLE_PERIOD = 1/SAMPLE_RATE_HZ;
+
+
 VOLTS_TO_NEWTONS_SCALER = 53.4; 
 F1_SIG = 9;
 F2_SIG = 10;
@@ -536,25 +541,34 @@ gca60m=mean(gca60);
 emg_final=[ta15m,pl15m,sol15m,gca15m;ta30m,pl30m,sol30m,gca30m;ta45m,pl45m,sol45m,gca45m;ta60m,pl60m,sol60m,gca60m;];
 %% Obtaining differential data for impedance analysis
 % data is broken into chunks of 400 points:100
-% before pert and 300 after pert. 
+% before pert and 300 after pert to create "Perturbation Window". 
+
+
+%Treats no-perturbation case as a baseline and removes it to get
+%differential position over the entire trial. 
+p1_foot_pos = p1_foot_pos - p0_foot_posm;
+p2_foot_pos = p2_foot_pos - p0_foot_posm;
+p3_foot_pos = p3_foot_pos - p0_foot_posm;
+p4_foot_pos = p4_foot_pos - p0_foot_posm;
 
 for i=1:analysis_value-1
-    p1_foot_pos(i,:)=p1_foot_pos(i,:)-p0_foot_posm;
-    p2_foot_pos(i,:)=p2_foot_pos(i,:)-p0_foot_posm;
-    p3_foot_pos(i,:)=p3_foot_pos(i,:)-p0_foot_posm;
-    p4_foot_pos(i,:)=p4_foot_pos(i,:)-p0_foot_posm;
+
     
     diff_p1_plat_pos(i,:)=p1_plat_pos(i,p1_peakst(i)+PRE_PERT_WINDOW:p1_peakst(i)+POST_PERT_WINDOW);
     diff_p2_plat_pos(i,:)=p2_plat_pos(i,p2_peakst(i)+PRE_PERT_WINDOW:p2_peakst(i)+POST_PERT_WINDOW);
     diff_p3_plat_pos(i,:)=p3_plat_pos(i,p3_peakst(i)+PRE_PERT_WINDOW:p3_peakst(i)+POST_PERT_WINDOW);
+    diff_p4_plat_pos(i,:)=p4_plat_pos(i,p4_peakst(i)+PRE_PERT_WINDOW:p4_peakst(i)+POST_PERT_WINDOW);
+    
     diff_p1_plat_torque(i,:)=p1_act_torque(i,p1_peakst(i)+PRE_PERT_WINDOW:p1_peakst(i)+POST_PERT_WINDOW);
     diff_p2_plat_torque(i,:)=p2_act_torque(i,p2_peakst(i)+PRE_PERT_WINDOW:p2_peakst(i)+POST_PERT_WINDOW);
     diff_p3_plat_torque(i,:)=p3_act_torque(i,p3_peakst(i)+PRE_PERT_WINDOW:p3_peakst(i)+POST_PERT_WINDOW);
-    
+    diff_p4_plat_torque(i,:)=p4_act_torque(i,p4_peakst(i)+PRE_PERT_WINDOW:p4_peakst(i)+POST_PERT_WINDOW);
+
     diff_p1_plat_torque(i,:)=diff_p1_plat_torque(i,:)-p0_plat_torque30m;
     diff_p2_plat_torque(i,:)=diff_p2_plat_torque(i,:)-p0_plat_torque45m;
     diff_p3_plat_torque(i,:)=diff_p3_plat_torque(i,:)-p0_plat_torque60m;
-    
+    diff_p4_plat_torque(i,:)=diff_p4_plat_torque(i,:)-p0_plat_torque15m;
+
 %     diff_p1_foot_pos(i,:)=p1_foot_pos(i,p1_peakst(i)+PRE_PERT_WINDOW:p1_peakst(i)+POST_PERT_WINDOW)-p0_foot_pos30m;
 %     diff_p2_foot_pos(i,:)=p2_foot_pos(i,p2_peakst(i)+PRE_PERT_WINDOW:p2_peakst(i)+POST_PERT_WINDOW)-p0_foot_pos45m;
 %     diff_p3_foot_pos(i,:)=p3_foot_pos(i,p3_peakst(i)+PRE_PERT_WINDOW:p3_peakst(i)+POST_PERT_WINDOW)-p0_foot_pos60m;
@@ -562,108 +576,128 @@ for i=1:analysis_value-1
     diff_p1_foot_pos(i,:)=p1_foot_pos(i,p1_peakst(i)+PRE_PERT_WINDOW:p1_peakst(i)+POST_PERT_WINDOW);
     diff_p2_foot_pos(i,:)=p2_foot_pos(i,p2_peakst(i)+PRE_PERT_WINDOW:p2_peakst(i)+POST_PERT_WINDOW);
     diff_p3_foot_pos(i,:)=p3_foot_pos(i,p3_peakst(i)+PRE_PERT_WINDOW:p3_peakst(i)+POST_PERT_WINDOW);
+    diff_p4_foot_pos(i,:)=p4_foot_pos(i,p4_peakst(i)+PRE_PERT_WINDOW:p4_peakst(i)+POST_PERT_WINDOW);
     
-%      diff_p1_foot_pos(i,:)=diff_p1_foot_pos(i,:)-p0_foot_pos30m;
+%     diff_p1_foot_pos(i,:)=diff_p1_foot_pos(i,:)-p0_foot_pos30m;
 %     diff_p2_foot_pos(i,:)=diff_p2_foot_pos(i,:)-p0_foot_pos45m;
 %     diff_p3_foot_pos(i,:)=diff_p3_foot_pos(i,:)-p0_foot_pos60m;
+
     diff_p1_foot_pos(i,:)=diff_p1_foot_pos(i,:)-diff_p1_foot_pos(i,100);
     diff_p2_foot_pos(i,:)=diff_p2_foot_pos(i,:)-diff_p2_foot_pos(i,100);
     diff_p3_foot_pos(i,:)=diff_p3_foot_pos(i,:)-diff_p3_foot_pos(i,100);
-   
+    diff_p4_foot_pos(i,:)=diff_p4_foot_pos(i,:)-diff_p4_foot_pos(i,100);
 
     
     diff_p1_plat_pos(i,:)=diff_p1_plat_pos(i,:)-diff_p1_plat_pos(i,100);
     diff_p2_plat_pos(i,:)=diff_p2_plat_pos(i,:)-diff_p2_plat_pos(i,100);
     diff_p3_plat_pos(i,:)=diff_p3_plat_pos(i,:)-diff_p3_plat_pos(i,100);
+    diff_p4_plat_pos(i,:)=diff_p4_plat_pos(i,:)-diff_p4_plat_pos(i,100);
+
     
-    diff_p1_plat_vel(i,1)=0;
-    for l=2:length(diff_p1_plat_pos(1,:))
-        diff_p1_plat_vel(i,l)=(diff_p1_plat_pos(i,l)-diff_p1_plat_pos(i,l-1))/0.0005;
-    end
-    diff_p2_plat_vel(i,1)=0;
-    for l=2:length(diff_p2_plat_pos(1,:))
-        diff_p2_plat_vel(i,l)=(diff_p2_plat_pos(i,l)-diff_p2_plat_pos(i,l-1))/0.0005;
-    end
-    diff_p3_plat_vel(i,1)=0;
-    for l=2:length(diff_p2_plat_pos(1,:))
-        diff_p3_plat_vel(i,l)=(diff_p3_plat_pos(i,l)-diff_p3_plat_pos(i,l-1))/0.0005;
-    end
-    diff_p1_foot_vel(i,1)=0;
-    for l=2:length(diff_p1_foot_pos(1,:))
-        diff_p1_foot_vel(i,l)=(diff_p1_foot_pos(i,l)-diff_p1_foot_pos(i,l-1))/0.0005;
-    end
-    diff_p2_foot_vel(i,1)=0;
-    for l=2:length(diff_p2_foot_pos(1,:))
-        diff_p2_foot_vel(i,l)=(diff_p2_foot_pos(i,l)-diff_p2_foot_pos(i,l-1))/0.0005;
-    end
-    diff_p3_foot_vel(i,1)=0;
-    for l=2:length(diff_p3_foot_pos(1,:))
-        diff_p3_foot_vel(i,l)=(diff_p3_foot_pos(i,l)-diff_p3_foot_pos(i,l-1))/0.0005;
-    end
+%     diff_p1_plat_vel(i,1)=0;
+%     for l=2:length(diff_p1_plat_pos(1,:))
+%         diff_p1_plat_vel(i,l)=(diff_p1_plat_pos(i,l)-diff_p1_plat_pos(i,l-1))/0.0005;
+%     end
+%     diff_p2_plat_vel(i,1)=0;
+%     for l=2:length(diff_p2_plat_pos(1,:))
+%         diff_p2_plat_vel(i,l)=(diff_p2_plat_pos(i,l)-diff_p2_plat_pos(i,l-1))/0.0005;
+%     end
+%     diff_p3_plat_vel(i,1)=0;
+%     for l=2:length(diff_p2_plat_pos(1,:))
+%         diff_p3_plat_vel(i,l)=(diff_p3_plat_pos(i,l)-diff_p3_plat_pos(i,l-1))/0.0005;
+%     end
+%     diff_p1_foot_vel(i,1)=0;
+%     for l=2:length(diff_p1_foot_pos(1,:))
+%         diff_p1_foot_vel(i,l)=(diff_p1_foot_pos(i,l)-diff_p1_foot_pos(i,l-1))/0.0005;
+%     end
+%     diff_p2_foot_vel(i,1)=0;
+%     for l=2:length(diff_p2_foot_pos(1,:))
+%         diff_p2_foot_vel(i,l)=(diff_p2_foot_pos(i,l)-diff_p2_foot_pos(i,l-1))/0.0005;
+%     end
+%     diff_p3_foot_vel(i,1)=0;
+%     for l=2:length(diff_p3_foot_pos(1,:))
+%         diff_p3_foot_vel(i,l)=(diff_p3_foot_pos(i,l)-diff_p3_foot_pos(i,l-1))/0.0005;
+%     end
     
-      diff_p1_plat_acc(i,1)=0;
-    for l=2:length(diff_p1_plat_pos(1,:))
-        diff_p1_plat_acc(i,l)=(diff_p1_plat_vel(i,l)-diff_p1_plat_vel(i,l-1))/0.0005;
-    end
-    diff_p2_plat_acc(i,1)=0;
-    for l=2:length(diff_p2_plat_pos(1,:))
-        diff_p2_plat_acc(i,l)=(diff_p2_plat_vel(i,l)-diff_p2_plat_vel(i,l-1))/0.0005;
-    end
-    diff_p3_plat_acc(i,1)=0;
-    for l=2:length(diff_p3_plat_pos(1,:))
-        diff_p3_plat_acc(i,l)=(diff_p3_plat_vel(i,l)-diff_p3_plat_vel(i,l-1))/0.0005;
-    end
-    diff_p1_foot_acc(i,1)=0;
-    for l=2:length(diff_p1_plat_pos(1,:))
-        diff_p1_foot_acc(i,l)=(diff_p1_foot_vel(i,l)-diff_p1_foot_vel(i,l-1))/0.0005;
-    end
-    diff_p2_foot_acc(i,1)=0;
-    for l=2:length(diff_p2_plat_pos(1,:))
-        diff_p2_foot_acc(i,l)=(diff_p2_foot_vel(i,l)-diff_p2_foot_vel(i,l-1))/0.0005;
-    end
-    diff_p3_foot_acc(i,1)=0;
-    for l=2:length(diff_p3_plat_pos(1,:))
-        diff_p3_foot_acc(i,l)=(diff_p3_foot_vel(i,l)-diff_p3_foot_vel(i,l-1))/0.0005;
-    end  
+%       diff_p1_plat_acc(i,1)=0;
+%     for l=2:length(diff_p1_plat_pos(1,:))
+%         diff_p1_plat_acc(i,l)=(diff_p1_plat_vel(i,l)-diff_p1_plat_vel(i,l-1))/0.0005;
+%     end
+%     diff_p2_plat_acc(i,1)=0;
+%     for l=2:length(diff_p2_plat_pos(1,:))
+%         diff_p2_plat_acc(i,l)=(diff_p2_plat_vel(i,l)-diff_p2_plat_vel(i,l-1))/0.0005;
+%     end
+%     diff_p3_plat_acc(i,1)=0;
+%     for l=2:length(diff_p3_plat_pos(1,:))
+%         diff_p3_plat_acc(i,l)=(diff_p3_plat_vel(i,l)-diff_p3_plat_vel(i,l-1))/0.0005;
+%     end
+%     diff_p1_foot_acc(i,1)=0;
+%     for l=2:length(diff_p1_plat_pos(1,:))
+%         diff_p1_foot_acc(i,l)=(diff_p1_foot_vel(i,l)-diff_p1_foot_vel(i,l-1))/0.0005;
+%     end
+%     diff_p2_foot_acc(i,1)=0;
+%     for l=2:length(diff_p2_plat_pos(1,:))
+%         diff_p2_foot_acc(i,l)=(diff_p2_foot_vel(i,l)-diff_p2_foot_vel(i,l-1))/0.0005;
+%     end
+%     diff_p3_foot_acc(i,1)=0;
+%     for l=2:length(diff_p3_plat_pos(1,:))
+%         diff_p3_foot_acc(i,l)=(diff_p3_foot_vel(i,l)-diff_p3_foot_vel(i,l-1))/0.0005;
+%     end  
    
     
-    diff_p4_plat_pos(i,:)=p4_plat_pos(i,p4_peakst(i)+PRE_PERT_WINDOW:p4_peakst(i)+POST_PERT_WINDOW);
-    diff_p4_plat_torque(i,:)=p4_act_torque(i,p4_peakst(i)+PRE_PERT_WINDOW:p4_peakst(i)+POST_PERT_WINDOW);
+%     diff_p4_plat_pos(i,:)=p4_plat_pos(i,p4_peakst(i)+PRE_PERT_WINDOW:p4_peakst(i)+POST_PERT_WINDOW);
+%     diff_p4_plat_torque(i,:)=p4_act_torque(i,p4_peakst(i)+PRE_PERT_WINDOW:p4_peakst(i)+POST_PERT_WINDOW);
     
-    diff_p4_plat_torque(i,:)=diff_p4_plat_torque(i,:)-p0_plat_torque15m;
+%     diff_p4_plat_torque(i,:)=diff_p4_plat_torque(i,:)-p0_plat_torque15m;
     
 %     diff_p4_foot_pos(i,:)=p4_foot_pos(i,p4_peakst(i)+PRE_PERT_WINDOW:p4_peakst(i)+POST_PERT_WINDOW)-p0_foot_pos15m;
-    diff_p4_foot_pos(i,:)=p4_foot_pos(i,p4_peakst(i)+PRE_PERT_WINDOW:p4_peakst(i)+POST_PERT_WINDOW);
-    diff_p4_foot_pos(i,:)=diff_p4_foot_pos(i,:)-diff_p4_foot_pos(i,100);
+%     diff_p4_foot_pos(i,:)=p4_foot_pos(i,p4_peakst(i)+PRE_PERT_WINDOW:p4_peakst(i)+POST_PERT_WINDOW);
+%     diff_p4_foot_pos(i,:)=diff_p4_foot_pos(i,:)-diff_p4_foot_pos(i,100);
     
     
-    diff_p4_plat_pos(i,:)=diff_p4_plat_pos(i,:)-diff_p4_plat_pos(i,100);
+%     diff_p4_plat_pos(i,:)=diff_p4_plat_pos(i,:)-diff_p4_plat_pos(i,100);
    
-    diff_p4_plat_vel(i,1)=0;
-    for l=2:length(diff_p4_plat_pos(1,:))
-        diff_p4_plat_vel(i,l)=(diff_p4_plat_pos(i,l)-diff_p4_plat_pos(i,l-1))/0.0005;
-    end
-    diff_p4_foot_vel(i,1)=0;
-    for l=2:length(diff_p4_foot_pos(1,:))
-        diff_p4_foot_vel(i,l)=(diff_p4_foot_pos(i,l)-diff_p4_foot_pos(i,l-1))/0.0005;
-    end
+%     diff_p4_plat_vel(i,1)=0;
+%     for l=2:length(diff_p4_plat_pos(1,:))
+%         diff_p4_plat_vel(i,l)=(diff_p4_plat_pos(i,l)-diff_p4_plat_pos(i,l-1))/0.0005;
+%     end
+%     diff_p4_foot_vel(i,1)=0;
+%     for l=2:length(diff_p4_foot_pos(1,:))
+%         diff_p4_foot_vel(i,l)=(diff_p4_foot_pos(i,l)-diff_p4_foot_pos(i,l-1))/0.0005;
+%     end
     
     
-      diff_p4_plat_acc(i,1)=0;
-    for l=2:length(diff_p4_plat_pos(1,:))
-        diff_p4_plat_acc(i,l)=(diff_p4_plat_vel(i,l)-diff_p4_plat_vel(i,l-1))/0.0005;
-    end
+%       diff_p4_plat_acc(i,1)=0;
+%     for l=2:length(diff_p4_plat_pos(1,:))
+%         diff_p4_plat_acc(i,l)=(diff_p4_plat_vel(i,l)-diff_p4_plat_vel(i,l-1))/0.0005;
+%     end
     
  
-    diff_p4_foot_acc(i,1)=0;
-    for l=2:length(diff_p4_plat_pos(1,:))
-        diff_p4_foot_acc(i,l)=(diff_p4_foot_vel(i,l)-diff_p4_foot_vel(i,l-1))/0.0005;
-    end
+%     diff_p4_foot_acc(i,1)=0;
+%     for l=2:length(diff_p4_plat_pos(1,:))
+%         diff_p4_foot_acc(i,l)=(diff_p4_foot_vel(i,l)-diff_p4_foot_vel(i,l-1))/0.0005;
+%     end
     
    
     
     
 end
+
+%Uses MATLAB's gradient function to find the derivatives, which uses the
+%central difference method -> Should have better properties (Though, considering
+%the sampling time vs. the foot dynamics, the difference should be very
+%small). 
+[diff_p1_foot_vel, diff_p1_foot_acc] = get_derivatives(diff_p1_foot_pos, SAMPLE_PERIOD);
+[diff_p2_foot_vel, diff_p2_foot_acc] = get_derivatives(diff_p2_foot_pos, SAMPLE_PERIOD);
+[diff_p3_foot_vel, diff_p3_foot_acc] = get_derivatives(diff_p3_foot_pos, SAMPLE_PERIOD);
+[diff_p4_foot_vel, diff_p4_foot_acc] = get_derivatives(diff_p4_foot_pos, SAMPLE_PERIOD);
+
+[diff_p1_plat_vel, diff_p1_plat_acc] = get_derivatives(diff_p1_plat_pos, SAMPLE_PERIOD);
+[diff_p2_plat_vel, diff_p2_plat_acc] = get_derivatives(diff_p2_plat_pos, SAMPLE_PERIOD);
+[diff_p3_plat_vel, diff_p3_plat_acc] = get_derivatives(diff_p3_plat_pos, SAMPLE_PERIOD);
+[diff_p4_plat_vel, diff_p4_plat_acc] = get_derivatives(diff_p4_plat_pos, SAMPLE_PERIOD);
+
+
 
 diff_p1_plat_torquem=trimmean(diff_p1_plat_torque,30);
 diff_p1_plat_posm=trimmean(diff_p1_plat_pos,30);
