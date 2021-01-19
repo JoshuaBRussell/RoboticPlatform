@@ -10,11 +10,11 @@ UPPER_SAMPLE_PLOT_LIMIT = 360;
 figure();
 
 %% Position Time Series Data
-ax1=subplot(4,1,1)
+ax1=subplot(5,1,1)
 
 s_time=-20:0.5:130;
 
-for i=1:28 
+for i=1:size(pos_data, 1) 
     plot(s_time, pos_data(i,LOWER_SAMPLE_PLOT_LIMIT:UPPER_SAMPLE_PLOT_LIMIT),'Color',[0.7 0.7 0.7]);
     hold on
 end
@@ -24,8 +24,8 @@ ylim([-0.1 0.1])
 title(title_str);
 
 %% Velocity Time Series Data
-ax2=subplot(4,1,2)
-for i=1:28 
+ax2=subplot(5,1,2)
+for i=1:size(pos_data, 1) 
 
     plot(s_time, vel_data(i,LOWER_SAMPLE_PLOT_LIMIT:UPPER_SAMPLE_PLOT_LIMIT),'Color',[0.7 0.7 0.7]);
     hold on
@@ -35,8 +35,8 @@ plot(s_time,vel_data_mean(LOWER_SAMPLE_PLOT_LIMIT:UPPER_SAMPLE_PLOT_LIMIT),'k');
 ylim([-1, 1]);
 
 %% Acceleration Time Series Data
-ax3=subplot(4,1,3)
-for i=1:28
+ax3=subplot(5,1,3)
+for i=1:size(pos_data, 1)
     plot(s_time, acc_data(i,LOWER_SAMPLE_PLOT_LIMIT:UPPER_SAMPLE_PLOT_LIMIT),'Color',[0.7 0.7 0.7]);
     hold on
 end
@@ -44,8 +44,18 @@ acc_data_mean = mean(acc_data);
 plot(s_time, acc_data_mean(LOWER_SAMPLE_PLOT_LIMIT:UPPER_SAMPLE_PLOT_LIMIT),'k');
 ylim([-50 50]);
 
+%% Torque Time Series Data
+ax3=subplot(5,1,4)
+for i=1:size(pos_data, 1)
+    plot(s_time, observed_data(i,LOWER_SAMPLE_PLOT_LIMIT:UPPER_SAMPLE_PLOT_LIMIT),'Color',[0.7 0.7 0.7]);
+    hold on
+end
+observed_data_data_mean = mean(observed_data);
+plot(s_time, observed_data_data_mean(LOWER_SAMPLE_PLOT_LIMIT:UPPER_SAMPLE_PLOT_LIMIT),'k');
+ylim([-50 50]);
+
 %% Regresion Model Time Series Data
-ax4=subplot(4,1,4)
+ax4=subplot(5,1,5)
 hold on
 observed_data_mean = mean(observed_data);
 plot(s_time, observed_data_mean(LOWER_SAMPLE_PLOT_LIMIT:UPPER_SAMPLE_PLOT_LIMIT),'k');
