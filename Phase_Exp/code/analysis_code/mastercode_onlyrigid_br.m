@@ -6,10 +6,10 @@
 %% Setup, Filtering and Data Visualization settings
 close all
 clear all
-% Getting the MVC values
-mvc_evaluation;
+
 % Insert subject initial and name.
 %Make sure it matches the format for naming
+DATA_FOLDER_REL_LOC = "./../subject_MMDDYY/" %Relative location for current code dir.
 sub_initial='M';
 sub_name='Morgan';
 %Add number of perturbation you actually ran
@@ -103,8 +103,11 @@ d3 = designfilt('lowpassiir','FilterOrder',4,'HalfPowerFrequency',...
     5,'DesignMethod','butter','Samplerate',2000);
 d1 = designfilt('lowpassiir','FilterOrder',4,'HalfPowerFrequency',15,...
     'DesignMethod','butter','Samplerate',2000);
+
+% Getting the MVC values
+mvc_evaluation;
 %% Section to calculate goniometer gains
-t=gonio_values_func;
+t=gonio_values_func(DATA_FOLDER_REL_LOC);
 DP_foot_gonio=t(1);
 DP_plat_gonio=t(2);
 
@@ -125,9 +128,9 @@ for trials=1:10
     
     if(ismember(trials,exclude)==0)
         if(trials<10)
-            h = fopen(strcat(sub_initial,'W0',num2str(trials),'.dat'));
+            h = fopen(strcat(DATA_FOLDER_REL_LOC, sub_initial,'W0',num2str(trials),'.dat'));
         else
-            h = fopen(strcat(sub_initial,'W',num2str(trials),'.dat'));
+            h = fopen(strcat(DATA_FOLDER_REL_LOC, sub_initial,'W',num2str(trials),'.dat'));
         end
         
         live_data=fread(h);
@@ -137,9 +140,9 @@ for trials=1:10
         [x,img_st]=findpeaks(diff(Img_flag));
         img_st=round(img_st(1)/MOCAP_SAMPLE_INDEX_CONV_FACTOR);
         if(trials<10)
-            Img=csvread(strcat(sub_name,'_00',num2str(trials),'.csv'));
+            Img=csvread(strcat(DATA_FOLDER_REL_LOC, sub_name,'_00',num2str(trials),'.csv'));
         else
-            Img=csvread(strcat(sub_name,'_0',num2str(trials),'.csv'));
+            Img=csvread(strcat(DATA_FOLDER_REL_LOC, sub_name,'_0',num2str(trials),'.csv'));
         end
         % obtaining data from channels
         pert_torque=filtfilt(d1,Input1.data(:,PERT_TORQUE_SIG));
