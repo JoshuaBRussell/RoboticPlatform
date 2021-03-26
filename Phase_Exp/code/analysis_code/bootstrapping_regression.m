@@ -17,8 +17,9 @@ for bootstrapping_counter = 1:BOOTSTRAP_COUNT
     torque_data_sample = torque_data(sample_ind, :)';
     
     data_matrix = [pos_data_sample(:), vel_data_sample(:), acc_data_sample(:)];
-
-    regression_coeff = lsqlin(data_matrix, torque_data_sample(:), A, B);
+%     data_matrix = [mean(pos_data_sample')', mean(vel_data_sample')', mean(acc_data_sample')']; 
+     regression_coeff = lsqlin(data_matrix, torque_data_sample(:), A, B);
+%     regression_coeff = lsqlin(data_matrix, mean(torque_data_sample'), A, B);
     regression_coeffs(bootstrapping_counter, :) = regression_coeff';
 end
 
