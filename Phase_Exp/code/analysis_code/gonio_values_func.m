@@ -1,8 +1,8 @@
-function[y]=gonio_values_func()
+function[y]=gonio_values_func(data_dir)
 
 perturb='D';
 if(perturb=='D' || perturb=='P')
-h = fopen(strcat('DPFOOT','.dat'));
+h = fopen(strcat(data_dir, 'DPFOOT','.dat'));
 live_data=fread(h);
 Input1= SimulinkRealTime.utils.getFileScopeData(live_data);
 d1 = designfilt('lowpassiir','FilterOrder',4,'HalfPowerFrequency',5,'DesignMethod','butter','Samplerate',2000);
@@ -43,7 +43,7 @@ hold on
 plot(encoder)
 
 else
-h = fopen(strcat('IEFOOT','.dat'));
+h = fopen(strcat(data_dir, 'IEFOOT','.dat'));
 live_data=fread(h);
 Input1= SimulinkRealTime.utils.getFileScopeData(live_data);
 d1 = designfilt('lowpassiir','FilterOrder',4,'HalfPowerFrequency',5,'DesignMethod','butter','Samplerate',2000);
