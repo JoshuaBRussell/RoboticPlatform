@@ -14,3 +14,5 @@ MS_Study_Trials/*
 
 !Phase_Exp/code
 !MS_Study_Trials/code
+
+Phase_Exp/code/analysis_code/results/*
