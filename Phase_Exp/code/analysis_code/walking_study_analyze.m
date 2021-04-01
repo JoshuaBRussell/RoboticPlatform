@@ -1,4 +1,3 @@
-
 %----mastercode_onlyrigid_br.m----%
 % Same as mastercode_onlyrigid.m except no bootstrapping. Just basic
 % regression with outlier removal
