@@ -9,10 +9,10 @@ clear all
 
 % Insert subject initial and name.
 %Make sure it matches the format for naming
-DATA_FOLDER_REL_LOC = "./../../data/Vu_121420/" %Relative location for current code dir.
+DATA_FOLDER_REL_LOC = "./../../data/subject_MMDDYY/" %Relative location for current code dir.
 path_str = split(DATA_FOLDER_REL_LOC, ["/", "_"]);
-sub_name = 'Vu';% path_str{3}; % 3 since the relative locations are considered parth of the path
-sub_initial='V';%sub_name(1);
+sub_name =  path_str{5}; % 5 since the relative locations are considered parth of the path
+sub_initial = sub_name(1);
 %Add number of perturbation you actually ran
 num_pert=40;
 
