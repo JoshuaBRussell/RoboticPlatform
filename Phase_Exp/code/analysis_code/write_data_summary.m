@@ -1,5 +1,6 @@
+%% Save Data Summary
 base_filename = 'datasummary.xlsx';
-filename = strcat(sub_name, '_', base_filename);
+filename = strcat(RESULTS_DIR, sub_name, '_', base_filename);
 gait_phase_percentages = {num2str(PERT_POINT_1); num2str(PERT_POINT_2);num2str(PERT_POINT_3); num2str(PERT_POINT_4);};
 varNames = {'Stiffness'; 'Damping'; 'Inertia'; 'Goodness'; 'Stiffness 95% CI'; ...
             'TA'; 'PL'; 'SOL'; 'GCA'; 'Weight'; 'Weight 95% CI'; 'CoP'; 'CoP 95% CI'; ...
@@ -17,6 +18,8 @@ data_table = table(imp_vals_bs(:, 1), imp_vals_bs(:, 2), imp_vals_bs(:, 3), ...
                    'RowNames', gait_phase_percentages, ...
                    'VariableNames',varNames);
 writetable(data_table, filename, 'WriteRowNames',true);
-% writematrix(section_1,filename,'Range','B7:F10');
-% writematrix(section_2,filename,'Range','H7:O10');
-% writematrix(section_3,filename,'Range','Q7:Q10');
+
+%% Save Plots
+hist_fig = figure()
+hist([img0_pos, img1_pos, img2_pos, img3_pos, img4_pos]);
+saveas(hist_fig, strcat(RESULTS_DIR, sub_name, "_foot_placement.png"));

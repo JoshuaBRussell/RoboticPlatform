@@ -9,10 +9,14 @@ clear all
 
 % Insert subject initial and name.
 %Make sure it matches the format for naming
-DATA_FOLDER_REL_LOC = "./../../data/subject_MMDDYY/" %Relative location for current code dir.
+DATA_FOLDER_REL_LOC = "./../../data/Vu_121420/" %Relative location for current code dir.
 path_str = split(DATA_FOLDER_REL_LOC, ["/", "_"]);
 sub_name =  path_str{5}; % 5 since the relative locations are considered parth of the path
 sub_initial = sub_name(1);
+
+
+RESULTS_DIR = strcat('./results/', sub_name, '/');
+mkdir(RESULTS_DIR);
 %Add number of perturbation you actually ran
 num_pert=40;
 
@@ -996,13 +1000,13 @@ imp_vals_bs_s = [ci_p4; ci_p1; ci_p2; ci_p3];
      
 if(plot_figs==1)
     plot_regression_results(diff_p4_foot_pos(~p4_removed_ind, :), diff_p4_foot_vel(~p4_removed_ind, :), ...
-                            diff_p4_foot_acc(~p4_removed_ind, :), diff_p4_plat_torqueimp(~p4_removed_ind, :), mean_p4, '18')
+                            diff_p4_foot_acc(~p4_removed_ind, :), diff_p4_plat_torqueimp(~p4_removed_ind, :), mean_p4, strcat(RESULTS_DIR, '18'))
     plot_regression_results(diff_p1_foot_pos(~p1_removed_ind, :), diff_p1_foot_vel(~p1_removed_ind, :), ...
-                            diff_p1_foot_acc(~p1_removed_ind, :), diff_p1_plat_torqueimp(~p1_removed_ind, :), mean_p1, '31')
+                            diff_p1_foot_acc(~p1_removed_ind, :), diff_p1_plat_torqueimp(~p1_removed_ind, :), mean_p1, strcat(RESULTS_DIR, '31'))
     plot_regression_results(diff_p2_foot_pos(~p2_removed_ind, :), diff_p2_foot_vel(~p2_removed_ind, :), ...
-                            diff_p2_foot_acc(~p2_removed_ind, :), diff_p2_plat_torqueimp(~p2_removed_ind, :), mean_p2, '44')
+                            diff_p2_foot_acc(~p2_removed_ind, :), diff_p2_plat_torqueimp(~p2_removed_ind, :), mean_p2, strcat(RESULTS_DIR, '44'))
     plot_regression_results(diff_p3_foot_pos(~p3_removed_ind, :), diff_p3_foot_vel(~p3_removed_ind, :), ...
-                            diff_p3_foot_acc(~p3_removed_ind, :), diff_p3_plat_torqueimp(~p3_removed_ind, :), mean_p3, '57')
+                            diff_p3_foot_acc(~p3_removed_ind, :), diff_p3_plat_torqueimp(~p3_removed_ind, :), mean_p3, strcat(RESULTS_DIR, '57'))
 
 end                     
 
@@ -1018,10 +1022,6 @@ step_placement_number_remaining = [sum(~p4_removed_ind); sum(~p1_removed_ind); s
 
 
 write_data_summary;
-
-hist_fig = figure()
-hist([img0_pos, img1_pos, img2_pos, img3_pos, img4_pos]);
-saveas(hist_fig, strcat(sub_name, "_foot_placement.png"));
 
 figure();
 plot((diff_p4_plat_torqueimp(~p4_removed_ind, :))', 'k'); hold on;
