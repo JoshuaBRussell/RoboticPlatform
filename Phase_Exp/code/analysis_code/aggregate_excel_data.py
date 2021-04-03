@@ -5,13 +5,17 @@ import pandas as pd
 from openpyxl import load_workbook
 
 
-OUTPUT_FILE_NAME = "DIR_Summary.xlsx"
-SUBJ_NAMES = ["Carl", "Abhigya", "Vu", "Emily", "Ashley", "Carly", "Lily"]
+OUTPUT_FILE_NAME = './results/DIR_Summary.xlsx'
+SUBJ_NAMES = ["Carl", "Vu", "Emily", "Ashley", "Carly", "Lily", "Matt", "James", "Kwanghee"]
+
+RESULTS_DIR = r'./results/'
 
 FILE_NAME_SUFFIX = "_datasummary.xlsx"
 
+
+
 for i in range(len(SUBJ_NAMES)):
-    curr_file = SUBJ_NAMES[i]+FILE_NAME_SUFFIX
+    curr_file =  RESULTS_DIR + SUBJ_NAMES[i] + '/' + SUBJ_NAMES[i]+FILE_NAME_SUFFIX
     print("Opening: ", curr_file)
 
     spread_sheet_obj = pd.ExcelFile(curr_file)
