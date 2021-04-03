@@ -4,15 +4,24 @@
 
 %% Setup, Filtering and Data Visualization settings
 close all
-clear all
+clearvars -except GROUP_DATA_FOLDER_REL_LOC multi_subj SUBJ_DATA_DIRS CURR_SUBJ_REL_LOC
 
+
+%%Check to see if this is the main script or is being called by
+%%mastercode_multiple_subjects.m
+ise = evalin( 'base', 'exist(''multi_subj'',''var'') == 1' )
+if ise == 1
+   DATA_FOLDER_REL_LOC = CURR_SUBJ_REL_LOC; 
+
+else
 % Insert subject initial and name.
 %Make sure it matches the format for naming
-DATA_FOLDER_REL_LOC = "./../../data/Vu_121420/" %Relative location for current code dir.
+    DATA_FOLDER_REL_LOC = "./../../data/Vu_121420/" %Relative location for current code dir.
+end
+
 path_str = split(DATA_FOLDER_REL_LOC, ["/", "_"]);
 sub_name =  path_str{5}; % 5 since the relative locations are considered parth of the path
 sub_initial = sub_name(1);
-
 
 RESULTS_DIR = strcat('./results/', sub_name, '/');
 mkdir(RESULTS_DIR);
