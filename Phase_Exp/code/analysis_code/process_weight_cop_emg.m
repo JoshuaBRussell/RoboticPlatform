@@ -84,7 +84,7 @@ title(str)
 legend('Rigid');
 xlabel('Gait Cycle (%)');
 ylabel('CoP(cm)');
-saveas(gcf,'copf_plot.jpg');
+saveas(gcf,strcat(RESULTS_DIR, 'copf_plot.jpg'));
 
 
 %% Normalized (Time) EMG Plot
@@ -222,7 +222,7 @@ legend('Rigid');
 xlabel('Gait Cycle (%)');
 ylabel('GCA EMG');
 
-saveas(gcf,'emg_plot.jpg');
+saveas(gcf, strcat(RESULTS_DIR,'emg_plot.jpg'));
 
 
 %% Normalized (Time) Weight Plot
@@ -256,4 +256,4 @@ legend('Rigid');
 xlabel('Gait Cycle (%)');
 ylabel('Weight');
 
-saveas(gcf,'weight_plot.jpg');
+saveas(gcf,strcat(RESULTS_DIR,'weight_plot.jpg'));
