@@ -28,6 +28,9 @@ mkdir(RESULTS_DIR);
 %Add number of perturbation you actually ran
 num_pert=40;
 
+
+BOOTSTRAP_COUNT = 100;
+
 SAMPLE_RATE_HZ = 2000;
 SAMPLE_PERIOD = 1/SAMPLE_RATE_HZ;
 
@@ -613,21 +616,7 @@ p3_seg_removed_ind = p3_pos_seg_removed_ind | p3_trq_seg_removed_ind | p3_foot_p
 p4_seg_removed_ind = p4_pos_seg_removed_ind | p4_trq_seg_removed_ind | p4_foot_placement_rej_ind;
 
 
-[diff_p1_foot_pos, diff_p1_plat_torque] = get_pos_torque_diff(p0_foot_pos30, p1_foot_pos_segment(~p1_seg_removed_ind, :), p0_plat_torque30, p1_plat_torque_segment(~p1_seg_removed_ind, :));
-[diff_p2_foot_pos, diff_p2_plat_torque] = get_pos_torque_diff(p0_foot_pos45, p2_foot_pos_segment(~p2_seg_removed_ind, :), p0_plat_torque45, p2_plat_torque_segment(~p2_seg_removed_ind, :));
-[diff_p3_foot_pos, diff_p3_plat_torque] = get_pos_torque_diff(p0_foot_pos60, p3_foot_pos_segment(~p3_seg_removed_ind, :), p0_plat_torque60, p3_plat_torque_segment(~p3_seg_removed_ind, :));
-[diff_p4_foot_pos, diff_p4_plat_torque] = get_pos_torque_diff(p0_foot_pos15, p4_foot_pos_segment(~p4_seg_removed_ind, :), p0_plat_torque15, p4_plat_torque_segment(~p4_seg_removed_ind, :));
-
-
-
-%Treats no-perturbation case as a baseline and removes it to get
-%differential position over the entire trial. 
-% p1_foot_pos = p1_foot_pos - p0_foot_posm;
-% p2_foot_pos = p2_foot_pos - p0_foot_posm;
-% p3_foot_pos = p3_foot_pos - p0_foot_posm;
-% p4_foot_pos = p4_foot_pos - p0_foot_posm;
-
-
+%% Find Platform Position Differentials
 for i=1:analysis_value-1
 
     %Differential Platform Position
@@ -640,30 +629,17 @@ for i=1:analysis_value-1
     diff_p2_plat_pos(i,:)=diff_p2_plat_pos(i,:)-diff_p2_plat_pos(i,100);
     diff_p3_plat_pos(i,:)=diff_p3_plat_pos(i,:)-diff_p3_plat_pos(i,100);
     diff_p4_plat_pos(i,:)=diff_p4_plat_pos(i,:)-diff_p4_plat_pos(i,100);
-    
-    %Differential Platform Torque
-%     diff_p1_plat_torque(i,:)=p1_act_torque(i,p1_peakst(i)+PRE_PERT_WINDOW:p1_peakst(i)+POST_PERT_WINDOW);
-%     diff_p2_plat_torque(i,:)=p2_act_torque(i,p2_peakst(i)+PRE_PERT_WINDOW:p2_peakst(i)+POST_PERT_WINDOW);
-%     diff_p3_plat_torque(i,:)=p3_act_torque(i,p3_peakst(i)+PRE_PERT_WINDOW:p3_peakst(i)+POST_PERT_WINDOW);
-%     diff_p4_plat_torque(i,:)=p4_act_torque(i,p4_peakst(i)+PRE_PERT_WINDOW:p4_peakst(i)+POST_PERT_WINDOW);
-% 
-%     diff_p1_plat_torque(i,:)=diff_p1_plat_torque(i,:)-p0_plat_torque30m;
-%     diff_p2_plat_torque(i,:)=diff_p2_plat_torque(i,:)-p0_plat_torque45m;
-%     diff_p3_plat_torque(i,:)=diff_p3_plat_torque(i,:)-p0_plat_torque60m;
-%     diff_p4_plat_torque(i,:)=diff_p4_plat_torque(i,:)-p0_plat_torque15m;
-
-    %Differential Foot Position 
-%     diff_p1_foot_pos(i,:)=p1_foot_pos(i,p1_peakst(i)+PRE_PERT_WINDOW:p1_peakst(i)+POST_PERT_WINDOW);
-%     diff_p2_foot_pos(i,:)=p2_foot_pos(i,p2_peakst(i)+PRE_PERT_WINDOW:p2_peakst(i)+POST_PERT_WINDOW);
-%     diff_p3_foot_pos(i,:)=p3_foot_pos(i,p3_peakst(i)+PRE_PERT_WINDOW:p3_peakst(i)+POST_PERT_WINDOW);
-%     diff_p4_foot_pos(i,:)=p4_foot_pos(i,p4_peakst(i)+PRE_PERT_WINDOW:p4_peakst(i)+POST_PERT_WINDOW);
-%      
-%     diff_p1_foot_pos(i,:)=diff_p1_foot_pos(i,:)-diff_p1_foot_pos(i,100);
-%     diff_p2_foot_pos(i,:)=diff_p2_foot_pos(i,:)-diff_p2_foot_pos(i,100);
-%     diff_p3_foot_pos(i,:)=diff_p3_foot_pos(i,:)-diff_p3_foot_pos(i,100);
-%     diff_p4_foot_pos(i,:)=diff_p4_foot_pos(i,:)-diff_p4_foot_pos(i,100);
-    
+        
 end
+
+
+[diff_p1_foot_pos, diff_p1_plat_torque, diff_p1_plat_pos] = get_pos_torque_diff(p0_foot_pos30, p1_foot_pos_segment(~p1_seg_removed_ind, :), p0_plat_torque30, p1_plat_torque_segment(~p1_seg_removed_ind, :), diff_p1_plat_pos(~p1_seg_removed_ind, :));
+[diff_p2_foot_pos, diff_p2_plat_torque, diff_p2_plat_pos] = get_pos_torque_diff(p0_foot_pos45, p2_foot_pos_segment(~p2_seg_removed_ind, :), p0_plat_torque45, p2_plat_torque_segment(~p2_seg_removed_ind, :), diff_p2_plat_pos(~p2_seg_removed_ind, :));
+[diff_p3_foot_pos, diff_p3_plat_torque, diff_p3_plat_pos] = get_pos_torque_diff(p0_foot_pos60, p3_foot_pos_segment(~p3_seg_removed_ind, :), p0_plat_torque60, p3_plat_torque_segment(~p3_seg_removed_ind, :), diff_p3_plat_pos(~p3_seg_removed_ind, :));
+[diff_p4_foot_pos, diff_p4_plat_torque, diff_p4_plat_pos] = get_pos_torque_diff(p0_foot_pos15, p4_foot_pos_segment(~p4_seg_removed_ind, :), p0_plat_torque15, p4_plat_torque_segment(~p4_seg_removed_ind, :), diff_p4_plat_pos(~p4_seg_removed_ind, :));
+
+
+
 
 %% Get's Derivatives for ankle and platform
 %Uses MATLAB's gradient function to find the derivatives, which uses the
@@ -712,7 +688,7 @@ diff_p4_foot_accm=trimmean(diff_p4_foot_acc,30);
 %individual impances are estimated.
 exc_rigid=[p1,p2,p3,p4];
 analysis_value=min(exc_rigid);
-for i=1:analysis_value-1
+for i=1:BOOTSTRAP_COUNT
     diff_p1_plat_torqueimp(i,:)=diff_p1_plat_torque(i,:)-0.1945*diff_p1_plat_acc(i,:);%+0.02*diff_p1_foot_accm;%+1*diff_p1_foot_velm;
     diff_p1_plat_torqueimp(i,:)=diff_p1_plat_torqueimp(i,:)-diff_p1_plat_torqueimp(i,100);
     
@@ -774,23 +750,23 @@ end
 
 
 %%---P1---%%
-
-%Outlier Rejection
-if strcmp(outlier_removal_type, "POS")
-    [p1_outliers_ind, p1_removed_ind] = rmoutliers(diff_p1_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-elseif strcmp(outlier_removal_type, "ACC_TOR")
-    [p1_outliers_ind, p1_removed_ind] = rmoutliers(diff_p1_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-elseif strcmp(outlier_removal_type, "POS_TRQ")
-      [p1_pos_outliers_ind, p1_pos_removed_ind] = rmoutliers(diff_p1_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-      [p1_trq_outliers_ind, p1_trq_removed_ind] = rmoutliers(diff_p1_plat_torqueimp(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-      p1_removed_ind = p1_pos_removed_ind | p1_trq_removed_ind;
-elseif  strcmp(outlier_removal_type, "POS_VEL_ACC_TRQ")
-    [p1_pos_outliers_ind, p1_pos_removed_ind] = rmoutliers(diff_p1_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-    [p1_vel_outliers_ind, p1_vel_removed_ind] = rmoutliers(diff_p1_foot_vel(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-    [p1_acc_outliers_ind, p1_acc_removed_ind] = rmoutliers(diff_p1_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-    [p1_trq_outliers_ind, p1_trq_removed_ind] = rmoutliers(diff_p1_plat_torqueimp(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-    p1_removed_ind = p1_pos_removed_ind | p1_vel_removed_ind | p1_acc_removed_ind | p1_trq_removed_ind;
-end
+% 
+% %Outlier Rejection
+% if strcmp(outlier_removal_type, "POS")
+%     [p1_outliers_ind, p1_removed_ind] = rmoutliers(diff_p1_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+% elseif strcmp(outlier_removal_type, "ACC_TOR")
+%     [p1_outliers_ind, p1_removed_ind] = rmoutliers(diff_p1_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+% elseif strcmp(outlier_removal_type, "POS_TRQ")
+%       [p1_pos_outliers_ind, p1_pos_removed_ind] = rmoutliers(diff_p1_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+%       [p1_trq_outliers_ind, p1_trq_removed_ind] = rmoutliers(diff_p1_plat_torqueimp(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+%       p1_removed_ind = p1_pos_removed_ind | p1_trq_removed_ind;
+% elseif  strcmp(outlier_removal_type, "POS_VEL_ACC_TRQ")
+%     [p1_pos_outliers_ind, p1_pos_removed_ind] = rmoutliers(diff_p1_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+%     [p1_vel_outliers_ind, p1_vel_removed_ind] = rmoutliers(diff_p1_foot_vel(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+%     [p1_acc_outliers_ind, p1_acc_removed_ind] = rmoutliers(diff_p1_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+%     [p1_trq_outliers_ind, p1_trq_removed_ind] = rmoutliers(diff_p1_plat_torqueimp(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+%     p1_removed_ind = p1_pos_removed_ind | p1_vel_removed_ind | p1_acc_removed_ind | p1_trq_removed_ind;
+% end
 
 % p1_removed_ind = p1_removed_ind | (abs(img1_pos') > POS_REJECTION_LIMIT);
 
@@ -798,130 +774,143 @@ end
 %1st Column: Diff Pos.
 %2nd Column: Diff Vel.
 %3rd Column: Diff Acc.
-diff_p1_pos_data_vec = diff_p1_foot_pos(~p1_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
-diff_p1_vel_data_vec = diff_p1_foot_vel(~p1_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
-diff_p1_acc_data_vec = diff_p1_foot_acc(~p1_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
-p1_data_matrix = [diff_p1_pos_data_vec(:), diff_p1_vel_data_vec(:), diff_p1_acc_data_vec(:)];
+% diff_p1_pos_data_vec = diff_p1_foot_pos(~p1_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
+% diff_p1_vel_data_vec = diff_p1_foot_vel(~p1_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
+% diff_p1_acc_data_vec = diff_p1_foot_acc(~p1_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
+% p1_data_matrix = [diff_p1_pos_data_vec(:), diff_p1_vel_data_vec(:), diff_p1_acc_data_vec(:)];
+% 
+% p1_torque_data_matrix = diff_p1_plat_torqueimp(~p1_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
+% p1_output_data_vec = p1_torque_data_matrix(:);
+% 
+ A1=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
+ B1=[0 ;0 ;1000;1000;-1*lim;u_lim];
 
-p1_torque_data_matrix = diff_p1_plat_torqueimp(~p1_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
-p1_output_data_vec = p1_torque_data_matrix(:);
-
-A1=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-B1=[0 ;0 ;1000;1000;-1*lim;u_lim];
-
-p1_regressors = lsqlin(p1_data_matrix, p1_output_data_vec, A1, B1);
+[mean_p1, ci_p1, GoF_p1] = regress_after_bootstrap(diff_p1_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
+                                            diff_p1_foot_vel(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
+                                            diff_p1_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
+                                            diff_p1_plat_torque(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
+                                            A1, B1);
 
 %%---P2---%%
 
-%Outlier Rejection
-if strcmp(outlier_removal_type, "POS")
-    [p2_outliers_ind, p2_removed_ind] = rmoutliers(diff_p2_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-elseif strcmp(outlier_removal_type, "ACC_TOR")
-    [p2_outliers_ind, p2_removed_ind] = rmoutliers(diff_p2_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-elseif strcmp(outlier_removal_type, "POS_TRQ")
-      [p2_pos_outliers_ind, p2_pos_removed_ind] = rmoutliers(diff_p2_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-      [p2_trq_outliers_ind, p2_trq_removed_ind] = rmoutliers(diff_p2_plat_torqueimp(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-      p2_removed_ind = p2_pos_removed_ind | p2_trq_removed_ind;
-elseif  strcmp(outlier_removal_type, "POS_VEL_ACC_TRQ")
-    [p2_pos_outliers_ind, p2_pos_removed_ind] = rmoutliers(diff_p2_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-    [p2_vel_outliers_ind, p2_vel_removed_ind] = rmoutliers(diff_p2_foot_vel(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-    [p2_acc_outliers_ind, p2_acc_removed_ind] = rmoutliers(diff_p2_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-    [p2_trq_outliers_ind, p2_trq_removed_ind] = rmoutliers(diff_p2_plat_torqueimp(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-    p2_removed_ind = p2_pos_removed_ind | p2_vel_removed_ind | p2_acc_removed_ind | p2_trq_removed_ind;
-end
+% %Outlier Rejection
+% if strcmp(outlier_removal_type, "POS")
+%     [p2_outliers_ind, p2_removed_ind] = rmoutliers(diff_p2_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+% elseif strcmp(outlier_removal_type, "ACC_TOR")
+%     [p2_outliers_ind, p2_removed_ind] = rmoutliers(diff_p2_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+% elseif strcmp(outlier_removal_type, "POS_TRQ")
+%       [p2_pos_outliers_ind, p2_pos_removed_ind] = rmoutliers(diff_p2_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+%       [p2_trq_outliers_ind, p2_trq_removed_ind] = rmoutliers(diff_p2_plat_torqueimp(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+%       p2_removed_ind = p2_pos_removed_ind | p2_trq_removed_ind;
+% elseif  strcmp(outlier_removal_type, "POS_VEL_ACC_TRQ")
+%     [p2_pos_outliers_ind, p2_pos_removed_ind] = rmoutliers(diff_p2_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+%     [p2_vel_outliers_ind, p2_vel_removed_ind] = rmoutliers(diff_p2_foot_vel(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+%     [p2_acc_outliers_ind, p2_acc_removed_ind] = rmoutliers(diff_p2_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+%     [p2_trq_outliers_ind, p2_trq_removed_ind] = rmoutliers(diff_p2_plat_torqueimp(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+%     p2_removed_ind = p2_pos_removed_ind | p2_vel_removed_ind | p2_acc_removed_ind | p2_trq_removed_ind;
+% end
 
 % p2_removed_ind = p2_removed_ind | (abs(img2_pos') > POS_REJECTION_LIMIT);
 
 %1st Column: Diff Pos.
 %2nd Column: Diff Vel.
 %3rd Column: Diff Acc.
-diff_p2_pos_data_vec = diff_p2_foot_pos(~p2_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
-diff_p2_vel_data_vec = diff_p2_foot_vel(~p2_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
-diff_p2_acc_data_vec = diff_p2_foot_acc(~p2_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
-p2_data_matrix = [diff_p2_pos_data_vec(:), diff_p2_vel_data_vec(:), diff_p2_acc_data_vec(:)];
+% diff_p2_pos_data_vec = diff_p2_foot_pos(~p2_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
+% diff_p2_vel_data_vec = diff_p2_foot_vel(~p2_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
+% diff_p2_acc_data_vec = diff_p2_foot_acc(~p2_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
+% p2_data_matrix = [diff_p2_pos_data_vec(:), diff_p2_vel_data_vec(:), diff_p2_acc_data_vec(:)];
+% 
+% p2_torque_data_matrix = diff_p2_plat_torqueimp(~p2_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
+% p2_output_data_vec = p2_torque_data_matrix(:);
+% 
+% A1=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
+% B1=[0 ;0 ;1000;1000;-1*lim;u_lim];
 
-p2_torque_data_matrix = diff_p2_plat_torqueimp(~p2_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
-p2_output_data_vec = p2_torque_data_matrix(:);
-
-A1=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-B1=[0 ;0 ;1000;1000;-1*lim;u_lim];
-
-p2_regressors = lsqlin(p2_data_matrix, p2_output_data_vec, A1, B1);
-
+[mean_p2, ci_p2, GoF_p2] = regress_after_bootstrap(diff_p2_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
+                                            diff_p2_foot_vel(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
+                                            diff_p2_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
+                                            diff_p2_plat_torque(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
+                                            A1, B1);
 %%---P3---%%
-
-%Outlier Rejection
-if strcmp(outlier_removal_type, "POS")
-    [p3_outliers_ind, p3_removed_ind] = rmoutliers(diff_p3_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-elseif strcmp(outlier_removal_type, "ACC_TOR")
-    [p3_outliers_ind, p3_removed_ind] = rmoutliers(diff_p3_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-elseif strcmp(outlier_removal_type, "POS_TRQ")
-      [p3_pos_outliers_ind, p3_pos_removed_ind] = rmoutliers(diff_p3_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-      [p3_trq_outliers_ind, p3_trq_removed_ind] = rmoutliers(diff_p3_plat_torqueimp(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-      p3_removed_ind = p3_pos_removed_ind | p3_trq_removed_ind;
-elseif  strcmp(outlier_removal_type, "POS_VEL_ACC_TRQ")
-    [p3_pos_outliers_ind, p3_pos_removed_ind] = rmoutliers(diff_p3_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-    [p3_vel_outliers_ind, p3_vel_removed_ind] = rmoutliers(diff_p3_foot_vel(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-    [p3_acc_outliers_ind, p3_acc_removed_ind] = rmoutliers(diff_p3_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-    [p3_trq_outliers_ind, p3_trq_removed_ind] = rmoutliers(diff_p3_plat_torqueimp(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-    p3_removed_ind = p3_pos_removed_ind | p3_vel_removed_ind | p3_acc_removed_ind | p3_trq_removed_ind;
-end
+% 
+% %Outlier Rejection
+% if strcmp(outlier_removal_type, "POS")
+%     [p3_outliers_ind, p3_removed_ind] = rmoutliers(diff_p3_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+% elseif strcmp(outlier_removal_type, "ACC_TOR")
+%     [p3_outliers_ind, p3_removed_ind] = rmoutliers(diff_p3_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+% elseif strcmp(outlier_removal_type, "POS_TRQ")
+%       [p3_pos_outliers_ind, p3_pos_removed_ind] = rmoutliers(diff_p3_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+%       [p3_trq_outliers_ind, p3_trq_removed_ind] = rmoutliers(diff_p3_plat_torqueimp(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+%       p3_removed_ind = p3_pos_removed_ind | p3_trq_removed_ind;
+% elseif  strcmp(outlier_removal_type, "POS_VEL_ACC_TRQ")
+%     [p3_pos_outliers_ind, p3_pos_removed_ind] = rmoutliers(diff_p3_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+%     [p3_vel_outliers_ind, p3_vel_removed_ind] = rmoutliers(diff_p3_foot_vel(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+%     [p3_acc_outliers_ind, p3_acc_removed_ind] = rmoutliers(diff_p3_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+%     [p3_trq_outliers_ind, p3_trq_removed_ind] = rmoutliers(diff_p3_plat_torqueimp(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+%     p3_removed_ind = p3_pos_removed_ind | p3_vel_removed_ind | p3_acc_removed_ind | p3_trq_removed_ind;
+% end
 
 % p3_removed_ind = p3_removed_ind | (abs(img3_pos') > POS_REJECTION_LIMIT);
 
 %1st Column: Diff Pos.
 %2nd Column: Diff Vel.
 %3rd Column: Diff Acc.
-diff_p3_pos_data_vec = diff_p3_foot_pos(~p3_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
-diff_p3_vel_data_vec = diff_p3_foot_vel(~p3_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
-diff_p3_acc_data_vec = diff_p3_foot_acc(~p3_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
-p3_data_matrix = [diff_p3_pos_data_vec(:), diff_p3_vel_data_vec(:), diff_p3_acc_data_vec(:)];
+% diff_p3_pos_data_vec = diff_p3_foot_pos(~p3_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
+% diff_p3_vel_data_vec = diff_p3_foot_vel(~p3_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
+% diff_p3_acc_data_vec = diff_p3_foot_acc(~p3_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
+% p3_data_matrix = [diff_p3_pos_data_vec(:), diff_p3_vel_data_vec(:), diff_p3_acc_data_vec(:)];
+% 
+% p3_torque_data_matrix = diff_p3_plat_torqueimp(~p3_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
+% p3_output_data_vec = p3_torque_data_matrix(:);
+% 
+% A1=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
+% B1=[0 ;0 ;1000;1000;-1*lim;u_lim];
 
-p3_torque_data_matrix = diff_p3_plat_torqueimp(~p3_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
-p3_output_data_vec = p3_torque_data_matrix(:);
-
-A1=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-B1=[0 ;0 ;1000;1000;-1*lim;u_lim];
-
-p3_regressors = lsqlin(p3_data_matrix, p3_output_data_vec, A1, B1);
-
+[mean_p3, ci_p3, GoF_p3] = regress_after_bootstrap(diff_p3_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
+                                            diff_p3_foot_vel(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
+                                            diff_p3_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
+                                            diff_p3_plat_torque(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
+                                            A1, B1);
 %%---P4---%%
 
 %Outlier Rejection
-if strcmp(outlier_removal_type, "POS")
-    [p4_outliers_ind, p4_removed_ind] = rmoutliers(diff_p4_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-elseif strcmp(outlier_removal_type, "ACC_TOR")
-    [p4_outliers_ind, p4_removed_ind] = rmoutliers(diff_p4_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-elseif strcmp(outlier_removal_type, "POS_TRQ")
-      [p4_pos_outliers_ind, p4_pos_removed_ind] = rmoutliers(diff_p4_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-      [p4_trq_outliers_ind, p4_trq_removed_ind] = rmoutliers(diff_p4_plat_torqueimp(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-      p4_removed_ind = p4_pos_removed_ind | p4_trq_removed_ind;
-elseif  strcmp(outlier_removal_type, "POS_VEL_ACC_TRQ")
-    [p4_pos_outliers_ind, p4_pos_removed_ind] = rmoutliers(diff_p4_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-    [p4_vel_outliers_ind, p4_vel_removed_ind] = rmoutliers(diff_p4_foot_vel(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-    [p4_acc_outliers_ind, p4_acc_removed_ind] = rmoutliers(diff_p4_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-    [p4_trq_outliers_ind, p4_trq_removed_ind] = rmoutliers(diff_p4_plat_torqueimp(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
-    p4_removed_ind = p4_pos_removed_ind | p4_vel_removed_ind | p4_acc_removed_ind | p4_trq_removed_ind;
-end
+% if strcmp(outlier_removal_type, "POS")
+%     [p4_outliers_ind, p4_removed_ind] = rmoutliers(diff_p4_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+% elseif strcmp(outlier_removal_type, "ACC_TOR")
+%     [p4_outliers_ind, p4_removed_ind] = rmoutliers(diff_p4_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+% elseif strcmp(outlier_removal_type, "POS_TRQ")
+%       [p4_pos_outliers_ind, p4_pos_removed_ind] = rmoutliers(diff_p4_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+%       [p4_trq_outliers_ind, p4_trq_removed_ind] = rmoutliers(diff_p4_plat_torqueimp(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+%       p4_removed_ind = p4_pos_removed_ind | p4_trq_removed_ind;
+% elseif  strcmp(outlier_removal_type, "POS_VEL_ACC_TRQ")
+%     [p4_pos_outliers_ind, p4_pos_removed_ind] = rmoutliers(diff_p4_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+%     [p4_vel_outliers_ind, p4_vel_removed_ind] = rmoutliers(diff_p4_foot_vel(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+%     [p4_acc_outliers_ind, p4_acc_removed_ind] = rmoutliers(diff_p4_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+%     [p4_trq_outliers_ind, p4_trq_removed_ind] = rmoutliers(diff_p4_plat_torqueimp(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), 'ThresholdFactor', outlier_criterion_std);
+%     p4_removed_ind = p4_pos_removed_ind | p4_vel_removed_ind | p4_acc_removed_ind | p4_trq_removed_ind;
+% end
 
 % p4_removed_ind = p4_removed_ind | (abs(img4_pos') > POS_REJECTION_LIMIT);
 
 %1st Column: Diff Pos.
 %2nd Column: Diff Vel.
 %3rd Column: Diff Acc.
-diff_p4_pos_data_vec = diff_p4_foot_pos(~p4_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
-diff_p4_vel_data_vec = diff_p4_foot_vel(~p4_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
-diff_p4_acc_data_vec = diff_p4_foot_acc(~p4_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
-p4_data_matrix = [diff_p4_pos_data_vec(:), diff_p4_vel_data_vec(:), diff_p4_acc_data_vec(:)];
+% diff_p4_pos_data_vec = diff_p4_foot_pos(~p4_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
+% diff_p4_vel_data_vec = diff_p4_foot_vel(~p4_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
+% diff_p4_acc_data_vec = diff_p4_foot_acc(~p4_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
+% p4_data_matrix = [diff_p4_pos_data_vec(:), diff_p4_vel_data_vec(:), diff_p4_acc_data_vec(:)];
+% 
+% p4_torque_data_matrix = diff_p4_plat_torqueimp(~p4_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
+% p4_output_data_vec = p4_torque_data_matrix(:);
+% 
+% A1=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
+% B1=[0 ;0 ;1000;1000;-1*lim;u_lim];
 
-p4_torque_data_matrix = diff_p4_plat_torqueimp(~p4_removed_ind, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
-p4_output_data_vec = p4_torque_data_matrix(:);
-
-A1=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-B1=[0 ;0 ;1000;1000;-1*lim;u_lim];
-
-p4_regressors = lsqlin(p4_data_matrix, p4_output_data_vec, A1, B1);
-
+[mean_p4, ci_p4, GoF_p4] = regress_after_bootstrap(diff_p4_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
+                                            diff_p4_foot_vel(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
+                                            diff_p4_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
+                                            diff_p4_plat_torque(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
+                                            A1, B1);
 
 %% Storing final data
 
@@ -980,18 +969,16 @@ p4_regressors = lsqlin(p4_data_matrix, p4_output_data_vec, A1, B1);
 %The order is from lower to greater stance phase percentage.
 %The odd numbering is due to how the connections are made in the Simulink
 %file.
-imp_vals_br = [p4_regressors'; p1_regressors'; p2_regressors'; p3_regressors'];
 
-
-[mean_p4, ci_p4, GoF_p4] = bootstrapping_regression(diff_p4_pos_data_vec', diff_p4_vel_data_vec', diff_p4_acc_data_vec', ...
-                         p4_torque_data_matrix', 0.7, A1, B1);
-[mean_p1, ci_p1, GoF_p1] = bootstrapping_regression(diff_p1_pos_data_vec', diff_p1_vel_data_vec', diff_p1_acc_data_vec', ...
-                         p1_torque_data_matrix', 0.7, A1, B1);
-          
-[mean_p2, ci_p2, GoF_p2] = bootstrapping_regression(diff_p2_pos_data_vec', diff_p2_vel_data_vec', diff_p2_acc_data_vec', ...
-                         p2_torque_data_matrix', 0.7, A1, B1);
-[mean_p3, ci_p3, GoF_p3] = bootstrapping_regression(diff_p3_pos_data_vec', diff_p3_vel_data_vec', diff_p3_acc_data_vec', ...
-                         p3_torque_data_matrix', 0.7, A1, B1);
+% [mean_p4, ci_p4, GoF_p4] = bootstrapping_regression(diff_p4_pos_data_vec', diff_p4_vel_data_vec', diff_p4_acc_data_vec', ...
+%                          p4_torque_data_matrix', 0.7, A1, B1);
+% [mean_p1, ci_p1, GoF_p1] = bootstrapping_regression(diff_p1_pos_data_vec', diff_p1_vel_data_vec', diff_p1_acc_data_vec', ...
+%                          p1_torque_data_matrix', 0.7, A1, B1);
+%           
+% [mean_p2, ci_p2, GoF_p2] = bootstrapping_regression(diff_p2_pos_data_vec', diff_p2_vel_data_vec', diff_p2_acc_data_vec', ...
+%                          p2_torque_data_matrix', 0.7, A1, B1);
+% [mean_p3, ci_p3, GoF_p3] = bootstrapping_regression(diff_p3_pos_data_vec', diff_p3_vel_data_vec', diff_p3_acc_data_vec', ...
+%                          p3_torque_data_matrix', 0.7, A1, B1);
 
 % [mean_p4, ci_p4, GoF_p4] = bootstrapping_regression_testing(diff_p4_pos_data_vec', diff_p4_vel_data_vec', diff_p4_acc_data_vec', ...
 %                          p4_torque_data_matrix', 0.7, A1, B1);
@@ -1007,14 +994,14 @@ imp_vals_bs = [mean_p4; mean_p1; mean_p2; mean_p3];
 imp_vals_bs_s = [ci_p4; ci_p1; ci_p2; ci_p3];
      
 if(plot_figs==1)
-    plot_regression_results(diff_p4_foot_pos(~p4_removed_ind, :), diff_p4_foot_vel(~p4_removed_ind, :), ...
-                            diff_p4_foot_acc(~p4_removed_ind, :), diff_p4_plat_torqueimp(~p4_removed_ind, :), mean_p4, strcat(RESULTS_DIR, '18'))
-    plot_regression_results(diff_p1_foot_pos(~p1_removed_ind, :), diff_p1_foot_vel(~p1_removed_ind, :), ...
-                            diff_p1_foot_acc(~p1_removed_ind, :), diff_p1_plat_torqueimp(~p1_removed_ind, :), mean_p1, strcat(RESULTS_DIR, '31'))
-    plot_regression_results(diff_p2_foot_pos(~p2_removed_ind, :), diff_p2_foot_vel(~p2_removed_ind, :), ...
-                            diff_p2_foot_acc(~p2_removed_ind, :), diff_p2_plat_torqueimp(~p2_removed_ind, :), mean_p2, strcat(RESULTS_DIR, '44'))
-    plot_regression_results(diff_p3_foot_pos(~p3_removed_ind, :), diff_p3_foot_vel(~p3_removed_ind, :), ...
-                            diff_p3_foot_acc(~p3_removed_ind, :), diff_p3_plat_torqueimp(~p3_removed_ind, :), mean_p3, strcat(RESULTS_DIR, '57'))
+    plot_regression_results(diff_p4_foot_pos(:, :), diff_p4_foot_vel(:, :), ...
+                            diff_p4_foot_acc(:, :), diff_p4_plat_torqueimp(:, :), mean_p4, strcat(RESULTS_DIR, '18'))
+    plot_regression_results(diff_p1_foot_pos(:, :), diff_p1_foot_vel(:, :), ...
+                            diff_p1_foot_acc(:, :), diff_p1_plat_torqueimp(:, :), mean_p1, strcat(RESULTS_DIR, '31'))
+    plot_regression_results(diff_p2_foot_pos(:, :), diff_p2_foot_vel(:, :), ...
+                            diff_p2_foot_acc(:, :), diff_p2_plat_torqueimp(:, :), mean_p2, strcat(RESULTS_DIR, '44'))
+    plot_regression_results(diff_p3_foot_pos(:, :), diff_p3_foot_vel(:, :), ...
+                            diff_p3_foot_acc(:, :), diff_p3_plat_torqueimp(:, :), mean_p3, strcat(RESULTS_DIR, '57'))
 
 end                     
 
@@ -1025,33 +1012,33 @@ GoF_matrix = [GoF_p4; GoF_p1; GoF_p2; GoF_p3]
 [cop_m, cop_s] = process_cop(copr15, copr30, copr45, copr60);
 
 pre_diff_selection_count = [sum(~p4_seg_removed_ind); sum(~p1_seg_removed_ind); sum(~p2_seg_removed_ind); sum(~p3_seg_removed_ind);];
-step_placement_number_remaining = [sum(~p4_removed_ind); sum(~p1_removed_ind); sum(~p2_removed_ind); sum(~p3_removed_ind)];
+% step_placement_number_remaining = [sum(~p4_removed_ind); sum(~p1_removed_ind); sum(~p2_removed_ind); sum(~p3_removed_ind)];
 % VAF_number_remaining = [sum(~p4_VAF_removed_indices); sum(~p1_VAF_removed_indices); sum(~p2_VAF_removed_indices); sum(~p3_VAF_removed_indices)];
 
 
 write_data_summary;
 
 figure();
-plot((diff_p4_plat_torqueimp(~p4_removed_ind, :))', 'k'); hold on;
-plot((diff_p1_plat_torqueimp(~p1_removed_ind, :))', 'r'); hold on;
-plot((diff_p2_plat_torqueimp(~p2_removed_ind, :))', 'g'); hold on;
-plot((diff_p3_plat_torqueimp(~p3_removed_ind, :))', 'b'); hold off;
+plot((diff_p4_plat_torqueimp(:, :))', 'k'); hold on;
+plot((diff_p1_plat_torqueimp(:, :))', 'r'); hold on;
+plot((diff_p2_plat_torqueimp(:, :))', 'g'); hold on;
+plot((diff_p3_plat_torqueimp(:, :))', 'b'); hold off;
 figure();
-plot(mean(diff_p4_plat_torqueimp(~p4_removed_ind, :))', 'k'); hold on;
-plot(mean(diff_p1_plat_torqueimp(~p1_removed_ind, :))', 'r'); hold on;
-plot(mean(diff_p2_plat_torqueimp(~p2_removed_ind, :))', 'g'); hold on;
-plot(mean(diff_p3_plat_torqueimp(~p3_removed_ind, :))', 'b'); hold off;
+plot(mean(diff_p4_plat_torqueimp(:, :))', 'k'); hold on;
+plot(mean(diff_p1_plat_torqueimp(:, :))', 'r'); hold on;
+plot(mean(diff_p2_plat_torqueimp(:, :))', 'g'); hold on;
+plot(mean(diff_p3_plat_torqueimp(:, :))', 'b'); hold off;
 
 figure();
-plot((diff_p4_foot_pos(~p4_removed_ind, :))', 'k'); hold on;
-plot((diff_p1_foot_pos(~p1_removed_ind, :))', 'r'); hold on;
-plot((diff_p2_foot_pos(~p2_removed_ind, :))', 'g'); hold on;
-plot((diff_p3_foot_pos(~p3_removed_ind, :))', 'b'); hold off;
+plot((diff_p4_foot_pos(:, :))', 'k'); hold on;
+plot((diff_p1_foot_pos(:, :))', 'r'); hold on;
+plot((diff_p2_foot_pos(:, :))', 'g'); hold on;
+plot((diff_p3_foot_pos(:, :))', 'b'); hold off;
 figure();
-plot(mean(diff_p4_foot_pos(~p4_removed_ind, :))', 'k'); hold on;
-plot(mean(diff_p1_foot_pos(~p1_removed_ind, :))', 'r'); hold on;
-plot(mean(diff_p2_foot_pos(~p2_removed_ind, :))', 'g'); hold on;
-plot(mean(diff_p3_foot_pos(~p3_removed_ind, :))', 'b'); hold off;
+plot(mean(diff_p4_foot_pos(:, :))', 'k'); hold on;
+plot(mean(diff_p1_foot_pos(:, :))', 'r'); hold on;
+plot(mean(diff_p2_foot_pos(:, :))', 'g'); hold on;
+plot(mean(diff_p3_foot_pos(:, :))', 'b'); hold off;
 
-diff2 = mean(p2_plat_torque_segment(~p2_seg_removed_ind, :)) - mean(p0_plat_torque45);
-diff3 = mean(p3_plat_torque_segment(~p3_seg_removed_ind, :)) - mean(p0_plat_torque60);
+diff2 = mean(p2_plat_torque_segment(:, :)) - mean(p0_plat_torque45);
+diff3 = mean(p3_plat_torque_segment(:, :)) - mean(p0_plat_torque60);
