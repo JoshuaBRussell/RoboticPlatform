@@ -2,6 +2,9 @@
 %% Analyzing all of the subjects after a code update becomes much 
 %% easier by just calling this. 
 
+clc;
+clear;
+
 
 GROUP_DATA_FOLDER_REL_LOC = "./../../data/";
 

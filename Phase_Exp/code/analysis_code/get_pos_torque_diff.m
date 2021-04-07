@@ -1,5 +1,6 @@
-function [diff_pos,diff_torque] = get_pos_torque_diff(p0_pos_profiles, pert_pos_profiles, ...
-                                                      p0_torque_profiles, pert_torque_profiles)
+function [diff_pos,diff_torque, mean_plat_pos_profiles] = get_pos_torque_diff(p0_pos_profiles, pert_pos_profiles, ...
+                                                      p0_torque_profiles, pert_torque_profiles, ...
+                                                      diff_plat_pos_profiles)
 
 
 
@@ -9,7 +10,7 @@ function [diff_pos,diff_torque] = get_pos_torque_diff(p0_pos_profiles, pert_pos_
 mean_p0_pos_profiles = [];
 mean_p0_torque_profiles = [];
                                                   
-RESAMPLE_COUNT = 40;
+RESAMPLE_COUNT = 100;
 bs_selection_count = round(0.6*size(p0_pos_profiles, 1));
 for i = 1:RESAMPLE_COUNT
    %Random selection of Foot Position Curves 
@@ -28,9 +29,11 @@ for i = 1:RESAMPLE_COUNT
     
     pos_mean = mean(pos_data_sample);
     torque_mean = mean(pert_torque_profiles(sample_ind, :));
+    diff_plat_pos_mean = mean(diff_plat_pos_profiles(sample_ind, :));
     
     mean_pert_pos_profiles(i, :) = pos_mean;
     mean_pert_torque_profiles(i, :) = torque_mean;
+    mean_plat_pos_profiles(i, :) = diff_plat_pos_mean;
 end
 
 p0_pre_perturbation_segments = mean_p0_pos_profiles(:, 1:100) - mean_p0_pos_profiles(:, 1);
