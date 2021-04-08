@@ -39,6 +39,24 @@ CI_coeff = ci(2, :) - mean_coeff;
 % varimp=var(mean(diff_plat_torque)-(mean(diff_foot_pos)*mean_coeff(1)+mean(diff_foot_vel)*mean_coeff(2)+mean(diff_foot_acc)*mean_coeff(3)));
 % goodness_of_fit = 100*(1-(varimp/vartor));
 goodness_of_fit = mean(bootstrap_sample_VAF_vec);
+
+
+%Very_Temp_Code
+hist_fig = figure();
+hist(bootstrap_sample_VAF_vec);
+
+if ~(isfile(strcat(evalin('caller', 'RESULTS_DIR'), evalin('caller', 'sub_name'), "_VAF_HIST1.png")))
+    saveas(hist_fig, strcat(evalin('caller', 'RESULTS_DIR'), evalin('caller', 'sub_name'), "_VAF_HIST1.png"));
+elseif ~(isfile(strcat(evalin('caller', 'RESULTS_DIR'), evalin('caller', 'sub_name'), "_VAF_HIST2.png")))
+    saveas(hist_fig, strcat(evalin('caller', 'RESULTS_DIR'), evalin('caller', 'sub_name'), "_VAF_HIST2.png"));
+elseif ~(isfile(strcat(evalin('caller', 'RESULTS_DIR'), evalin('caller', 'sub_name'), "_VAF_HIST3.png")))
+    saveas(hist_fig, strcat(evalin('caller', 'RESULTS_DIR'), evalin('caller', 'sub_name'), "_VAF_HIST3.png"));
+elseif ~(isfile(strcat(evalin('caller', 'RESULTS_DIR'), evalin('caller', 'sub_name'), "_VAF_HIST4.png")))
+    saveas(hist_fig, strcat(evalin('caller', 'RESULTS_DIR'), evalin('caller', 'sub_name'), "_VAF_HIST4.png"));
+end    
+
+    
+
                                                        
 end
 
