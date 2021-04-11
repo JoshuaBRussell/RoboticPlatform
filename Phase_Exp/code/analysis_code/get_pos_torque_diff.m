@@ -6,7 +6,9 @@ function [diff_pos,diff_torque, mean_plat_pos_profiles] = get_pos_torque_diff(p0
 
                                                   
 %% New Section Here
-                                                  
+
+NUM_OF_CLOSEST_MSE_PREPURT = 5;
+
 mean_p0_pos_profiles = [];
 mean_p0_torque_profiles = [];
                                                   
@@ -39,28 +41,29 @@ end
 p0_pre_perturbation_segments = mean_p0_pos_profiles(:, 1:100) - mean_p0_pos_profiles(:, 1);
 pre_perturbation_segments = mean_pert_pos_profiles(:, 1:100) - mean_pert_pos_profiles(:, 1);
 
-MSE_NP_trials_vec = zeros(size(mean_pert_pos_profiles, 1),1);
+MSE_NP_trials_vec = zeros(size(mean_pert_pos_profiles, 1), NUM_OF_CLOSEST_MSE_PREPURT);
 
 for pert_trial = 1:size(mean_pert_pos_profiles, 1)
     err_vecs = (p0_pre_perturbation_segments - pre_perturbation_segments(pert_trial, :));
     MSE_squared = dot(err_vecs, err_vecs, 2);
     
-    [min_err, ideal_non_pert_index] = min(MSE_squared);
+    %[min_err, ideal_non_pert_index] = min(MSE_squared);
+    [sorted_values, sorted_indices] = sort(MSE_squared);
     
-    MSE_NP_trials_vec(pert_trial) = ideal_non_pert_index;
+    MSE_NP_trials_vec(pert_trial, :) = sorted_indices(1:NUM_OF_CLOSEST_MSE_PREPURT)';
 end
 
 %Differential Position
 for i = 1:size(mean_pert_pos_profiles, 1)
     pert_curve = mean_pert_pos_profiles(i, :) - mean_pert_pos_profiles(i, 100);
-    non_pert_curve = mean_p0_pos_profiles(MSE_NP_trials_vec(i), :) - mean_p0_pos_profiles(MSE_NP_trials_vec(i), 100);
+    non_pert_curve = mean(mean_p0_pos_profiles(MSE_NP_trials_vec(i, :), :), 1) - mean(mean_p0_pos_profiles(MSE_NP_trials_vec(i, :), 100), 1);
     diff_pos(i, :) = pert_curve - non_pert_curve;
 end
 
 %Differential Torque
 for i = 1:size(mean_pert_pos_profiles, 1)
     pert_curve = mean_pert_torque_profiles(i, :) - mean_pert_torque_profiles(i, 100);
-    non_pert_curve = mean_p0_torque_profiles(MSE_NP_trials_vec(i), :) - mean_p0_torque_profiles(MSE_NP_trials_vec(i), 100);
+    non_pert_curve = mean(mean_p0_torque_profiles(MSE_NP_trials_vec(i, :), :), 1) - mean(mean_p0_torque_profiles(MSE_NP_trials_vec(i, :), 100), 1);
     diff_torque(i, :) = pert_curve - non_pert_curve;
 end
 
