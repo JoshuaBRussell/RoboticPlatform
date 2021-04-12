@@ -449,10 +449,8 @@ gca_emgm=trimmean(gca_emg,30);
 % to 300 samples post perturbation (heel strike)
 %It is then subtracted from observed torque to get
 %differential torque.
-%Excluded uses min number of perturbations so that
-%analysis is unifrom
-excluded=[p1,p2,p3,p4];
-analysis_value=min(excluded);
+
+
 %p0_peakend/st come from raw data, hence the weird indexing.
 %p0_act_torque/p0_cop_torque come from outlier removed data. Hence no weird
 %indexing
@@ -567,10 +565,11 @@ emg_final=[ta15m,pl15m,sol15m,gca15m;ta30m,pl30m,sol30m,gca30m;ta45m,pl45m,sol45
 for i = 1:size(p1_peakst , 2)
     p1_foot_pos_segment(i,:)=p1_foot_pos(i,p1_peakst(i)+PRE_PERT_WINDOW:p1_peakst(i)+POST_PERT_WINDOW);
     p2_foot_pos_segment(i,:)=p2_foot_pos(i,p2_peakst(i)+PRE_PERT_WINDOW:p2_peakst(i)+POST_PERT_WINDOW);
-    p3_foot_pos_segment(i,:)=p3_foot_pos(i,p3_peakst(i)+PRE_PERT_WINDOW:p3_peakst(i)+POST_PERT_WINDOW);
     p4_foot_pos_segment(i,:)=p4_foot_pos(i,p4_peakst(i)+PRE_PERT_WINDOW:p4_peakst(i)+POST_PERT_WINDOW); 
 end
-
+for i = 1:size(p3_peakst, 2)
+       p3_foot_pos_segment(i,:)=p3_foot_pos(i,p3_peakst(i)+PRE_PERT_WINDOW:p3_peakst(i)+POST_PERT_WINDOW); 
+end
 
 %% Obtaining differential data for impedance analysis
 % data is broken into chunks of 400 points: PRE_PERT_WINDOW
@@ -580,13 +579,15 @@ end
 for i = 1:size(p1_peakst , 2)
     p1_foot_pos_segment(i,:)=p1_foot_pos(i,p1_peakst(i)+PRE_PERT_WINDOW:p1_peakst(i)+POST_PERT_WINDOW);
     p2_foot_pos_segment(i,:)=p2_foot_pos(i,p2_peakst(i)+PRE_PERT_WINDOW:p2_peakst(i)+POST_PERT_WINDOW);
-    p3_foot_pos_segment(i,:)=p3_foot_pos(i,p3_peakst(i)+PRE_PERT_WINDOW:p3_peakst(i)+POST_PERT_WINDOW);
     p4_foot_pos_segment(i,:)=p4_foot_pos(i,p4_peakst(i)+PRE_PERT_WINDOW:p4_peakst(i)+POST_PERT_WINDOW); 
 
     p1_plat_torque_segment(i,:)=p1_act_torque(i,p1_peakst(i)+PRE_PERT_WINDOW:p1_peakst(i)+POST_PERT_WINDOW);
     p2_plat_torque_segment(i,:)=p2_act_torque(i,p2_peakst(i)+PRE_PERT_WINDOW:p2_peakst(i)+POST_PERT_WINDOW);
-    p3_plat_torque_segment(i,:)=p3_act_torque(i,p3_peakst(i)+PRE_PERT_WINDOW:p3_peakst(i)+POST_PERT_WINDOW);
     p4_plat_torque_segment(i,:)=p4_act_torque(i,p4_peakst(i)+PRE_PERT_WINDOW:p4_peakst(i)+POST_PERT_WINDOW);
+end
+for i = 1:size(p3_peakst, 2)
+    p3_foot_pos_segment(i,:)=p3_foot_pos(i,p3_peakst(i)+PRE_PERT_WINDOW:p3_peakst(i)+POST_PERT_WINDOW);
+    p3_plat_torque_segment(i,:)=p3_act_torque(i,p3_peakst(i)+PRE_PERT_WINDOW:p3_peakst(i)+POST_PERT_WINDOW);
 end
  
 %% ---- Outlier Rejection ---- %%
@@ -617,19 +618,22 @@ p4_seg_removed_ind = p4_pos_seg_removed_ind | p4_trq_seg_removed_ind | p4_foot_p
 
 
 %% Find Platform Position Differentials
-for i=1:analysis_value-1
+for i=1:size(p1_plat_pos, 1)
 
     %Differential Platform Position
     diff_p1_plat_pos(i,:)=p1_plat_pos(i,p1_peakst(i)+PRE_PERT_WINDOW:p1_peakst(i)+POST_PERT_WINDOW);
     diff_p2_plat_pos(i,:)=p2_plat_pos(i,p2_peakst(i)+PRE_PERT_WINDOW:p2_peakst(i)+POST_PERT_WINDOW);
-    diff_p3_plat_pos(i,:)=p3_plat_pos(i,p3_peakst(i)+PRE_PERT_WINDOW:p3_peakst(i)+POST_PERT_WINDOW);
     diff_p4_plat_pos(i,:)=p4_plat_pos(i,p4_peakst(i)+PRE_PERT_WINDOW:p4_peakst(i)+POST_PERT_WINDOW);
     
     diff_p1_plat_pos(i,:)=diff_p1_plat_pos(i,:)-diff_p1_plat_pos(i,100);
     diff_p2_plat_pos(i,:)=diff_p2_plat_pos(i,:)-diff_p2_plat_pos(i,100);
-    diff_p3_plat_pos(i,:)=diff_p3_plat_pos(i,:)-diff_p3_plat_pos(i,100);
     diff_p4_plat_pos(i,:)=diff_p4_plat_pos(i,:)-diff_p4_plat_pos(i,100);
         
+end
+
+for i=1:size(p3_plat_pos, 1)
+    diff_p3_plat_pos(i,:)=p3_plat_pos(i,p3_peakst(i)+PRE_PERT_WINDOW:p3_peakst(i)+POST_PERT_WINDOW);
+    diff_p3_plat_pos(i,:)=diff_p3_plat_pos(i,:)-diff_p3_plat_pos(i,100);
 end
 
 

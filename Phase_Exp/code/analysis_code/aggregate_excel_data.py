@@ -6,7 +6,7 @@ from openpyxl import load_workbook
 
 
 OUTPUT_FILE_NAME = './results/DIR_Summary.xlsx'
-SUBJ_NAMES = ["Carl", "Vu", "Emily", "Ashley", "Carly", "Lily", "Matt", "James", "Kwanghee"]
+SUBJ_NAMES = ["Carl", "Vu", "Emily", "Ashley", "Carly", "Lily", "Matt", "James", "Kwanghee", "Ian"]
 
 RESULTS_DIR = r'./results/'
 
