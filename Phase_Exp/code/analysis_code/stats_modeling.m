@@ -22,10 +22,10 @@ WEIGHT_COL       = 11;
 WEIGHT_CI_COL    = 12;
 COP_COL          = 13;
 COP_CI_COL       = 14;
-FINAL_COUNT_COL  = 15;
-PRE_COUNT_COL    = 16;
+PRE_COUNT_COL  = 15;
+VAF_COUNT_COL    = 16;
 
-M = readcell('./../Running_Results_Cache.xlsx','Sheet',2,'Range','A6:P58');
+M = readcell('./results/DIR_Summary.xlsx','Sheet',1,'Range','A2:P54');
 M = cellfun(@rmmissing, M, 'UniformOutput', false);
 
 %Locate Blank/Non-Numeric Cells so they can be removed
@@ -41,7 +41,7 @@ stiffness_data = reshape(cell2mat(stiffness_data), NUM_OF_PERT_POINTS, NUM_OF_SU
 Data_Key = {'Stiffness', 'Damping', 'Inertia', 'VAF', 'STIFF_CI', ...
             'TA', 'PL', 'SOL', 'GCA',                             ...
             'Weight', 'Weight_CI', 'CoP', 'CoP_CI',               ... 
-            'Final_Count', 'PreCount'};
+            'Pre_Count', 'VAFCount'};
 
 Data_Value = {};
 for data_type_col = 2:(NUM_OF_DATA_POINTS)
@@ -69,19 +69,27 @@ corr_data_matrix = [stiffness(:), CoP(:), EMG_Triceps_Surae(:), BW(:)];
 [R_partial, P_partial] = partialcorr(corr_data_matrix);
 
 %% Plots
-
+TITLE_FONT_SIZE = 45;
+LABEL_FONT_SIZE = 45;
+MARKER_SIZE = 5000;
 %---Overall Population---%
 figure();
-scatter(CoP(:), stiffness(:))
-title("Stiffness Vs CoP");
+scatter(CoP(:), stiffness(:), MARKER_SIZE, 'r.')
+title("Stiffness Vs CoP", 'FontSize', TITLE_FONT_SIZE);
+ylabel("Stiffness (N*m/rad)", 'FontSize', LABEL_FONT_SIZE);
+xlabel("Center of Pressure (cm)", 'FontSize', LABEL_FONT_SIZE);
 
 figure();
-scatter(EMG_Triceps_Surae(:), stiffness(:))
-title("Stiffness Vs EMG (Triceps Surae)");
+scatter(EMG_Triceps_Surae(:), stiffness(:), MARKER_SIZE, 'r.')
+title("Stiffness Vs EMG (Triceps Surae)", 'FontSize', TITLE_FONT_SIZE);
+ylabel("Stiffness (N*m/rad)", 'FontSize', LABEL_FONT_SIZE);
+xlabel("Muscle Activation (%MVC)", 'FontSize', LABEL_FONT_SIZE);
 
 figure();
-scatter(BW(:), stiffness(:))
-title("Stiffness Vs BodyWeight");
+scatter(BW(:), stiffness(:), MARKER_SIZE, 'r.')
+title("Stiffness Vs BodyWeight", 'FontSize', TITLE_FONT_SIZE);
+ylabel("Stiffness (N*m/rad)", 'FontSize', LABEL_FONT_SIZE);
+xlabel("Body Weight (N)", 'FontSize', LABEL_FONT_SIZE);
 
 %---Individual---%
 plot(CoP, stiffness)
