@@ -559,7 +559,6 @@ ta60m=mean(ta60);
 pl60m=mean(pl60);
 sol60m=mean(sol60);
 gca60m=mean(gca60);
-emg_final=[ta15m,pl15m,sol15m,gca15m;ta30m,pl30m,sol30m,gca30m;ta45m,pl45m,sol45m,gca45m;ta60m,pl60m,sol60m,gca60m;];
 
 
 for i = 1:size(p1_peakst , 2)
@@ -1037,8 +1036,11 @@ remaining_after_VAF = [remaining_after_VAF4; remaining_after_VAF1; remaining_aft
 GoF_matrix = [GoF_p4; GoF_p1; GoF_p2; GoF_p3]
 
 
-[weight_m, weight_s] = process_weight(weightr15, weightr30, weightr45, weightr60);
-[cop_m, cop_s] = process_cop(copr15, copr30, copr45, copr60);
+%Finds Mean/CI from the bootstrapped data using percentiles.
+[weight_m, weight_s] = process_weight(bio_factors_p4.Weight', bio_factors_p1.Weight', bio_factors_p2.Weight', bio_factors_p3.Weight');
+[cop_m, cop_s] = process_cop(bio_factors_p4.CoP', bio_factors_p1.CoP', bio_factors_p2.CoP', bio_factors_p3.CoP');
+[emg_final] = process_EMG(bio_factors_p4.EMG, bio_factors_p1.EMG, bio_factors_p2.EMG, bio_factors_p3.EMG); 
+
 
 pre_diff_selection_count = [sum(~p4_seg_removed_ind); sum(~p1_seg_removed_ind); sum(~p2_seg_removed_ind); sum(~p3_seg_removed_ind);];
 % step_placement_number_remaining = [sum(~p4_removed_ind); sum(~p1_removed_ind); sum(~p2_removed_ind); sum(~p3_removed_ind)];
