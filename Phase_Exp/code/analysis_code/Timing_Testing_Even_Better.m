@@ -2,13 +2,28 @@
 %% Setup, Filtering and Data Visualization settings
 close all
 clear all
-% Getting the MVC values
-mvc_evaluation;
+
 % Insert subject initial and name.
 %Make sure it matches the format for naming
-sub_initial='M';
-sub_name='Morgan';
-SUB_NAME = sub_name;
+
+%%Check to see if this is the main script or is being called by
+%%mastercode_multiple_subjects.m
+ise = evalin( 'base', 'exist(''multi_subj'',''var'') == 1' )
+if ise == 1
+   DATA_FOLDER_REL_LOC = CURR_SUBJ_REL_LOC; 
+
+else
+% Insert subject initial and name.
+%Make sure it matches the format for naming
+    DATA_FOLDER_REL_LOC = "./../../data/Ian_041021/" %Relative location for current code dir.
+end
+
+path_str = split(DATA_FOLDER_REL_LOC, ["/", "_"]);
+sub_name =  path_str{5}; % 5 since the relative locations are considered parth of the path
+sub_initial = sub_name(1);
+
+RESULTS_DIR = strcat('./results/', sub_name, '/');
+mkdir(RESULTS_DIR);
 %Add number of perturbation you actually ran
 num_pert=40;
 % insert lower limit of inertia of foot in the fit
@@ -32,8 +47,11 @@ d3 = designfilt('lowpassiir','FilterOrder',4,'HalfPowerFrequency',...
     5,'DesignMethod','butter','Samplerate',2000);
 d1 = designfilt('lowpassiir','FilterOrder',4,'HalfPowerFrequency',15,...
     'DesignMethod','butter','Samplerate',2000);
+
+% Getting the MVC values
+mvc_evaluation;
 %% Section to calculate goniometer gains
-t=gonio_values_func;
+t=gonio_values_func(DATA_FOLDER_REL_LOC);
 DP_foot_gonio=t(1);
 DP_plat_gonio=t(2);
 
@@ -54,9 +72,9 @@ for trials=1:10
     
     if(ismember(trials,exclude)==0)
         if(trials<10)
-            h = fopen(strcat(sub_initial,'W0',num2str(trials),'.dat'));
+            h = fopen(strcat(DATA_FOLDER_REL_LOC, sub_initial,'W0',num2str(trials),'.dat'));
         else
-            h = fopen(strcat(sub_initial,'W',num2str(trials),'.dat'));
+            h = fopen(strcat(DATA_FOLDER_REL_LOC, sub_initial,'W',num2str(trials),'.dat'));
         end
         
         live_data=fread(h);
@@ -66,9 +84,9 @@ for trials=1:10
         [x,img_st]=findpeaks(diff(Img_flag));
         img_st=round(img_st(1)/20);
         if(trials<10)
-            Img=csvread(strcat(sub_name,'_00',num2str(trials),'.csv'));
+            Img=csvread(strcat(DATA_FOLDER_REL_LOC, sub_name,'_00',num2str(trials),'.csv'));
         else
-            Img=csvread(strcat(sub_name,'_0',num2str(trials),'.csv'));
+            Img=csvread(strcat(DATA_FOLDER_REL_LOC, sub_name,'_0',num2str(trials),'.csv'));
         end
         % obtaining data from channels
         pert_torque=filtfilt(d1,Input1.data(:,7));
@@ -319,7 +337,7 @@ xline(0.44,'-','44%')
 xline(0.57,'-','57%')
 
 formatSpec = 'Weight Profile %s';
-str = sprintf(formatSpec,SUB_NAME);
+str = sprintf(formatSpec,sub_name);
 title(str)
 xlabel('Stance Phase (%)');
 ylabel('Weight');
