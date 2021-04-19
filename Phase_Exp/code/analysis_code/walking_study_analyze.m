@@ -559,7 +559,6 @@ ta60m=mean(ta60);
 pl60m=mean(pl60);
 sol60m=mean(sol60);
 gca60m=mean(gca60);
-emg_final=[ta15m,pl15m,sol15m,gca15m;ta30m,pl30m,sol30m,gca30m;ta45m,pl45m,sol45m,gca45m;ta60m,pl60m,sol60m,gca60m;];
 
 
 for i = 1:size(p1_peakst , 2)
@@ -636,11 +635,31 @@ for i=1:size(p3_plat_pos, 1)
     diff_p3_plat_pos(i,:)=diff_p3_plat_pos(i,:)-diff_p3_plat_pos(i,100);
 end
 
+%---- Put EMG Curves for Each Stance Percentage into a Struct ---- %% 
+p0_EMG_struct1.TA = ta30;
+p0_EMG_struct1.PL = pl30;
+p0_EMG_struct1.SOL = sol30;
+p0_EMG_struct1.GCA = gca30;
 
-[diff_p1_foot_pos, diff_p1_plat_torque, diff_p1_plat_pos] = get_pos_torque_diff(p0_foot_pos30, p1_foot_pos_segment(~p1_seg_removed_ind, :), p0_plat_torque30, p1_plat_torque_segment(~p1_seg_removed_ind, :), diff_p1_plat_pos(~p1_foot_placement_rej_ind, :));
-[diff_p2_foot_pos, diff_p2_plat_torque, diff_p2_plat_pos] = get_pos_torque_diff(p0_foot_pos45, p2_foot_pos_segment(~p2_seg_removed_ind, :), p0_plat_torque45, p2_plat_torque_segment(~p2_seg_removed_ind, :), diff_p2_plat_pos(~p2_foot_placement_rej_ind, :));
-[diff_p3_foot_pos, diff_p3_plat_torque, diff_p3_plat_pos] = get_pos_torque_diff(p0_foot_pos60, p3_foot_pos_segment(~p3_seg_removed_ind, :), p0_plat_torque60, p3_plat_torque_segment(~p3_seg_removed_ind, :), diff_p3_plat_pos(~p3_foot_placement_rej_ind, :));
-[diff_p4_foot_pos, diff_p4_plat_torque, diff_p4_plat_pos] = get_pos_torque_diff(p0_foot_pos15, p4_foot_pos_segment(~p4_seg_removed_ind, :), p0_plat_torque15, p4_plat_torque_segment(~p4_seg_removed_ind, :), diff_p4_plat_pos(~p4_foot_placement_rej_ind, :));
+p0_EMG_struct2.TA = ta45;
+p0_EMG_struct2.PL = pl45;
+p0_EMG_struct2.SOL = sol45;
+p0_EMG_struct2.GCA = gca45;
+
+p0_EMG_struct3.TA = ta60;
+p0_EMG_struct3.PL = pl60;
+p0_EMG_struct3.SOL = sol60;
+p0_EMG_struct3.GCA = gca60;
+
+p0_EMG_struct4.TA = ta15;
+p0_EMG_struct4.PL = pl15;
+p0_EMG_struct4.SOL = sol15;
+p0_EMG_struct4.GCA = gca15;
+
+[diff_p1_foot_pos, diff_p1_plat_torque, diff_p1_plat_pos, bio_factors_p1] = get_pos_torque_diff(p0_foot_pos30, p1_foot_pos_segment(~p1_seg_removed_ind, :), p0_plat_torque30, p1_plat_torque_segment(~p1_seg_removed_ind, :), diff_p1_plat_pos(~p1_foot_placement_rej_ind, :), copr30, weightr30, p0_EMG_struct1);
+[diff_p2_foot_pos, diff_p2_plat_torque, diff_p2_plat_pos, bio_factors_p2] = get_pos_torque_diff(p0_foot_pos45, p2_foot_pos_segment(~p2_seg_removed_ind, :), p0_plat_torque45, p2_plat_torque_segment(~p2_seg_removed_ind, :), diff_p2_plat_pos(~p2_foot_placement_rej_ind, :), copr45, weightr45, p0_EMG_struct2);
+[diff_p3_foot_pos, diff_p3_plat_torque, diff_p3_plat_pos, bio_factors_p3] = get_pos_torque_diff(p0_foot_pos60, p3_foot_pos_segment(~p3_seg_removed_ind, :), p0_plat_torque60, p3_plat_torque_segment(~p3_seg_removed_ind, :), diff_p3_plat_pos(~p3_foot_placement_rej_ind, :), copr60, weightr60, p0_EMG_struct3);
+[diff_p4_foot_pos, diff_p4_plat_torque, diff_p4_plat_pos, bio_factors_p4] = get_pos_torque_diff(p0_foot_pos15, p4_foot_pos_segment(~p4_seg_removed_ind, :), p0_plat_torque15, p4_plat_torque_segment(~p4_seg_removed_ind, :), diff_p4_plat_pos(~p4_foot_placement_rej_ind, :), copr15, weightr15, p0_EMG_struct4);
 
 
 
@@ -789,7 +808,7 @@ end
  A1=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
  B1=[0 ;0 ;1000;1000;-1*lim;u_lim];
 
-[mean_p1, ci_p1, GoF_p1, remaining_after_VAF1] = regress_after_bootstrap(diff_p1_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
+[regress_coeffs_p1, ci_p1, GoF_p1, vaf_info_p1] = regress_after_bootstrap(diff_p1_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
                                                    diff_p1_foot_vel(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
                                                    diff_p1_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
                                                    diff_p1_plat_torqueimp(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
@@ -830,7 +849,7 @@ end
 % A1=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
 % B1=[0 ;0 ;1000;1000;-1*lim;u_lim];
 
-[mean_p2, ci_p2, GoF_p2, remaining_after_VAF2] = regress_after_bootstrap(diff_p2_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
+[regress_coeffs_p2, ci_p2, GoF_p2, vaf_info_p2] = regress_after_bootstrap(diff_p2_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
                                                    diff_p2_foot_vel(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
                                                    diff_p2_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
                                                    diff_p2_plat_torqueimp(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
@@ -870,7 +889,7 @@ end
 % A1=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
 % B1=[0 ;0 ;1000;1000;-1*lim;u_lim];
 
-[mean_p3, ci_p3, GoF_p3, remaining_after_VAF3] = regress_after_bootstrap(diff_p3_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
+[regress_coeffs_p3, ci_p3, GoF_p3, vaf_info_p3] = regress_after_bootstrap(diff_p3_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
                                                    diff_p3_foot_vel(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
                                                    diff_p3_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
                                                    diff_p3_plat_torqueimp(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
@@ -910,11 +929,49 @@ end
 % A1=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
 % B1=[0 ;0 ;1000;1000;-1*lim;u_lim];
 
-[mean_p4, ci_p4, GoF_p4, remaining_after_VAF4] = regress_after_bootstrap(diff_p4_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
+[regress_coeffs_p4, ci_p4, GoF_p4, vaf_info_p4] = regress_after_bootstrap(diff_p4_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
                                                    diff_p4_foot_vel(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
                                                    diff_p4_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
                                                    diff_p4_plat_torqueimp(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
                                                    A1, B1);
+
+
+remaining_after_VAF1 = vaf_info_p1.remaining_after_VAF;
+remaining_after_VAF2 = vaf_info_p2.remaining_after_VAF;                                               
+remaining_after_VAF3 = vaf_info_p3.remaining_after_VAF;
+remaining_after_VAF4 = vaf_info_p4.remaining_after_VAF;
+
+
+%Remove the low %VAF bootstrap sample regression results from the corresponding bio_factor data
+bio_factors_p1.CoP     = bio_factors_p1.CoP(vaf_info_p1.removal_indices);
+bio_factors_p1.Weight  = bio_factors_p1.Weight(vaf_info_p1.removal_indices);
+bio_factors_p1.EMG.TA  = bio_factors_p1.EMG.TA(vaf_info_p1.removal_indices);
+bio_factors_p1.EMG.PL  = bio_factors_p1.EMG.PL(vaf_info_p1.removal_indices);
+bio_factors_p1.EMG.SOL = bio_factors_p1.EMG.SOL(vaf_info_p1.removal_indices);
+bio_factors_p1.EMG.GCA = bio_factors_p1.EMG.GCA(vaf_info_p1.removal_indices); 
+
+bio_factors_p2.CoP     = bio_factors_p2.CoP(vaf_info_p2.removal_indices);
+bio_factors_p2.Weight  = bio_factors_p2.Weight(vaf_info_p2.removal_indices);
+bio_factors_p2.EMG.TA  = bio_factors_p2.EMG.TA(vaf_info_p2.removal_indices);
+bio_factors_p2.EMG.PL  = bio_factors_p2.EMG.PL(vaf_info_p2.removal_indices);
+bio_factors_p2.EMG.SOL = bio_factors_p2.EMG.SOL(vaf_info_p2.removal_indices);
+bio_factors_p2.EMG.GCA = bio_factors_p2.EMG.GCA(vaf_info_p2.removal_indices); 
+
+bio_factors_p3.CoP     = bio_factors_p3.CoP(vaf_info_p3.removal_indices);
+bio_factors_p3.Weight  = bio_factors_p3.Weight(vaf_info_p3.removal_indices);
+bio_factors_p3.EMG.TA  = bio_factors_p3.EMG.TA(vaf_info_p3.removal_indices);
+bio_factors_p3.EMG.PL  = bio_factors_p3.EMG.PL(vaf_info_p3.removal_indices);
+bio_factors_p3.EMG.SOL = bio_factors_p3.EMG.SOL(vaf_info_p3.removal_indices);
+bio_factors_p3.EMG.GCA = bio_factors_p3.EMG.GCA(vaf_info_p3.removal_indices); 
+
+bio_factors_p4.CoP     = bio_factors_p4.CoP(vaf_info_p4.removal_indices);
+bio_factors_p4.Weight  = bio_factors_p4.Weight(vaf_info_p4.removal_indices);
+bio_factors_p4.EMG.TA  = bio_factors_p4.EMG.TA(vaf_info_p4.removal_indices);
+bio_factors_p4.EMG.PL  = bio_factors_p4.EMG.PL(vaf_info_p4.removal_indices);
+bio_factors_p4.EMG.SOL = bio_factors_p4.EMG.SOL(vaf_info_p4.removal_indices);
+bio_factors_p4.EMG.GCA = bio_factors_p4.EMG.GCA(vaf_info_p4.removal_indices); 
+
+
 
 %% Storing final data
 
@@ -994,6 +1051,11 @@ end
 % [mean_p3, ci_p3, GoF_p3] = bootstrapping_regression_testing(diff_p3_pos_data_vec', diff_p3_vel_data_vec', diff_p3_acc_data_vec', ...
 %                          p3_torque_data_matrix', 0.7, A1, B1);
 %                      
+mean_p1 = mean(regress_coeffs_p1);
+mean_p2 = mean(regress_coeffs_p2);
+mean_p3 = mean(regress_coeffs_p3);
+mean_p4 = mean(regress_coeffs_p4);
+
 imp_vals_bs = [mean_p4; mean_p1; mean_p2; mean_p3];
 imp_vals_bs_s = [ci_p4; ci_p1; ci_p2; ci_p3];
      
@@ -1012,8 +1074,11 @@ remaining_after_VAF = [remaining_after_VAF4; remaining_after_VAF1; remaining_aft
 GoF_matrix = [GoF_p4; GoF_p1; GoF_p2; GoF_p3]
 
 
-[weight_m, weight_s] = process_weight(weightr15, weightr30, weightr45, weightr60);
-[cop_m, cop_s] = process_cop(copr15, copr30, copr45, copr60);
+%Finds Mean/CI from the bootstrapped data using percentiles.
+[weight_m, weight_s] = process_weight(bio_factors_p4.Weight', bio_factors_p1.Weight', bio_factors_p2.Weight', bio_factors_p3.Weight');
+[cop_m, cop_s] = process_cop(bio_factors_p4.CoP', bio_factors_p1.CoP', bio_factors_p2.CoP', bio_factors_p3.CoP');
+[emg_final] = process_EMG(bio_factors_p4.EMG, bio_factors_p1.EMG, bio_factors_p2.EMG, bio_factors_p3.EMG); 
+
 
 pre_diff_selection_count = [sum(~p4_seg_removed_ind); sum(~p1_seg_removed_ind); sum(~p2_seg_removed_ind); sum(~p3_seg_removed_ind);];
 % step_placement_number_remaining = [sum(~p4_removed_ind); sum(~p1_removed_ind); sum(~p2_removed_ind); sum(~p3_removed_ind)];
