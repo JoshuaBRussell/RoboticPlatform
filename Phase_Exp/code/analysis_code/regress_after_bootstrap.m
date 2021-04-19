@@ -1,4 +1,4 @@
-function [regress_coeffs, CI_coeff, goodness_of_fit, remaining_after_VAF] = regress_after_bootstrap(diff_foot_pos, diff_foot_vel, ...
+function [regress_coeffs, CI_coeff, goodness_of_fit, VAF_info] = regress_after_bootstrap(diff_foot_pos, diff_foot_vel, ...
                                                            diff_foot_acc, diff_plat_torque, ...
                                                            A, B)
 
@@ -28,7 +28,9 @@ end
 %Find which bootstrap sample gave poor VAF
 bootstrap_sample_VAF_vec = bootstrap_sample_VAF_vec(bootstrap_sample_VAF_vec > 70);
 regress_coeffs = regress_coeffs(bootstrap_sample_VAF_vec > 70, :);
-remaining_after_VAF = length(bootstrap_sample_VAF_vec);
+
+VAF_info.remaining_after_VAF = length(bootstrap_sample_VAF_vec);
+VAF_info.removal_indices = bootstrap_sample_VAF_vec > 70;
 
 %Return mean of regression coefficients
 mean_coeff = mean(regress_coeffs);

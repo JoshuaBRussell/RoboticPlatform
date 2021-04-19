@@ -808,7 +808,7 @@ end
  A1=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
  B1=[0 ;0 ;1000;1000;-1*lim;u_lim];
 
-[regress_coeffs_p1, ci_p1, GoF_p1, remaining_after_VAF1] = regress_after_bootstrap(diff_p1_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
+[regress_coeffs_p1, ci_p1, GoF_p1, vaf_info_p1] = regress_after_bootstrap(diff_p1_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
                                                    diff_p1_foot_vel(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
                                                    diff_p1_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
                                                    diff_p1_plat_torqueimp(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
@@ -849,7 +849,7 @@ end
 % A1=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
 % B1=[0 ;0 ;1000;1000;-1*lim;u_lim];
 
-[regress_coeffs_p2, ci_p2, GoF_p2, remaining_after_VAF2] = regress_after_bootstrap(diff_p2_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
+[regress_coeffs_p2, ci_p2, GoF_p2, vaf_info_p2] = regress_after_bootstrap(diff_p2_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
                                                    diff_p2_foot_vel(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
                                                    diff_p2_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
                                                    diff_p2_plat_torqueimp(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
@@ -889,7 +889,7 @@ end
 % A1=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
 % B1=[0 ;0 ;1000;1000;-1*lim;u_lim];
 
-[regress_coeffs_p3, ci_p3, GoF_p3, remaining_after_VAF3] = regress_after_bootstrap(diff_p3_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
+[regress_coeffs_p3, ci_p3, GoF_p3, vaf_info_p3] = regress_after_bootstrap(diff_p3_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
                                                    diff_p3_foot_vel(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
                                                    diff_p3_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
                                                    diff_p3_plat_torqueimp(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
@@ -929,11 +929,49 @@ end
 % A1=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
 % B1=[0 ;0 ;1000;1000;-1*lim;u_lim];
 
-[regress_coeffs_p4, ci_p4, GoF_p4, remaining_after_VAF4] = regress_after_bootstrap(diff_p4_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
+[regress_coeffs_p4, ci_p4, GoF_p4, vaf_info_p4] = regress_after_bootstrap(diff_p4_foot_pos(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
                                                    diff_p4_foot_vel(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
                                                    diff_p4_foot_acc(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
                                                    diff_p4_plat_torqueimp(:, REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX), ...
                                                    A1, B1);
+
+
+remaining_after_VAF1 = vaf_info_p1.remaining_after_VAF;
+remaining_after_VAF2 = vaf_info_p2.remaining_after_VAF;                                               
+remaining_after_VAF3 = vaf_info_p3.remaining_after_VAF;
+remaining_after_VAF4 = vaf_info_p4.remaining_after_VAF;
+
+
+%Remove the low %VAF bootstrap sample regression results from the corresponding bio_factor data
+bio_factors_p1.CoP     = bio_factors_p1.CoP(vaf_info_p1.removal_indices);
+bio_factors_p1.Weight  = bio_factors_p1.Weight(vaf_info_p1.removal_indices);
+bio_factors_p1.EMG.TA  = bio_factors_p1.EMG.TA(vaf_info_p1.removal_indices);
+bio_factors_p1.EMG.PL  = bio_factors_p1.EMG.PL(vaf_info_p1.removal_indices);
+bio_factors_p1.EMG.SOL = bio_factors_p1.EMG.SOL(vaf_info_p1.removal_indices);
+bio_factors_p1.EMG.GCA = bio_factors_p1.EMG.GCA(vaf_info_p1.removal_indices); 
+
+bio_factors_p2.CoP     = bio_factors_p2.CoP(vaf_info_p2.removal_indices);
+bio_factors_p2.Weight  = bio_factors_p2.Weight(vaf_info_p2.removal_indices);
+bio_factors_p2.EMG.TA  = bio_factors_p2.EMG.TA(vaf_info_p2.removal_indices);
+bio_factors_p2.EMG.PL  = bio_factors_p2.EMG.PL(vaf_info_p2.removal_indices);
+bio_factors_p2.EMG.SOL = bio_factors_p2.EMG.SOL(vaf_info_p2.removal_indices);
+bio_factors_p2.EMG.GCA = bio_factors_p2.EMG.GCA(vaf_info_p2.removal_indices); 
+
+bio_factors_p3.CoP     = bio_factors_p3.CoP(vaf_info_p3.removal_indices);
+bio_factors_p3.Weight  = bio_factors_p3.Weight(vaf_info_p3.removal_indices);
+bio_factors_p3.EMG.TA  = bio_factors_p3.EMG.TA(vaf_info_p3.removal_indices);
+bio_factors_p3.EMG.PL  = bio_factors_p3.EMG.PL(vaf_info_p3.removal_indices);
+bio_factors_p3.EMG.SOL = bio_factors_p3.EMG.SOL(vaf_info_p3.removal_indices);
+bio_factors_p3.EMG.GCA = bio_factors_p3.EMG.GCA(vaf_info_p3.removal_indices); 
+
+bio_factors_p4.CoP     = bio_factors_p4.CoP(vaf_info_p4.removal_indices);
+bio_factors_p4.Weight  = bio_factors_p4.Weight(vaf_info_p4.removal_indices);
+bio_factors_p4.EMG.TA  = bio_factors_p4.EMG.TA(vaf_info_p4.removal_indices);
+bio_factors_p4.EMG.PL  = bio_factors_p4.EMG.PL(vaf_info_p4.removal_indices);
+bio_factors_p4.EMG.SOL = bio_factors_p4.EMG.SOL(vaf_info_p4.removal_indices);
+bio_factors_p4.EMG.GCA = bio_factors_p4.EMG.GCA(vaf_info_p4.removal_indices); 
+
+
 
 %% Storing final data
 
