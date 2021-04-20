@@ -350,55 +350,57 @@ end
 p0_removed_ind = (img0_pos < -0.5)' | (img0_pos > POS_REJECTION_LIMIT)';
 p0_raw_data_ind = find(~p0_removed_ind);
 p0_total_accepted = sum(~p0_removed_ind)
+
+
+
 %% Obtaining perturbation torque and CoP data from different trials the act_torque is calculated by using the foot position obtained form motion capture
-for i=1:p1-1
-    if (isnan(p1_plat_torque(i,1))==1)
-        p1_act_torque(i,1:2201)=NaN;
-        ssss='Found one';
-        disp(ssss);
-    else
-        p1_act_torque(i,:)=force1_1(i,:)*(0.315-(img1_pos(i)/100))+force1_4(i,:)*(0.315-(img1_pos(i)/100))-force1_2(i,:)*(0.105+(img1_pos(i)/100))-force1_3(i,:)*(0.105+(img1_pos(i)/100))-force1_5(i,:)*(0.095)-force1_6(i,:)*(0.095);
-    end
-end
-for i=1:p2-1
-    if (isnan(p2_plat_torque(i,1))==1)
-        p2_act_torque(i,1:2201)=NaN;
-    else
-        p2_act_torque(i,:)=force2_1(i,:)*(0.315-(img2_pos(i)/100))+force2_4(i,:)*(0.315-(img2_pos(i)/100))-force2_2(i,:)*(0.105+(img2_pos(i)/100))-force2_3(i,:)*(0.105+(img2_pos(i)/100))-force2_5(i,:)*(0.095)-force2_6(i,:)*(0.095);
-    end
-end
-
-
-for i=1:p3-1
-    if (isnan(p3_plat_torque(i,1))==1)
-        p3_act_torque(i,1:2201)=NaN;
-    else
-        p3_act_torque(i,:)=force3_1(i,:)*(0.315-(img3_pos(i)/100))+force3_4(i,:)*(0.315-(img3_pos(i)/100))-force3_2(i,:)*(0.105+(img3_pos(i)/100))-force3_3(i,:)*(0.105+(img3_pos(i)/100))-force3_5(i,:)*(0.095)-force3_6(i,:)*(0.095);
-    end
-end
 
 %The way this is implemented is only temporary, though the idea will remain
 %the same: Find out what data needs to be removed, then create all
 %proceeding variables from that selected data only. This is only being done
 %currently for the No-Perturbation case, as it affects everything along the
 %way. 
-for i=1:p0_total_accepted
-    if (isnan(p0_plat_torque(i,1))==1)
-        p0_act_torque(i,1:2201)=NaN;
-        p0_cop_torque(i,1:2201)=NaN;
-    else
-        p0_act_torque(i,:)=force0_1(p0_raw_data_ind(i),:)*(0.315-(img0_pos(p0_raw_data_ind(i))/100))+force0_4(p0_raw_data_ind(i),:)*(0.315-(img0_pos(p0_raw_data_ind(i))/100))-force0_2(p0_raw_data_ind(i),:)*(0.105+(img0_pos(p0_raw_data_ind(i))/100))-force0_3(p0_raw_data_ind(i),:)*(0.105+(img0_pos(p0_raw_data_ind(i))/100))-force0_5(p0_raw_data_ind(i),:)*(0.095)-force0_6(p0_raw_data_ind(i),:)*(0.095);
-        p0_cop_torque(i,:)=force0_1(p0_raw_data_ind(i),:)*(0.315-(img0_pos(p0_raw_data_ind(i))/100))+force0_4(p0_raw_data_ind(i),:)*(0.315-(img0_pos(p0_raw_data_ind(i))/100))-force0_2(p0_raw_data_ind(i),:)*(0.105+(img0_pos(p0_raw_data_ind(i))/100))-force0_3(p0_raw_data_ind(i),:)*(0.105+(img0_pos(p0_raw_data_ind(i))/100))-force0_5(p0_raw_data_ind(i),:)*(0.025)-force0_6(p0_raw_data_ind(i),:)*(0.025);
-        
-    end
-end
-for i=1:p4-1
-    if (isnan(p4_plat_torque(i,1))==1)
-        p4_act_torque(i,1:2201)=NaN;
-    else
-        p4_act_torque(i,:)=force4_1(i,:)*(0.315-(img4_pos(i)/100))+force4_4(i,:)*(0.315-(img4_pos(i)/100))-force4_2(i,:)*(0.105+(img4_pos(i)/100))-force4_3(i,:)*(0.105+(img4_pos(i)/100))-force4_5(i,:)*(0.095)-force4_6(i,:)*(0.095);
-    end
-end
+
+force_plate_data_p0.F1 = force0_1(p0_raw_data_ind, :);
+force_plate_data_p0.F2 = force0_2(p0_raw_data_ind, :);
+force_plate_data_p0.F3 = force0_3(p0_raw_data_ind, :);
+force_plate_data_p0.F4 = force0_4(p0_raw_data_ind, :);
+force_plate_data_p0.F5 = force0_5(p0_raw_data_ind, :);
+force_plate_data_p0.F6 = force0_6(p0_raw_data_ind, :);
+
+force_plate_data_p1.F1 = force1_1;
+force_plate_data_p1.F2 = force1_2;
+force_plate_data_p1.F3 = force1_3;
+force_plate_data_p1.F4 = force1_4;
+force_plate_data_p1.F5 = force1_5;
+force_plate_data_p1.F6 = force1_6;
+
+force_plate_data_p2.F1 = force2_1;
+force_plate_data_p2.F2 = force2_2;
+force_plate_data_p2.F3 = force2_3;
+force_plate_data_p2.F4 = force2_4;
+force_plate_data_p2.F5 = force2_5;
+force_plate_data_p2.F6 = force2_6;
+
+force_plate_data_p3.F1 = force3_1;
+force_plate_data_p3.F2 = force3_2;
+force_plate_data_p3.F3 = force3_3;
+force_plate_data_p3.F4 = force3_4;
+force_plate_data_p3.F5 = force3_5;
+force_plate_data_p3.F6 = force3_6;
+
+force_plate_data_p4.F1 = force4_1;
+force_plate_data_p4.F2 = force4_2;
+force_plate_data_p4.F3 = force4_3;
+force_plate_data_p4.F4 = force4_4;
+force_plate_data_p4.F5 = force4_5;
+force_plate_data_p4.F6 = force4_6;
+
+[p0_act_torque, p0_cop_torque] = get_act_and_cop_torque(img0_pos(p0_raw_data_ind),force_plate_data_p0);
+[p1_act_torque, p1_cop_torque] = get_act_and_cop_torque(img1_pos,force_plate_data_p1);
+[p2_act_torque, p2_cop_torque] = get_act_and_cop_torque(img2_pos,force_plate_data_p2);
+[p3_act_torque, p3_cop_torque] = get_act_and_cop_torque(img3_pos,force_plate_data_p3);
+[p4_act_torque, p4_cop_torque] = get_act_and_cop_torque(img4_pos,force_plate_data_p4);
 
 
 
