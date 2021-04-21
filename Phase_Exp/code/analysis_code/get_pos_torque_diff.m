@@ -1,7 +1,7 @@
 function [diff_pos,diff_torque, mean_plat_pos_profiles, bio_factors_struct] = get_pos_torque_diff(p0_pos_profiles, pert_pos_profiles, ...
                                                       p0_torque_profiles, pert_torque_profiles, ...
                                                       diff_plat_pos_profiles, ...
-                                                      cop_profiles, ...
+                                                      cop_vals, ...
                                                       weight_profiles, ...
                                                       emg_profiles) %This will be a struct since passing in each
                                                                     %individual set of EMG curves would create a 
@@ -25,7 +25,7 @@ NUM_OF_CLOSEST_MSE_PREPURT = 5;
 mean_p0_pos_profiles = [];
 mean_p0_torque_profiles = [];
 
-mean_p0_cop_profiles = [];
+mean_pert_cop_vals = [];
 mean_p0_weight_profiles = [];
 mean_p0_TA_profiles = [];
 mean_p0_SOL_profiles = [];
@@ -41,7 +41,7 @@ for i = 1:RESAMPLE_COUNT
     pos_mean = mean(pos_data_sample);
     torque_mean = mean(p0_torque_profiles(sample_ind, :));
     
-    cop_mean = mean(cop_profiles(sample_ind, :));
+    
     weight_mean = mean(weight_profiles(sample_ind, :));
     emg_TA_mean = mean(emg_profiles.TA(:, sample_ind));
     emg_PL_mean = mean(emg_profiles.PL(:, sample_ind));
@@ -52,7 +52,6 @@ for i = 1:RESAMPLE_COUNT
     mean_p0_pos_profiles(i, :) = pos_mean;
     mean_p0_torque_profiles(i, :) = torque_mean;
     
-    mean_p0_cop_profiles(i, :) = cop_mean;
     mean_p0_weight_profiles(i, :) = weight_mean;
     mean_p0_TA_profiles(i, :) = emg_TA_mean;
     mean_p0_SOL_profiles(i, :) = emg_SOL_mean;
@@ -74,6 +73,10 @@ for i = 1:RESAMPLE_COUNT
     mean_pert_pos_profiles(i, :) = pos_mean;
     mean_pert_torque_profiles(i, :) = torque_mean;
     mean_plat_pos_profiles(i, :) = diff_plat_pos_mean;
+    
+    cop_mean = mean(cop_vals(sample_ind, :));
+    
+    mean_pert_cop_profiles(i, :) = cop_mean;
 end
 
 
@@ -111,11 +114,10 @@ end
 
 %% ---- Average NonPerturbation Biomechanical Factors Together ---- %%
 %CoP and Weight have NOT had the BioMechanical factor found
-mean_individual_CoP_bio_factors = mean(mean_p0_cop_profiles(:, 99:101), 2);
 mean_individual_Weight_bio_factors = mean(mean_p0_weight_profiles(:, 99:101), 2);
 for i = 1:size(mean_pert_pos_profiles, 1)
     
-    total_mean_CoP_bio_factors(i) = mean(mean_individual_CoP_bio_factors(MSE_NP_trials_vec(i, :)));
+    
     total_mean_Weight_bio_factors(i) = mean(mean_individual_Weight_bio_factors(MSE_NP_trials_vec(i, :)));
 
     %EMG signals have
@@ -126,7 +128,7 @@ for i = 1:size(mean_pert_pos_profiles, 1)
 
 end
 
-bio_factors_struct.CoP = total_mean_CoP_bio_factors;
+bio_factors_struct.CoP = mean_pert_cop_profiles;
 bio_factors_struct.Weight = total_mean_Weight_bio_factors;
 
 EMG_DATA_OUT.TA  = total_mean_EMG_TA;

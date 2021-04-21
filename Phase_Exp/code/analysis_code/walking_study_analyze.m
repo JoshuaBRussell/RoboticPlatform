@@ -659,10 +659,10 @@ p0_EMG_struct4.PL = pl15;
 p0_EMG_struct4.SOL = sol15;
 p0_EMG_struct4.GCA = gca15;
 
-[diff_p1_foot_pos, diff_p1_plat_torque, diff_p1_plat_pos, bio_factors_p1] = get_pos_torque_diff(p0_foot_pos30, p1_foot_pos_segment(~p1_seg_removed_ind, :), p0_plat_torque30, p1_plat_torque_segment(~p1_seg_removed_ind, :), diff_p1_plat_pos(~p1_foot_placement_rej_ind, :), copr30, weightr30, p0_EMG_struct1);
-[diff_p2_foot_pos, diff_p2_plat_torque, diff_p2_plat_pos, bio_factors_p2] = get_pos_torque_diff(p0_foot_pos45, p2_foot_pos_segment(~p2_seg_removed_ind, :), p0_plat_torque45, p2_plat_torque_segment(~p2_seg_removed_ind, :), diff_p2_plat_pos(~p2_foot_placement_rej_ind, :), copr45, weightr45, p0_EMG_struct2);
-[diff_p3_foot_pos, diff_p3_plat_torque, diff_p3_plat_pos, bio_factors_p3] = get_pos_torque_diff(p0_foot_pos60, p3_foot_pos_segment(~p3_seg_removed_ind, :), p0_plat_torque60, p3_plat_torque_segment(~p3_seg_removed_ind, :), diff_p3_plat_pos(~p3_foot_placement_rej_ind, :), copr60, weightr60, p0_EMG_struct3);
-[diff_p4_foot_pos, diff_p4_plat_torque, diff_p4_plat_pos, bio_factors_p4] = get_pos_torque_diff(p0_foot_pos15, p4_foot_pos_segment(~p4_seg_removed_ind, :), p0_plat_torque15, p4_plat_torque_segment(~p4_seg_removed_ind, :), diff_p4_plat_pos(~p4_foot_placement_rej_ind, :), copr15, weightr15, p0_EMG_struct4);
+[diff_p1_foot_pos, diff_p1_plat_torque, diff_p1_plat_pos, bio_factors_p1] = get_pos_torque_diff(p0_foot_pos30, p1_foot_pos_segment(~p1_seg_removed_ind, :), p0_plat_torque30, p1_plat_torque_segment(~p1_seg_removed_ind, :), diff_p1_plat_pos(~p1_foot_placement_rej_ind, :), p1_cop_val(~p1_foot_placement_rej_ind), weightr30, p0_EMG_struct1);
+[diff_p2_foot_pos, diff_p2_plat_torque, diff_p2_plat_pos, bio_factors_p2] = get_pos_torque_diff(p0_foot_pos45, p2_foot_pos_segment(~p2_seg_removed_ind, :), p0_plat_torque45, p2_plat_torque_segment(~p2_seg_removed_ind, :), diff_p2_plat_pos(~p2_foot_placement_rej_ind, :), p2_cop_val(~p2_foot_placement_rej_ind), weightr45, p0_EMG_struct2);
+[diff_p3_foot_pos, diff_p3_plat_torque, diff_p3_plat_pos, bio_factors_p3] = get_pos_torque_diff(p0_foot_pos60, p3_foot_pos_segment(~p3_seg_removed_ind, :), p0_plat_torque60, p3_plat_torque_segment(~p3_seg_removed_ind, :), diff_p3_plat_pos(~p3_foot_placement_rej_ind, :), p3_cop_val(~p3_foot_placement_rej_ind), weightr60, p0_EMG_struct3);
+[diff_p4_foot_pos, diff_p4_plat_torque, diff_p4_plat_pos, bio_factors_p4] = get_pos_torque_diff(p0_foot_pos15, p4_foot_pos_segment(~p4_seg_removed_ind, :), p0_plat_torque15, p4_plat_torque_segment(~p4_seg_removed_ind, :), diff_p4_plat_pos(~p4_foot_placement_rej_ind, :), p4_cop_val(~p4_foot_placement_rej_ind), weightr15, p0_EMG_struct4);
 
 
 
