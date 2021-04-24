@@ -16,7 +16,7 @@ if ise == 1
 else
 % Insert subject initial and name.
 %Make sure it matches the format for naming
-    DATA_FOLDER_REL_LOC = "./../../data/Vu_121420/" %Relative location for current code dir.
+    DATA_FOLDER_REL_LOC = "./../../data/Vu_121421/" %Relative location for current code dir.
 end
 
 path_str = split(DATA_FOLDER_REL_LOC, ["/", "_"]);
@@ -211,6 +211,12 @@ for trials=1:10
                 force1_4(p1,:)=f4(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT)-f1(peaks(i)+TRIAL_BASELINE_INDEX);
                 force1_5(p1,:)=f5(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT)-f1(peaks(i)+TRIAL_BASELINE_INDEX);
                 force1_6(p1,:)=f6(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT)-f1(peaks(i)+TRIAL_BASELINE_INDEX);
+                
+                
+                p1_EMG.TA(p1, :)  = ta(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
+                p1_EMG.SOL(p1, :) = sol(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
+                p1_EMG.PL(p1, :)  = pl(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
+                p1_EMG.GCA(p1, :) = gca(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
                 weight1(p1,:)=w1(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT)-w1(peaks(i)+TRIAL_BASELINE_INDEX);%+w2(peaks(i)-400:peaks(i)+TRIAL_WINDOW_POST_PERT)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+2000)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+2000)-w4(peaks(i)-20);
                 p1_plat_torque(p1,:)=pert_torque(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT)-pert_torque(peaks(i)+50);
                 p1_plat_pos(p1,:)=plat_pos_data(peaks(i)+TRIAL_WINDOW_PRE_PERT+GON_DELAY_IN_SAMPLES:peaks(i)+TRIAL_WINDOW_POST_PERT+GON_DELAY_IN_SAMPLES);
@@ -232,6 +238,11 @@ for trials=1:10
                 force2_5(p2,:)=f5(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT)-f1(peaks(i)+TRIAL_BASELINE_INDEX);
                 force2_6(p2,:)=f6(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT)-f1(peaks(i)+TRIAL_BASELINE_INDEX);
                 
+                
+                p2_EMG.TA(p2, :)  = ta(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
+                p2_EMG.SOL(p2, :) = sol(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
+                p2_EMG.PL(p2, :)  = pl(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
+                p2_EMG.GCA(p2, :) = gca(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
                 weight2(p2,:)=w1(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT)-w1(peaks(i)+TRIAL_BASELINE_INDEX);%+w2(peaks(i)-400:peaks(i)+2000)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+2000)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+2000)-w4(peaks(i)-20);
                 p2_plat_torque(p2,:)=pert_torque(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT)-pert_torque(peaks(i)+50);
                 p2_plat_pos(p2,:)=plat_pos_data(peaks(i)+TRIAL_WINDOW_PRE_PERT+GON_DELAY_IN_SAMPLES:peaks(i)+TRIAL_WINDOW_POST_PERT+GON_DELAY_IN_SAMPLES);
@@ -253,6 +264,10 @@ for trials=1:10
                 force3_5(p3,:)=f5(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT)-f1(peaks(i)+TRIAL_BASELINE_INDEX);
                 force3_6(p3,:)=f6(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT)-f1(peaks(i)+TRIAL_BASELINE_INDEX);
                 
+                p3_EMG.TA(p3,:)  = ta(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
+                p3_EMG.SOL(p3,:) = sol(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
+                p3_EMG.PL(p3,:)  = pl(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
+                p3_EMG.GCA(p3,:) = gca(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
                 weight3(p3,:)=w1(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT)-w1(peaks(i)+TRIAL_BASELINE_INDEX);%+w2(peaks(i)-400:peaks(i)+2000)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+2000)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+2000)-w4(peaks(i)-20);
                 p3_plat_torque(p3,:)=1*(pert_torque(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT)-pert_torque(peaks(i)+50));
                 p3_plat_pos(p3,:)=plat_pos_data(peaks(i)+TRIAL_WINDOW_PRE_PERT+GON_DELAY_IN_SAMPLES:peaks(i)+TRIAL_WINDOW_POST_PERT+GON_DELAY_IN_SAMPLES);
@@ -277,7 +292,7 @@ for trials=1:10
                 sol_emg(p0,:)=sol(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
                 pl_emg(p0,:)=pl(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
                 gca_emg(p0,:)=gca(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
-                weight4(p0,:)=w1(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT)-w1(peaks(i)+TRIAL_BASELINE_INDEX);%+w2(peaks(i)-400:peaks(i)+2000)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+2000)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+2000)-w4(peaks(i)-20);
+                weight0(p0,:)=w1(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT)-w1(peaks(i)+TRIAL_BASELINE_INDEX);%+w2(peaks(i)-400:peaks(i)+2000)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+2000)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+2000)-w4(peaks(i)-20);
                 p0_plat_torque(p0,:)=pert_torque(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT)-pert_torque(peaks(i)+50);
                 p0_plat_pos(p0,:)=plat_pos_data(peaks(i)+TRIAL_WINDOW_PRE_PERT+GON_DELAY_IN_SAMPLES:peaks(i)+TRIAL_WINDOW_POST_PERT+GON_DELAY_IN_SAMPLES);
                 p0_foot_pos(p0,:)=foot_pos_data(peaks(i)+TRIAL_WINDOW_PRE_PERT+GON_DELAY_IN_SAMPLES+shift:peaks(i)+TRIAL_WINDOW_POST_PERT+GON_DELAY_IN_SAMPLES+shift);
@@ -301,7 +316,12 @@ for trials=1:10
                 force4_4(p4,:)=f4(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT)-f1(peaks(i)+TRIAL_BASELINE_INDEX);
                 force4_5(p4,:)=f5(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT)-f1(peaks(i)+TRIAL_BASELINE_INDEX);
                 force4_6(p4,:)=f6(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT)-f1(peaks(i)+TRIAL_BASELINE_INDEX);
-                weight3(p4,:)=w1(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT)-w1(peaks(i)+TRIAL_BASELINE_INDEX);%+w2(peaks(i)-400:peaks(i)+2000)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+2000)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+2000)-w4(peaks(i)-20);
+                
+                p4_EMG.TA(p4,:)  = ta(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
+                p4_EMG.SOL(p4,:) = sol(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
+                p4_EMG.PL(p4,:)  = pl(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
+                p4_EMG.GCA(p4,:) = gca(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
+                weight4(p4,:)=w1(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT)-w1(peaks(i)+TRIAL_BASELINE_INDEX);%+w2(peaks(i)-400:peaks(i)+2000)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+2000)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+2000)-w4(peaks(i)-20);
                 p4_plat_torque(p4,:)=pert_torque(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT)-pert_torque(peaks(i)+50);
                 p4_plat_pos(p4,:)=plat_pos_data(peaks(i)+TRIAL_WINDOW_PRE_PERT+GON_DELAY_IN_SAMPLES:peaks(i)+TRIAL_WINDOW_POST_PERT+GON_DELAY_IN_SAMPLES);
                 p4_foot_pos(p4,:)=foot_pos_data(peaks(i)+TRIAL_WINDOW_PRE_PERT+GON_DELAY_IN_SAMPLES+shift:peaks(i)+TRIAL_WINDOW_POST_PERT+GON_DELAY_IN_SAMPLES+shift);
@@ -350,55 +370,57 @@ end
 p0_removed_ind = (img0_pos < -0.5)' | (img0_pos > POS_REJECTION_LIMIT)';
 p0_raw_data_ind = find(~p0_removed_ind);
 p0_total_accepted = sum(~p0_removed_ind)
+
+
+
 %% Obtaining perturbation torque and CoP data from different trials the act_torque is calculated by using the foot position obtained form motion capture
-for i=1:p1-1
-    if (isnan(p1_plat_torque(i,1))==1)
-        p1_act_torque(i,1:2201)=NaN;
-        ssss='Found one';
-        disp(ssss);
-    else
-        p1_act_torque(i,:)=force1_1(i,:)*(0.315-(img1_pos(i)/100))+force1_4(i,:)*(0.315-(img1_pos(i)/100))-force1_2(i,:)*(0.105+(img1_pos(i)/100))-force1_3(i,:)*(0.105+(img1_pos(i)/100))-force1_5(i,:)*(0.095)-force1_6(i,:)*(0.095);
-    end
-end
-for i=1:p2-1
-    if (isnan(p2_plat_torque(i,1))==1)
-        p2_act_torque(i,1:2201)=NaN;
-    else
-        p2_act_torque(i,:)=force2_1(i,:)*(0.315-(img2_pos(i)/100))+force2_4(i,:)*(0.315-(img2_pos(i)/100))-force2_2(i,:)*(0.105+(img2_pos(i)/100))-force2_3(i,:)*(0.105+(img2_pos(i)/100))-force2_5(i,:)*(0.095)-force2_6(i,:)*(0.095);
-    end
-end
-
-
-for i=1:p3-1
-    if (isnan(p3_plat_torque(i,1))==1)
-        p3_act_torque(i,1:2201)=NaN;
-    else
-        p3_act_torque(i,:)=force3_1(i,:)*(0.315-(img3_pos(i)/100))+force3_4(i,:)*(0.315-(img3_pos(i)/100))-force3_2(i,:)*(0.105+(img3_pos(i)/100))-force3_3(i,:)*(0.105+(img3_pos(i)/100))-force3_5(i,:)*(0.095)-force3_6(i,:)*(0.095);
-    end
-end
 
 %The way this is implemented is only temporary, though the idea will remain
 %the same: Find out what data needs to be removed, then create all
 %proceeding variables from that selected data only. This is only being done
 %currently for the No-Perturbation case, as it affects everything along the
 %way. 
-for i=1:p0_total_accepted
-    if (isnan(p0_plat_torque(i,1))==1)
-        p0_act_torque(i,1:2201)=NaN;
-        p0_cop_torque(i,1:2201)=NaN;
-    else
-        p0_act_torque(i,:)=force0_1(p0_raw_data_ind(i),:)*(0.315-(img0_pos(p0_raw_data_ind(i))/100))+force0_4(p0_raw_data_ind(i),:)*(0.315-(img0_pos(p0_raw_data_ind(i))/100))-force0_2(p0_raw_data_ind(i),:)*(0.105+(img0_pos(p0_raw_data_ind(i))/100))-force0_3(p0_raw_data_ind(i),:)*(0.105+(img0_pos(p0_raw_data_ind(i))/100))-force0_5(p0_raw_data_ind(i),:)*(0.095)-force0_6(p0_raw_data_ind(i),:)*(0.095);
-        p0_cop_torque(i,:)=force0_1(p0_raw_data_ind(i),:)*(0.315-(img0_pos(p0_raw_data_ind(i))/100))+force0_4(p0_raw_data_ind(i),:)*(0.315-(img0_pos(p0_raw_data_ind(i))/100))-force0_2(p0_raw_data_ind(i),:)*(0.105+(img0_pos(p0_raw_data_ind(i))/100))-force0_3(p0_raw_data_ind(i),:)*(0.105+(img0_pos(p0_raw_data_ind(i))/100))-force0_5(p0_raw_data_ind(i),:)*(0.025)-force0_6(p0_raw_data_ind(i),:)*(0.025);
-        
-    end
-end
-for i=1:p4-1
-    if (isnan(p4_plat_torque(i,1))==1)
-        p4_act_torque(i,1:2201)=NaN;
-    else
-        p4_act_torque(i,:)=force4_1(i,:)*(0.315-(img4_pos(i)/100))+force4_4(i,:)*(0.315-(img4_pos(i)/100))-force4_2(i,:)*(0.105+(img4_pos(i)/100))-force4_3(i,:)*(0.105+(img4_pos(i)/100))-force4_5(i,:)*(0.095)-force4_6(i,:)*(0.095);
-    end
-end
+
+force_plate_data_p0.F1 = force0_1(p0_raw_data_ind, :);
+force_plate_data_p0.F2 = force0_2(p0_raw_data_ind, :);
+force_plate_data_p0.F3 = force0_3(p0_raw_data_ind, :);
+force_plate_data_p0.F4 = force0_4(p0_raw_data_ind, :);
+force_plate_data_p0.F5 = force0_5(p0_raw_data_ind, :);
+force_plate_data_p0.F6 = force0_6(p0_raw_data_ind, :);
+
+force_plate_data_p1.F1 = force1_1;
+force_plate_data_p1.F2 = force1_2;
+force_plate_data_p1.F3 = force1_3;
+force_plate_data_p1.F4 = force1_4;
+force_plate_data_p1.F5 = force1_5;
+force_plate_data_p1.F6 = force1_6;
+
+force_plate_data_p2.F1 = force2_1;
+force_plate_data_p2.F2 = force2_2;
+force_plate_data_p2.F3 = force2_3;
+force_plate_data_p2.F4 = force2_4;
+force_plate_data_p2.F5 = force2_5;
+force_plate_data_p2.F6 = force2_6;
+
+force_plate_data_p3.F1 = force3_1;
+force_plate_data_p3.F2 = force3_2;
+force_plate_data_p3.F3 = force3_3;
+force_plate_data_p3.F4 = force3_4;
+force_plate_data_p3.F5 = force3_5;
+force_plate_data_p3.F6 = force3_6;
+
+force_plate_data_p4.F1 = force4_1;
+force_plate_data_p4.F2 = force4_2;
+force_plate_data_p4.F3 = force4_3;
+force_plate_data_p4.F4 = force4_4;
+force_plate_data_p4.F5 = force4_5;
+force_plate_data_p4.F6 = force4_6;
+
+[p0_act_torque, p0_cop_torque] = get_act_and_cop_torque(img0_pos(p0_raw_data_ind),force_plate_data_p0);
+[p1_act_torque, p1_cop_torque] = get_act_and_cop_torque(img1_pos,force_plate_data_p1);
+[p2_act_torque, p2_cop_torque] = get_act_and_cop_torque(img2_pos,force_plate_data_p2);
+[p3_act_torque, p3_cop_torque] = get_act_and_cop_torque(img3_pos,force_plate_data_p3);
+[p4_act_torque, p4_cop_torque] = get_act_and_cop_torque(img4_pos,force_plate_data_p4);
 
 
 
@@ -479,13 +501,13 @@ end
 % Weight during perturbation
 for i=1:p0_total_accepted
     point_i=floor((p0_peakend(p0_raw_data_ind(i))-p0_peakst(p0_raw_data_ind(i)))*PERT_POINT_1)+p0_peakst(p0_raw_data_ind(i))
-    weightr15(i,:)=weight4(p0_raw_data_ind(i),point_i+PRE_PERT_WINDOW:point_i+POST_PERT_WINDOW);
+    weightr15(i,:)=weight0(p0_raw_data_ind(i),point_i+PRE_PERT_WINDOW:point_i+POST_PERT_WINDOW);
     point_j=floor((p0_peakend(p0_raw_data_ind(i))-p0_peakst(p0_raw_data_ind(i)))*PERT_POINT_2)+p0_peakst(p0_raw_data_ind(i))
-    weightr30(i,:)=weight4(p0_raw_data_ind(i),point_j+PRE_PERT_WINDOW:point_j+POST_PERT_WINDOW);
+    weightr30(i,:)=weight0(p0_raw_data_ind(i),point_j+PRE_PERT_WINDOW:point_j+POST_PERT_WINDOW);
     point_k=floor((p0_peakend(p0_raw_data_ind(i))-p0_peakst(p0_raw_data_ind(i)))*PERT_POINT_3)+p0_peakst(p0_raw_data_ind(i))
-    weightr45(i,:)=weight4(p0_raw_data_ind(i),point_k+PRE_PERT_WINDOW:point_k+POST_PERT_WINDOW);
+    weightr45(i,:)=weight0(p0_raw_data_ind(i),point_k+PRE_PERT_WINDOW:point_k+POST_PERT_WINDOW);
     point_k=floor((p0_peakend(p0_raw_data_ind(i))-p0_peakst(p0_raw_data_ind(i)))*PERT_POINT_4)+p0_peakst(p0_raw_data_ind(i))
-    weightr60(i,:)=weight4(p0_raw_data_ind(i),point_k+PRE_PERT_WINDOW:point_k+POST_PERT_WINDOW);
+    weightr60(i,:)=weight0(p0_raw_data_ind(i),point_k+PRE_PERT_WINDOW:point_k+POST_PERT_WINDOW);
     
 end
 
@@ -504,6 +526,43 @@ for i=1:p0_total_accepted
     for j=1:length(weightr60)
         copr60(i,j)=p0_cop_torque60(i,j)/weightr60(i,j);
     end
+end
+
+%CoP, BW, EMG Vals
+for i = 1:size(p1_cop_torque, 1)
+    p1_cop_val(i,:)=p1_cop_torque(i, p1_peakst(i))./weight1(i, p1_peakst(i));
+    p2_cop_val(i,:)=p2_cop_torque(i, p2_peakst(i))./weight2(i, p2_peakst(i));
+    p4_cop_val(i,:)=p4_cop_torque(i, p4_peakst(i))./weight4(i, p4_peakst(i));
+    
+    p1_weight_val(i, :) = weight1(i, p1_peakst(i));
+    p2_weight_val(i, :) = weight2(i, p2_peakst(i));
+    p4_weight_val(i, :) = weight4(i, p4_peakst(i));
+    
+    p1_EMG_vals.TA(i, 1)  = p1_EMG.TA(i, p1_peakst(i));
+    p1_EMG_vals.SOL(i, 1) = p1_EMG.SOL(i, p1_peakst(i));
+    p1_EMG_vals.PL(i, 1)  = p1_EMG.PL(i, p1_peakst(i));
+    p1_EMG_vals.GCA(i, 1) = p1_EMG.GCA(i, p1_peakst(i));
+    
+    p2_EMG_vals.TA(i, 1)  = p2_EMG.TA(i, p2_peakst(i));
+    p2_EMG_vals.SOL(i, 1) = p2_EMG.SOL(i, p2_peakst(i));
+    p2_EMG_vals.PL(i, 1)  = p2_EMG.PL(i, p2_peakst(i));
+    p2_EMG_vals.GCA(i, 1) = p2_EMG.GCA(i, p2_peakst(i));
+    
+    p4_EMG_vals.TA(i, 1)  = p4_EMG.TA(i, p4_peakst(i));
+    p4_EMG_vals.SOL(i, 1) = p4_EMG.SOL(i, p4_peakst(i));
+    p4_EMG_vals.PL(i, 1)  = p4_EMG.PL(i, p4_peakst(i));
+    p4_EMG_vals.GCA(i, 1) = p4_EMG.GCA(i, p4_peakst(i));
+    
+end
+for i = 1:size(p3_cop_torque, 1)
+    p3_cop_val(i,:)=p3_cop_torque(i, p3_peakst(i))./weight3(i, p3_peakst(i));
+
+    p3_weight_val(i, :) = weight3(i, p3_peakst(i));
+    
+    p3_EMG_vals.TA(i, 1)  = p3_EMG.TA(i, p3_peakst(i));
+    p3_EMG_vals.SOL(i, 1) = p3_EMG.SOL(i, p3_peakst(i));
+    p3_EMG_vals.PL(i, 1)  = p3_EMG.PL(i, p3_peakst(i));
+    p3_EMG_vals.GCA(i, 1) = p3_EMG.GCA(i, p3_peakst(i));
 end
 
 
@@ -560,15 +619,6 @@ pl60m=mean(pl60);
 sol60m=mean(sol60);
 gca60m=mean(gca60);
 
-
-for i = 1:size(p1_peakst , 2)
-    p1_foot_pos_segment(i,:)=p1_foot_pos(i,p1_peakst(i)+PRE_PERT_WINDOW:p1_peakst(i)+POST_PERT_WINDOW);
-    p2_foot_pos_segment(i,:)=p2_foot_pos(i,p2_peakst(i)+PRE_PERT_WINDOW:p2_peakst(i)+POST_PERT_WINDOW);
-    p4_foot_pos_segment(i,:)=p4_foot_pos(i,p4_peakst(i)+PRE_PERT_WINDOW:p4_peakst(i)+POST_PERT_WINDOW); 
-end
-for i = 1:size(p3_peakst, 2)
-       p3_foot_pos_segment(i,:)=p3_foot_pos(i,p3_peakst(i)+PRE_PERT_WINDOW:p3_peakst(i)+POST_PERT_WINDOW); 
-end
 
 %% Obtaining differential data for impedance analysis
 % data is broken into chunks of 400 points: PRE_PERT_WINDOW
@@ -656,10 +706,30 @@ p0_EMG_struct4.PL = pl15;
 p0_EMG_struct4.SOL = sol15;
 p0_EMG_struct4.GCA = gca15;
 
-[diff_p1_foot_pos, diff_p1_plat_torque, diff_p1_plat_pos, bio_factors_p1] = get_pos_torque_diff(p0_foot_pos30, p1_foot_pos_segment(~p1_seg_removed_ind, :), p0_plat_torque30, p1_plat_torque_segment(~p1_seg_removed_ind, :), diff_p1_plat_pos(~p1_foot_placement_rej_ind, :), copr30, weightr30, p0_EMG_struct1);
-[diff_p2_foot_pos, diff_p2_plat_torque, diff_p2_plat_pos, bio_factors_p2] = get_pos_torque_diff(p0_foot_pos45, p2_foot_pos_segment(~p2_seg_removed_ind, :), p0_plat_torque45, p2_plat_torque_segment(~p2_seg_removed_ind, :), diff_p2_plat_pos(~p2_foot_placement_rej_ind, :), copr45, weightr45, p0_EMG_struct2);
-[diff_p3_foot_pos, diff_p3_plat_torque, diff_p3_plat_pos, bio_factors_p3] = get_pos_torque_diff(p0_foot_pos60, p3_foot_pos_segment(~p3_seg_removed_ind, :), p0_plat_torque60, p3_plat_torque_segment(~p3_seg_removed_ind, :), diff_p3_plat_pos(~p3_foot_placement_rej_ind, :), copr60, weightr60, p0_EMG_struct3);
-[diff_p4_foot_pos, diff_p4_plat_torque, diff_p4_plat_pos, bio_factors_p4] = get_pos_torque_diff(p0_foot_pos15, p4_foot_pos_segment(~p4_seg_removed_ind, :), p0_plat_torque15, p4_plat_torque_segment(~p4_seg_removed_ind, :), diff_p4_plat_pos(~p4_foot_placement_rej_ind, :), copr15, weightr15, p0_EMG_struct4);
+p1_EMG_vals.TA  = p1_EMG_vals.TA(~p1_seg_removed_ind, :);
+p1_EMG_vals.PL  = p1_EMG_vals.PL(~p1_seg_removed_ind, :);
+p1_EMG_vals.SOL = p1_EMG_vals.SOL(~p1_seg_removed_ind, :);
+p1_EMG_vals.GCA = p1_EMG_vals.GCA(~p1_seg_removed_ind, :);
+
+p2_EMG_vals.TA  = p2_EMG_vals.TA(~p2_seg_removed_ind, :);
+p2_EMG_vals.PL  = p2_EMG_vals.PL(~p2_seg_removed_ind, :);
+p2_EMG_vals.SOL = p2_EMG_vals.SOL(~p2_seg_removed_ind, :);
+p2_EMG_vals.GCA = p2_EMG_vals.GCA(~p2_seg_removed_ind, :);
+
+p3_EMG_vals.TA  = p3_EMG_vals.TA(~p3_seg_removed_ind, :);
+p3_EMG_vals.PL  = p3_EMG_vals.PL(~p3_seg_removed_ind, :);
+p3_EMG_vals.SOL = p3_EMG_vals.SOL(~p3_seg_removed_ind, :);
+p3_EMG_vals.GCA = p3_EMG_vals.GCA(~p3_seg_removed_ind, :);
+
+p4_EMG_vals.TA  = p4_EMG_vals.TA(~p4_seg_removed_ind, :);
+p4_EMG_vals.PL  = p4_EMG_vals.PL(~p4_seg_removed_ind, :);
+p4_EMG_vals.SOL = p4_EMG_vals.SOL(~p4_seg_removed_ind, :);
+p4_EMG_vals.GCA = p4_EMG_vals.GCA(~p4_seg_removed_ind, :);
+
+[diff_p1_foot_pos, diff_p1_plat_torque, diff_p1_plat_pos, bio_factors_p1] = get_pos_torque_diff(p0_foot_pos30, p1_foot_pos_segment(~p1_seg_removed_ind, :), p0_plat_torque30, p1_plat_torque_segment(~p1_seg_removed_ind, :), diff_p1_plat_pos(~p1_foot_placement_rej_ind, :), p1_cop_val(~p1_foot_placement_rej_ind), p1_weight_val(~p1_foot_placement_rej_ind), p1_EMG_vals);
+[diff_p2_foot_pos, diff_p2_plat_torque, diff_p2_plat_pos, bio_factors_p2] = get_pos_torque_diff(p0_foot_pos45, p2_foot_pos_segment(~p2_seg_removed_ind, :), p0_plat_torque45, p2_plat_torque_segment(~p2_seg_removed_ind, :), diff_p2_plat_pos(~p2_foot_placement_rej_ind, :), p2_cop_val(~p2_foot_placement_rej_ind), p2_weight_val(~p2_foot_placement_rej_ind), p2_EMG_vals);
+[diff_p3_foot_pos, diff_p3_plat_torque, diff_p3_plat_pos, bio_factors_p3] = get_pos_torque_diff(p0_foot_pos60, p3_foot_pos_segment(~p3_seg_removed_ind, :), p0_plat_torque60, p3_plat_torque_segment(~p3_seg_removed_ind, :), diff_p3_plat_pos(~p3_foot_placement_rej_ind, :), p3_cop_val(~p3_foot_placement_rej_ind), p3_weight_val(~p3_foot_placement_rej_ind), p3_EMG_vals);
+[diff_p4_foot_pos, diff_p4_plat_torque, diff_p4_plat_pos, bio_factors_p4] = get_pos_torque_diff(p0_foot_pos15, p4_foot_pos_segment(~p4_seg_removed_ind, :), p0_plat_torque15, p4_plat_torque_segment(~p4_seg_removed_ind, :), diff_p4_plat_pos(~p4_foot_placement_rej_ind, :), p4_cop_val(~p4_foot_placement_rej_ind), p4_weight_val(~p4_foot_placement_rej_ind), p4_EMG_vals);
 
 
 

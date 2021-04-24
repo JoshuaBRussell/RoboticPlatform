@@ -18,8 +18,8 @@ SUBJ_DATA_DIRS = {'Carl_121720', ...
                   'Lily_020221', ...
                   'Matt_022821', ...
                   'James_030221', ...
-                  'Kwanghee_030321', ...
-                  'Ian_041021'};
+                  'Kwanghee_030321'};%, ...
+                  %'Ian_041021'};
 
 for subjects = 1:length(SUBJ_DATA_DIRS)
     
@@ -41,8 +41,9 @@ SUBJ_DATA_DIRS = {'Carl_121720', ...
                   'Lily_020221', ...
                   'Matt_022821', ...
                   'James_030221', ...
-                  'Kwanghee_030321', ...
-                  'Ian_041021'};
+                  'Kwanghee_030321'}%, ...
+                  %'Ian_041021'};
+
 figure();
 for subjects = 1:length(SUBJ_DATA_DIRS)
     temp_cell_array = split(SUBJ_DATA_DIRS{subjects}, '_');
@@ -50,10 +51,15 @@ for subjects = 1:length(SUBJ_DATA_DIRS)
     curr_results_dir = strcat(RESULTS_DIR, sub_name, '/');
 
     load(strcat(curr_results_dir, sub_name, "_bootstrap_vars.mat"));
+    
+    %figure();
+    scatter(sqrt(bio_factors_p1.EMG.GCA + bio_factors_p1.EMG.SOL)', regress_coeffs_p1(:, 1)); hold on;
+    scatter(sqrt(bio_factors_p2.EMG.GCA + bio_factors_p2.EMG.SOL)', regress_coeffs_p2(:, 1));
+    scatter(sqrt(bio_factors_p3.EMG.GCA + bio_factors_p3.EMG.SOL)', regress_coeffs_p3(:, 1));
+    scatter(sqrt(bio_factors_p4.EMG.GCA + bio_factors_p4.EMG.SOL)', regress_coeffs_p4(:, 1)); %hold off;
+    %title(sub_name);
+    
+    %saveas(gcf,strcat(RESULTS_DIR, sub_name,'copf_plot.jpg'));
 
-    scatter(sqrt(bio_factors_p1.CoP'), regress_coeffs_p1(:, 1), 'k'); hold on;
-    scatter(sqrt(bio_factors_p2.CoP'), regress_coeffs_p2(:, 1), 'r');
-    scatter(sqrt(bio_factors_p3.CoP'), regress_coeffs_p3(:, 1), 'g');
-    scatter(sqrt(bio_factors_p4.CoP'), regress_coeffs_p4(:, 1), 'b');
 
 end
