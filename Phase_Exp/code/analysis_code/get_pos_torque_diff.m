@@ -3,7 +3,7 @@ function [diff_pos,diff_torque, mean_plat_pos_profiles, bio_factors_struct] = ge
                                                       diff_plat_pos_profiles, ...
                                                       cop_vals, ...
                                                       weight_vals, ...
-                                                      emg_profiles) %This will be a struct since passing in each
+                                                      emg_vals) %This will be a struct since passing in each
                                                                     %individual set of EMG curves would create a 
                                                                     %long function
                                                                     
@@ -27,10 +27,10 @@ mean_p0_torque_profiles = [];
 
 mean_pert_cop_vals = [];
 mean_pert_weight_vals = [];
-mean_p0_TA_profiles = [];
-mean_p0_SOL_profiles = [];
-mean_p0_PL_profiles = [];
-mean_p0_GCA_profiles = [];
+mean_pert_TA_profiles = [];
+mean_pert_SOL_profiles = [];
+mean_pert_PL_profiles = [];
+mean_pert_GCA_profiles = [];
                                                   
 RESAMPLE_COUNT = 100;
 bs_selection_count = round(0.6*size(p0_pos_profiles, 1));
@@ -41,22 +41,9 @@ for i = 1:RESAMPLE_COUNT
     pos_mean = mean(pos_data_sample);
     torque_mean = mean(p0_torque_profiles(sample_ind, :));
     
-    
-    
-    emg_TA_mean = mean(emg_profiles.TA(:, sample_ind));
-    emg_PL_mean = mean(emg_profiles.PL(:, sample_ind));
-    emg_SOL_mean = mean(emg_profiles.SOL(:, sample_ind));
-    emg_GCA_mean = mean(emg_profiles.GCA(:, sample_ind));
-    
-    
     mean_p0_pos_profiles(i, :) = pos_mean;
     mean_p0_torque_profiles(i, :) = torque_mean;
-    
-    
-    mean_p0_TA_profiles(i, :) = emg_TA_mean;
-    mean_p0_SOL_profiles(i, :) = emg_SOL_mean;
-    mean_p0_PL_profiles(i, :) = emg_PL_mean;
-    mean_p0_GCA_profiles(i, :) = emg_GCA_mean;
+   
 end
 
 
@@ -75,10 +62,19 @@ for i = 1:RESAMPLE_COUNT
     mean_plat_pos_profiles(i, :) = diff_plat_pos_mean;
     
     cop_mean = mean(cop_vals(sample_ind, :));
-    weight_mean = mean(weight_vals(sample_ind, :));
+    weight_mean = mean(weight_vals(sample_ind));
+    emg_TA_mean = mean(emg_vals.TA(sample_ind, :));
+    emg_PL_mean = mean(emg_vals.PL(sample_ind, :));
+    emg_SOL_mean = mean(emg_vals.SOL(sample_ind, :));
+    emg_GCA_mean = mean(emg_vals.GCA(sample_ind, :));
+    
     
     mean_pert_cop_profiles(i, :) = cop_mean;
     mean_pert_weight_vals(i, :) = weight_mean;
+    mean_pert_TA_profiles(i, :) = emg_TA_mean;
+    mean_pert_SOL_profiles(i, :) = emg_SOL_mean;
+    mean_pert_PL_profiles(i, :) = emg_PL_mean;
+    mean_pert_GCA_profiles(i, :) = emg_GCA_mean;
 end
 
 
@@ -114,25 +110,25 @@ for i = 1:size(mean_pert_pos_profiles, 1)
     diff_torque(i, :) = pert_curve - non_pert_curve;
 end
 
-%% ---- Average NonPerturbation Biomechanical Factors Together ---- %%
-%CoP and Weight have NOT had the BioMechanical factor found
-for i = 1:size(mean_pert_pos_profiles, 1)
-    
-    %EMG signals have
-    total_mean_EMG_TA(i)  = mean(mean_p0_TA_profiles(MSE_NP_trials_vec(i, :)));
-    total_mean_EMG_PL(i)  = mean(mean_p0_PL_profiles(MSE_NP_trials_vec(i, :)));
-    total_mean_EMG_SOL(i) = mean(mean_p0_SOL_profiles(MSE_NP_trials_vec(i, :)));  
-    total_mean_EMG_GCA(i) = mean(mean_p0_GCA_profiles(MSE_NP_trials_vec(i, :)));
-
-end
+% %% ---- Average NonPerturbation Biomechanical Factors Together ---- %%
+% %CoP and Weight have NOT had the BioMechanical factor found
+% for i = 1:size(mean_pert_pos_profiles, 1)
+%     
+%     %EMG signals have
+%     total_mean_EMG_TA(i)  = mean(mean_pert_TA_profiles(MSE_NP_trials_vec(i, :)));
+%     total_mean_EMG_PL(i)  = mean(mean_pert_PL_profiles(MSE_NP_trials_vec(i, :)));
+%     total_mean_EMG_SOL(i) = mean(mean_p0_SOL_profiles(MSE_NP_trials_vec(i, :)));  
+%     total_mean_EMG_GCA(i) = mean(mean_pert_GCA_profiles(MSE_NP_trials_vec(i, :)));
+% 
+% end
 
 bio_factors_struct.CoP = mean_pert_cop_profiles;
 bio_factors_struct.Weight = mean_pert_weight_vals;
 
-EMG_DATA_OUT.TA  = total_mean_EMG_TA;
-EMG_DATA_OUT.PL  = total_mean_EMG_PL;
-EMG_DATA_OUT.SOL = total_mean_EMG_SOL;
-EMG_DATA_OUT.GCA = total_mean_EMG_GCA;
+EMG_DATA_OUT.TA  = mean_pert_TA_profiles;
+EMG_DATA_OUT.PL  = mean_pert_PL_profiles;
+EMG_DATA_OUT.SOL = mean_pert_SOL_profiles;
+EMG_DATA_OUT.GCA = mean_pert_GCA_profiles;
 
 bio_factors_struct.EMG = EMG_DATA_OUT;
 
