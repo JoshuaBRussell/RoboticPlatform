@@ -16,7 +16,7 @@ if ise == 1
 else
 % Insert subject initial and name.
 %Make sure it matches the format for naming
-    DATA_FOLDER_REL_LOC = "./../../data/Vu_121421/" %Relative location for current code dir.
+    DATA_FOLDER_REL_LOC = "./../../data/Vu_121420/" %Relative location for current code dir.
 end
 
 path_str = split(DATA_FOLDER_REL_LOC, ["/", "_"]);
@@ -532,11 +532,9 @@ end
 for i = 1:size(p1_cop_torque, 1)
     p1_cop_val(i,:)=p1_cop_torque(i, p1_peakst(i))./weight1(i, p1_peakst(i));
     p2_cop_val(i,:)=p2_cop_torque(i, p2_peakst(i))./weight2(i, p2_peakst(i));
-    p4_cop_val(i,:)=p4_cop_torque(i, p4_peakst(i))./weight4(i, p4_peakst(i));
     
     p1_weight_val(i, :) = weight1(i, p1_peakst(i));
     p2_weight_val(i, :) = weight2(i, p2_peakst(i));
-    p4_weight_val(i, :) = weight4(i, p4_peakst(i));
     
     p1_EMG_vals.TA(i, 1)  = p1_EMG.TA(i, p1_peakst(i));
     p1_EMG_vals.SOL(i, 1) = p1_EMG.SOL(i, p1_peakst(i));
@@ -548,21 +546,23 @@ for i = 1:size(p1_cop_torque, 1)
     p2_EMG_vals.PL(i, 1)  = p2_EMG.PL(i, p2_peakst(i));
     p2_EMG_vals.GCA(i, 1) = p2_EMG.GCA(i, p2_peakst(i));
     
-    p4_EMG_vals.TA(i, 1)  = p4_EMG.TA(i, p4_peakst(i));
-    p4_EMG_vals.SOL(i, 1) = p4_EMG.SOL(i, p4_peakst(i));
-    p4_EMG_vals.PL(i, 1)  = p4_EMG.PL(i, p4_peakst(i));
-    p4_EMG_vals.GCA(i, 1) = p4_EMG.GCA(i, p4_peakst(i));
-    
 end
 for i = 1:size(p3_cop_torque, 1)
     p3_cop_val(i,:)=p3_cop_torque(i, p3_peakst(i))./weight3(i, p3_peakst(i));
+    p4_cop_val(i,:)=p4_cop_torque(i, p4_peakst(i))./weight4(i, p4_peakst(i));
 
     p3_weight_val(i, :) = weight3(i, p3_peakst(i));
-    
+    p4_weight_val(i, :) = weight4(i, p4_peakst(i));
+
     p3_EMG_vals.TA(i, 1)  = p3_EMG.TA(i, p3_peakst(i));
     p3_EMG_vals.SOL(i, 1) = p3_EMG.SOL(i, p3_peakst(i));
     p3_EMG_vals.PL(i, 1)  = p3_EMG.PL(i, p3_peakst(i));
     p3_EMG_vals.GCA(i, 1) = p3_EMG.GCA(i, p3_peakst(i));
+    
+    p4_EMG_vals.TA(i, 1)  = p4_EMG.TA(i, p4_peakst(i));
+    p4_EMG_vals.SOL(i, 1) = p4_EMG.SOL(i, p4_peakst(i));
+    p4_EMG_vals.PL(i, 1)  = p4_EMG.PL(i, p4_peakst(i));
+    p4_EMG_vals.GCA(i, 1) = p4_EMG.GCA(i, p4_peakst(i));
 end
 
 
@@ -628,15 +628,18 @@ gca60m=mean(gca60);
 for i = 1:size(p1_peakst , 2)
     p1_foot_pos_segment(i,:)=p1_foot_pos(i,p1_peakst(i)+PRE_PERT_WINDOW:p1_peakst(i)+POST_PERT_WINDOW);
     p2_foot_pos_segment(i,:)=p2_foot_pos(i,p2_peakst(i)+PRE_PERT_WINDOW:p2_peakst(i)+POST_PERT_WINDOW);
-    p4_foot_pos_segment(i,:)=p4_foot_pos(i,p4_peakst(i)+PRE_PERT_WINDOW:p4_peakst(i)+POST_PERT_WINDOW); 
+     
 
     p1_plat_torque_segment(i,:)=p1_act_torque(i,p1_peakst(i)+PRE_PERT_WINDOW:p1_peakst(i)+POST_PERT_WINDOW);
     p2_plat_torque_segment(i,:)=p2_act_torque(i,p2_peakst(i)+PRE_PERT_WINDOW:p2_peakst(i)+POST_PERT_WINDOW);
-    p4_plat_torque_segment(i,:)=p4_act_torque(i,p4_peakst(i)+PRE_PERT_WINDOW:p4_peakst(i)+POST_PERT_WINDOW);
+    
 end
 for i = 1:size(p3_peakst, 2)
     p3_foot_pos_segment(i,:)=p3_foot_pos(i,p3_peakst(i)+PRE_PERT_WINDOW:p3_peakst(i)+POST_PERT_WINDOW);
+    p4_foot_pos_segment(i,:)=p4_foot_pos(i,p4_peakst(i)+PRE_PERT_WINDOW:p4_peakst(i)+POST_PERT_WINDOW);
+    
     p3_plat_torque_segment(i,:)=p3_act_torque(i,p3_peakst(i)+PRE_PERT_WINDOW:p3_peakst(i)+POST_PERT_WINDOW);
+    p4_plat_torque_segment(i,:)=p4_act_torque(i,p4_peakst(i)+PRE_PERT_WINDOW:p4_peakst(i)+POST_PERT_WINDOW);
 end
  
 %% ---- Outlier Rejection ---- %%
@@ -672,17 +675,19 @@ for i=1:size(p1_plat_pos, 1)
     %Differential Platform Position
     diff_p1_plat_pos(i,:)=p1_plat_pos(i,p1_peakst(i)+PRE_PERT_WINDOW:p1_peakst(i)+POST_PERT_WINDOW);
     diff_p2_plat_pos(i,:)=p2_plat_pos(i,p2_peakst(i)+PRE_PERT_WINDOW:p2_peakst(i)+POST_PERT_WINDOW);
-    diff_p4_plat_pos(i,:)=p4_plat_pos(i,p4_peakst(i)+PRE_PERT_WINDOW:p4_peakst(i)+POST_PERT_WINDOW);
     
     diff_p1_plat_pos(i,:)=diff_p1_plat_pos(i,:)-diff_p1_plat_pos(i,100);
     diff_p2_plat_pos(i,:)=diff_p2_plat_pos(i,:)-diff_p2_plat_pos(i,100);
-    diff_p4_plat_pos(i,:)=diff_p4_plat_pos(i,:)-diff_p4_plat_pos(i,100);
         
 end
 
 for i=1:size(p3_plat_pos, 1)
     diff_p3_plat_pos(i,:)=p3_plat_pos(i,p3_peakst(i)+PRE_PERT_WINDOW:p3_peakst(i)+POST_PERT_WINDOW);
     diff_p3_plat_pos(i,:)=diff_p3_plat_pos(i,:)-diff_p3_plat_pos(i,100);
+    
+    diff_p4_plat_pos(i,:)=p4_plat_pos(i,p4_peakst(i)+PRE_PERT_WINDOW:p4_peakst(i)+POST_PERT_WINDOW);
+    diff_p4_plat_pos(i,:)=diff_p4_plat_pos(i,:)-diff_p4_plat_pos(i,100);
+
 end
 
 %---- Put EMG Curves for Each Stance Percentage into a Struct ---- %% 
