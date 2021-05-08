@@ -79,17 +79,26 @@ end
 
 
 %% ---- Find NUM_OF_CLOSEST_MSE_PREPURT# of closest Curves ---- %%
-p0_pre_perturbation_segments = mean_p0_pos_profiles(:, 1:100) - mean_p0_pos_profiles(:, 1);
-pre_perturbation_segments = mean_pert_pos_profiles(:, 1:100) - mean_pert_pos_profiles(:, 1);
+p0_pre_perturbation_pos_segs = mean_p0_pos_profiles(:, 1:100) - mean_p0_pos_profiles(:, 1);
+p0_pre_perturbation_trq_segs = mean_p0_torque_profiles(:, 1:100) - mean_p0_torque_profiles(:, 1);
+
+pre_pert_pos_segments = mean_pert_pos_profiles(:, 1:100) - mean_pert_pos_profiles(:, 1);
+pre_pert_trq_segments = mean_pert_torque_profiles(:, 1:100) - mean_pert_torque_profiles(:, 1);
+
 
 MSE_NP_trials_vec = zeros(size(mean_pert_pos_profiles, 1), NUM_OF_CLOSEST_MSE_PREPURT);
 
 for pert_trial = 1:size(mean_pert_pos_profiles, 1)
-    err_vecs = (p0_pre_perturbation_segments - pre_perturbation_segments(pert_trial, :));
-    MSE_squared = dot(err_vecs, err_vecs, 2);
+    pos_err_vecs = (p0_pre_perturbation_pos_segs - pre_pert_pos_segments(pert_trial, :));
+    MSE_squared_pos = dot(pos_err_vecs, pos_err_vecs, 2);
+    
+    trq_err_vecs = (p0_pre_perturbation_trq_segs - pre_pert_trq_segments(pert_trial, :));
+    MSE_squared_trq = dot(trq_err_vecs, trq_err_vecs, 2);
+    
+    MSE_squared_sum = MSE_squared_pos + MSE_squared_trq;
     
     %[min_err, ideal_non_pert_index] = min(MSE_squared);
-    [sorted_values, sorted_indices] = sort(MSE_squared);
+    [sorted_values, sorted_indices] = sort(MSE_squared_sum);
     
     MSE_NP_trials_vec(pert_trial, :) = sorted_indices(1:NUM_OF_CLOSEST_MSE_PREPURT)';
 end
