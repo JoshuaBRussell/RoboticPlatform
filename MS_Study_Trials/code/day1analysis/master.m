@@ -14,7 +14,7 @@ plotfig=0;
 % Use the first letter of the first name for files
 Subject='O';
 
-DATA_FOLDER_REL_LOC = "./../../data/OmikDualTesting/Standing/Right/DP/"
+DATA_FOLDER_REL_LOC = "./../../data/OmikDualTesting/Standing/Right/"
 
 mvc_evaluation;
 
