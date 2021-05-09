@@ -14,7 +14,7 @@ for l=1
     
     switch l
         case 1
-            h = fopen(strcat(pfile));
+            h = fopen(strcat(DATA_FOLDER_REL_LOC,pfile));
             live_data=fread(h);
             Input1= SimulinkRealTime.utils.getFileScopeData(live_data);
             siz=size(Input1.data);
@@ -138,7 +138,7 @@ fclose('all')
 for l=1:3
     
     
-            h = fopen(strcat(efile,num2str(l),'.DAT'));
+            h = fopen(strcat(DATA_FOLDER_REL_LOC,efile,num2str(l),'.DAT'));
             live_data=fread(h);
             Input1= SimulinkRealTime.utils.getFileScopeData(live_data);
             siz=size(Input1.data);

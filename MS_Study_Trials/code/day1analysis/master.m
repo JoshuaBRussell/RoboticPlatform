@@ -3,6 +3,9 @@
 % Data will be stored in variables dorsi_imp, plantar_imp, inver_imp and ever_imp.
 % The colums are arranged as follows : Stiffness,Damping,Goodness,TA,SOL,PL,GCA,CoP
 
+clc;
+clear;
+
 %%
 % Select the perturbation : D- DOrsiflexion p-Plantarflexion I-Inversion E-Eversion
 perturb='D';
