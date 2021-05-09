@@ -1,4 +1,23 @@
 clear actual_peaks posm velm dptorquem
+
+%----Data File Signal Channels----%
+PLAT_DP_ENC_POS_SIG = 5;
+FOOT_GON_POS_SIG = 13;
+PLAT_GON_POS_SIG = 14;
+
+PERT_TORQUE_SIG = 7;
+IE_TORQUE_SIG = 8; 
+
+F1_SIG = 9;
+F2_SIG = 10;
+F3_SIG = 11;
+F4_SIG = 12;
+
+WEIGHT_SIG = 17;
+COP_TORQUE_SIG = 19;
+
+
+
 shift=0;
 
 time=0;
@@ -116,17 +135,18 @@ for l=1:3
             
   
     emg_data1{l}=Input1;
-    emg_data1{1,l}.data(:,5)=filtfilt(d1,emg_data1{1,l}.data(:,5));
+    emg_data1{1,l}.data(:,PLAT_DP_ENC_POS_SIG)=filtfilt(d1,emg_data1{1,l}.data(:,PLAT_DP_ENC_POS_SIG));
     
-    emg_data1{1,l}.data(:,14)=filtfilt(d1,emg_data1{1,l}.data(:,14));
-    emg_data1{1,l}.data(:,7)=filtfilt(d2,emg_data1{1,l}.data(:,7));
-    emg_data1{1,l}.data(:,8)=filtfilt(d2,emg_data1{1,l}.data(:,8));
-    emg_data1{1,l}.data(:,9)=filtfilt(d2,emg_data1{1,l}.data(:,9));
-    emg_data1{1,l}.data(:,10)=filtfilt(d2,emg_data1{1,l}.data(:,10));
-    emg_data1{1,l}.data(:,11)=filtfilt(d2,emg_data1{1,l}.data(:,11));
-    emg_data1{1,l}.data(:,12)=filtfilt(d2,emg_data1{1,l}.data(:,12));
-    emg_data1{1,l}.data(:,17)=filtfilt(d3,emg_data1{1,l}.data(:,17));
-    emg_data1{1,l}.data(:,19)=filtfilt(d3,emg_data1{1,l}.data(:,19));
+    emg_data1{1,l}.data(:,FOOT_GON_POS_SIG)=filtfilt(d1,emg_data1{1,l}.data(:,FOOT_GON_POS_SIG));
+    emg_data1{1,l}.data(:,PLAT_GON_POS_SIG)=filtfilt(d1,emg_data1{1,l}.data(:,PLAT_GON_POS_SIG));
+    emg_data1{1,l}.data(:,PERT_TORQUE_SIG)=filtfilt(d2,emg_data1{1,l}.data(:,PERT_TORQUE_SIG));
+    emg_data1{1,l}.data(:,IE_TORQUE_SIG)=filtfilt(d2,emg_data1{1,l}.data(:,IE_TORQUE_SIG));
+    emg_data1{1,l}.data(:,F1_SIG)=filtfilt(d2,emg_data1{1,l}.data(:,F1_SIG));
+    emg_data1{1,l}.data(:,F2_SIG)=filtfilt(d2,emg_data1{1,l}.data(:,F2_SIG));
+    emg_data1{1,l}.data(:,F3_SIG)=filtfilt(d2,emg_data1{1,l}.data(:,F3_SIG));
+    emg_data1{1,l}.data(:,F4_SIG)=filtfilt(d2,emg_data1{1,l}.data(:,F4_SIG));
+    emg_data1{1,l}.data(:,WEIGHT_SIG)=filtfilt(d3,emg_data1{1,l}.data(:,WEIGHT_SIG));
+    emg_data1{1,l}.data(:,COP_TORQUE_SIG)=filtfilt(d3,emg_data1{1,l}.data(:,COP_TORQUE_SIG));
     %        emg_data1{1,l}.data(:,8)=filtfilt(d3,emg_data1{1,l}.data(:,8));
     
 end
@@ -142,7 +162,7 @@ for t=1:sizet(1,1)
         count(k,1)=actual_peaks(t,3);
         count(k,2)=actual_peaks(t,1);
         time_peaks(k,1)=actual_peaks(t,1);
-        time_peaks(k,2)=emg_data1{1,actual_peaks(t,1)}.data(actual_peaks(t,3),19);
+        time_peaks(k,2)=emg_data1{1,actual_peaks(t,1)}.data(actual_peaks(t,3),COP_TORQUE_SIG);
         
         k=k+1;
     end
@@ -187,27 +207,27 @@ for i=1:csize
     end
      ran=1;
     for l=count(i,1)-380:count(i,1)+1020
-        pos2(i,ran)=(emg_data1{1,count(i,2)}.data(l,5));
+        pos2(i,ran)=(emg_data1{1,count(i,2)}.data(l,PLAT_DP_ENC_POS_SIG));
         
         ran=ran+1;
     end
     ran=1;
     for l=count(i,1)-380:count(i,1)+1020
-        dptorque(i,ran)=(emg_data1{1,count(i,2)}.data(l+shift,7));
-        a(i,ran)=(emg_data1{1,count(i,2)}.data(l+shift,19));
+        dptorque(i,ran)=(emg_data1{1,count(i,2)}.data(l+shift,PERT_TORQUE_SIG));
+        a(i,ran)=(emg_data1{1,count(i,2)}.data(l+shift,COP_TORQUE_SIG));
         ran=ran+1;
     end
     a(i,:)=filtfilt(d3,a(i,:));
     %     dptorque(i,:)=filtfilt(d2,dptorque(i,:));
     ran=1;
     for l=count(i,1)-380:count(i,1)+1020
-        ietorque(i,ran)=(emg_data1{1,count(i,2)}.data(l,8));
+        ietorque(i,ran)=(emg_data1{1,count(i,2)}.data(l,IE_TORQUE_SIG));
         
         ran=ran+1;
     end
     ran=1;
     for l=count(i,1)-380:count(i,1)+1020
-        weight1(i,ran)=(emg_data1{1,count(i,2)}.data(l,17));
+        weight1(i,ran)=(emg_data1{1,count(i,2)}.data(l,WEIGHT_SIG));
         
         ran=ran+1;
     end
@@ -222,9 +242,9 @@ for i=1:csize
     
     ran=1;
     
-    meanpos=mean(emg_data1{1,1}.data(:,13));
+    meanpos=mean(emg_data1{1,1}.data(:,FOOT_GON_POS_SIG));
     for l=count(i,1)-380:count(i,1)+1020
-        pos(i,ran)=(emg_data1{1,count(i,2)}.data(l+221,14)-meanpos)*DP_foot_gonio*pi/180;
+        pos(i,ran)=(emg_data1{1,count(i,2)}.data(l+221,FOOT_GON_POS_SIG)-meanpos)*DP_foot_gonio*pi/180;
         ran=ran+1;
     end
     pos(i,:)=pos(i,:)-mean(pos(i,1:380));
