@@ -1,15 +1,25 @@
+
+
+%----Needed Constants----%
+DP_FOOT_GON_POS_SIG = 3;
+DP_PLAT_GON_POS_SIG = 4;
+DP_ENC_SIG = 1;
+
+IE_FOOT_GON_POS_SIG = 3;
+IE_PLAT_GON_POS_SIG = 4;
+IE_ENC_SIG = 2;
+
 if(perturb=='D' || perturb=='P')
 h = fopen(strcat('DPFOOT','.dat'));
 live_data=fread(h);
 Input1= SimulinkRealTime.utils.getFileScopeData(live_data);
 d1 = designfilt('lowpassiir','FilterOrder',4,'HalfPowerFrequency',5,'DesignMethod','butter','Samplerate',2000);
 
-% 3 is channel for foot and 6 for platform 
-gonio=filtfilt(d1,Input1.data(:,4));
+gonio=filtfilt(d1,Input1.data(:,DP_FOOT_GON_POS_SIG));
 gonio=detrend(gonio,'Linear');
 plot(gonio)
 [a,b]=findpeaks(gonio);
-encoder=filtfilt(d1,Input1.data(:,1));
+encoder=filtfilt(d1,Input1.data(:,DP_ENC_SIG));
 
 [c,d]=findpeaks(encoder);
 for i=1:length(gonio)-221
@@ -23,10 +33,10 @@ hold on
 plot(encoder)
 
 % Platform goniometer
-gonio=filtfilt(d1,Input1.data(:,6));
+gonio=filtfilt(d1,Input1.data(:,DP_PLAT_GON_POS_SIG));
 plot(gonio)
 [a,b]=findpeaks(gonio);
-encoder=filtfilt(d1,Input1.data(:,1));
+encoder=filtfilt(d1,Input1.data(:,DP_ENC_SIG));
 
 [c,d]=findpeaks(encoder);
 for i=1:length(gonio)-221
@@ -45,12 +55,11 @@ live_data=fread(h);
 Input1= SimulinkRealTime.utils.getFileScopeData(live_data);
 d1 = designfilt('lowpassiir','FilterOrder',4,'HalfPowerFrequency',5,'DesignMethod','butter','Samplerate',2000);
 
-% 3 is channel for foot and 6 for platform 
-gonio=filtfilt(d1,Input1.data(:,4));
+gonio=filtfilt(d1,Input1.data(:,IE_FOOT_GON_POS_SIG));
 gonio=detrend(gonio,'Linear');
 plot(gonio)
 [a,b]=findpeaks(gonio);
-encoder=filtfilt(d1,Input1.data(:,2));
+encoder=filtfilt(d1,Input1.data(:,IE_ENC_SIG));
 
 [c,d]=findpeaks(encoder);
 for i=1:length(gonio)-221
@@ -64,10 +73,10 @@ hold on
 plot(encoder)
 
 %% Platform goniometer
-gonio=filtfilt(d1,Input1.data(:,6));
+gonio=filtfilt(d1,Input1.data(:,IE_PLAT_GON_POS_SIG));
 plot(gonio)
 [a,b]=findpeaks(gonio);
-encoder=filtfilt(d1,Input1.data(:,2));
+encoder=filtfilt(d1,Input1.data(:,IE_ENC_SIG));
 
 [c,d]=findpeaks(encoder);
 for i=1:length(gonio)-221
