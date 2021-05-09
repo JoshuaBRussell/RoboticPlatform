@@ -17,38 +17,6 @@ for l=1:1
             live_data=fread(h);
             Input1= SimulinkRealTime.utils.getFileScopeData(live_data);
             siz=size(Input1.data);
-            for i=1:siz(1,1)
-                if(or(Input1.data(i,2)>10,Input1.data(i,2)<-10))
-                    Input1.data(i,2)=0;
-                end
-            end
-            
-            for i=1:siz(1,1)
-                if(or(Input1.data(i,1)>10,Input1.data(i,1)<-10))
-                    Input1.data(i,1)=0;
-                end
-            end
-            for i=1:siz(1,1)
-                if(or(Input1.data(i,3)>10,Input1.data(i,3)<-10))
-                    Input1.data(i,3)=0;
-                end
-            end
-            for i=1:siz(1,1)
-                if(or(Input1.data(i,4)>10,Input1.data(i,4)<-10))
-                    Input1.data(i,4)=0;
-                end
-            end
-            for i=1:siz(1,1)
-                if(or(Input1.data(i,5)>10,Input1.data(i,5)<-10))
-                    Input1.data(i,5)=0;
-                end
-            end
-            for i=1:siz(1,1)
-                if(or(Input1.data(i,6)>10,Input1.data(i,6)<-10))
-                    Input1.data(i,6)=0;
-                end
-            end
-                    
             end
     emg_data{l}=Input1;
   emg_data{1,l}.data(:,5)=filtfilt(d1,emg_data{1,l}.data(:,5));
@@ -141,37 +109,7 @@ fclose('all')
             live_data=fread(h);
             Input1= SimulinkRealTime.utils.getFileScopeData(live_data);
             siz=size(Input1.data);
-            for i=1:siz(1,1)
-                if(or(Input1.data(i,2)>10,Input1.data(i,2)<-10))
-                    Input1.data(i,2)=0;
-                end
-            end
             
-            for i=1:siz(1,1)
-                if(or(Input1.data(i,1)>10,Input1.data(i,1)<-10))
-                    Input1.data(i,1)=0;
-                end
-            end
-            for i=1:siz(1,1)
-                if(or(Input1.data(i,3)>10,Input1.data(i,3)<-10))
-                    Input1.data(i,3)=0;
-                end
-            end
-            for i=1:siz(1,1)
-                if(or(Input1.data(i,4)>10,Input1.data(i,4)<-10))
-                    Input1.data(i,4)=0;
-                end
-            end
-            for i=1:siz(1,1)
-                if(or(Input1.data(i,5)>10,Input1.data(i,5)<-10))
-                    Input1.data(i,5)=0;
-                end
-            end
-            for i=1:siz(1,1)
-                if(or(Input1.data(i,6)>10,Input1.data(i,6)<-10))
-                    Input1.data(i,6)=0;
-                end
-            end
         for i=1:siz(1,1)
                 if((Input1.data(i,18)>0))
                     time=Input1.data(i,19);
