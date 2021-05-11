@@ -210,6 +210,23 @@ assignin('base','f6_off',f6_off);
 assignin('base','f7_off',f7_off);
 assignin('base','f8_off',f8_off);
 
+f1_off_L=0;
+f2_off_L=0;
+f3_off_L=0;
+f4_off_L=0;
+f5_off_L=0;
+f6_off_L=0;
+f7_off_L=0;
+f8_off_L=0;
+assignin('base','f1_off_L',f1_off_L);
+assignin('base','f2_off_L',f2_off_L);
+assignin('base','f3_off_L',f3_off_L);
+assignin('base','f4_off_L',f4_off_L);
+assignin('base','f5_off_L',f5_off_L);
+assignin('base','f6_off_L',f6_off_L);
+assignin('base','f7_off_L',f7_off_L);
+assignin('base','f8_off_L',f8_off_L);
+
 % --- Executes on button press in updatemvc.
 function updatemvc_Callback(hObject, eventdata, handles)
 % hObject    handle to updatemvc (see GCBO)
@@ -468,15 +485,25 @@ function pbase_Callback(hObject, eventdata, handles)
 % hObject    handle to pbase (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-pbase;
-assignin('base','f1_off',f1_off);
-assignin('base','f2_off',f2_off);
-assignin('base','f3_off',f3_off);
-assignin('base','f4_off',f4_off);
-assignin('base','f5_off',f5_off);
-assignin('base','f6_off',f6_off);
-assignin('base','f7_off',f7_off);
-assignin('base','f8_off',f8_off);
+right_loadcell_bias = pbase('PBASE.DAT');
+assignin('base','f1_off',right_loadcell_bias.f1_off);
+assignin('base','f2_off',right_loadcell_bias.f2_off);
+assignin('base','f3_off',right_loadcell_bias.f3_off);
+assignin('base','f4_off',right_loadcell_bias.f4_off);
+assignin('base','f5_off',right_loadcell_bias.f5_off);
+assignin('base','f6_off',right_loadcell_bias.f6_off);
+assignin('base','f7_off',right_loadcell_bias.f7_off);
+assignin('base','f8_off',right_loadcell_bias.f8_off);
+
+left_loadcell_bias = pbase('PBASE_L.DAT');
+assignin('base','f1_off_L',left_loadcell_bias.f1_off);
+assignin('base','f2_off_L',left_loadcell_bias.f2_off);
+assignin('base','f3_off_L',left_loadcell_bias.f3_off);
+assignin('base','f4_off_L',left_loadcell_bias.f4_off);
+assignin('base','f5_off_L',left_loadcell_bias.f5_off);
+assignin('base','f6_off_L',left_loadcell_bias.f6_off);
+assignin('base','f7_off_L',left_loadcell_bias.f7_off);
+assignin('base','f8_off_L',left_loadcell_bias.f8_off);
 
 
 
