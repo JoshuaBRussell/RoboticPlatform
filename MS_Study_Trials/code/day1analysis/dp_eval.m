@@ -16,7 +16,7 @@ F4_SIG = 12;
 WEIGHT_SIG = 17;
 COP_TORQUE_SIG = 19;
 
-
+NUM_OF_DATA_BLOCKS = 3;
 
 shift=0;
 
@@ -29,6 +29,9 @@ fclose('all')
 d2 = designfilt('lowpassiir','FilterOrder',2,'HalfPowerFrequency',20,'DesignMethod','butter','Samplerate',2000);
 %   d3 = designfilt('lowpassfir','FilterOrder',12,'HalfPowerFrequency',5,'DesignMethod','butter','Samplerate',2000);
 d3 = designfilt('lowpassfir', 'FilterOrder', 12, 'CutoffFrequency', 5, 'SampleRate', 2000, 'DesignMethod', 'window');
+
+
+%----Find Platform Dynamics Using----%
 for l=1
     
     switch l
@@ -121,37 +124,40 @@ accp=mean(acc);
 fclose('all')
 % clear dptorque ietorque actual_peaks count  vel acc velm  temp pos
 %%
-for l=1:3
+
+
+
+%----Find Impedance from Subject Data----%
+for block_index=1:NUM_OF_DATA_BLOCKS
     
     
-            h = fopen(strcat(DATA_FOLDER_REL_LOC,efile,num2str(l),'.DAT'));
-            live_data=fread(h);
-            Input1= SimulinkRealTime.utils.getFileScopeData(live_data);
-            siz=size(Input1.data);
-            
-            Input1.data(:,19)=Input1.data(:,19)-time;
+    h = fopen(strcat(DATA_FOLDER_REL_LOC,efile,num2str(l),'.DAT'));
+    live_data=fread(h);
+    Input1= SimulinkRealTime.utils.getFileScopeData(live_data);
+    siz=size(Input1.data);
+
+    Input1.data(:,19)=Input1.data(:,19)-time;
             
             
             
   
-    emg_data1{l}=Input1;
-    emg_data1{1,l}.data(:,PLAT_DP_ENC_POS_SIG)=filtfilt(d1,emg_data1{1,l}.data(:,PLAT_DP_ENC_POS_SIG));
+    block_data{l}=Input1;
+    block_data{1,block_index}.data(:,PLAT_DP_ENC_POS_SIG)=filtfilt(d1,block_data{1,block_index}.data(:,PLAT_DP_ENC_POS_SIG));
     
-    emg_data1{1,l}.data(:,FOOT_GON_POS_SIG)=filtfilt(d1,emg_data1{1,l}.data(:,FOOT_GON_POS_SIG));
-    emg_data1{1,l}.data(:,PLAT_GON_POS_SIG)=filtfilt(d1,emg_data1{1,l}.data(:,PLAT_GON_POS_SIG));
-    emg_data1{1,l}.data(:,PERT_TORQUE_SIG)=filtfilt(d2,emg_data1{1,l}.data(:,PERT_TORQUE_SIG));
-    emg_data1{1,l}.data(:,IE_TORQUE_SIG)=filtfilt(d2,emg_data1{1,l}.data(:,IE_TORQUE_SIG));
-    emg_data1{1,l}.data(:,F1_SIG)=filtfilt(d2,emg_data1{1,l}.data(:,F1_SIG));
-    emg_data1{1,l}.data(:,F2_SIG)=filtfilt(d2,emg_data1{1,l}.data(:,F2_SIG));
-    emg_data1{1,l}.data(:,F3_SIG)=filtfilt(d2,emg_data1{1,l}.data(:,F3_SIG));
-    emg_data1{1,l}.data(:,F4_SIG)=filtfilt(d2,emg_data1{1,l}.data(:,F4_SIG));
-    emg_data1{1,l}.data(:,WEIGHT_SIG)=filtfilt(d3,emg_data1{1,l}.data(:,WEIGHT_SIG));
-    emg_data1{1,l}.data(:,COP_TORQUE_SIG)=filtfilt(d3,emg_data1{1,l}.data(:,COP_TORQUE_SIG));
-    %        emg_data1{1,l}.data(:,8)=filtfilt(d3,emg_data1{1,l}.data(:,8));
+    block_data{1,block_index}.data(:,FOOT_GON_POS_SIG)=filtfilt(d1,block_data{1,block_index}.data(:,FOOT_GON_POS_SIG));
+    block_data{1,block_index}.data(:,PLAT_GON_POS_SIG)=filtfilt(d1,block_data{1,block_index}.data(:,PLAT_GON_POS_SIG));
+    block_data{1,block_index}.data(:,PERT_TORQUE_SIG)=filtfilt(d2,block_data{1,block_index}.data(:,PERT_TORQUE_SIG));
+    block_data{1,block_index}.data(:,IE_TORQUE_SIG)=filtfilt(d2,block_data{1,block_index}.data(:,IE_TORQUE_SIG));
+    block_data{1,block_index}.data(:,F1_SIG)=filtfilt(d2,block_data{1,block_index}.data(:,F1_SIG));
+    block_data{1,block_index}.data(:,F2_SIG)=filtfilt(d2,block_data{1,block_index}.data(:,F2_SIG));
+    block_data{1,block_index}.data(:,F3_SIG)=filtfilt(d2,block_data{1,block_index}.data(:,F3_SIG));
+    block_data{1,block_index}.data(:,F4_SIG)=filtfilt(d2,block_data{1,block_index}.data(:,F4_SIG));
+    block_data{1,block_index}.data(:,WEIGHT_SIG)=filtfilt(d3,block_data{1,block_index}.data(:,WEIGHT_SIG));
+    block_data{1,block_index}.data(:,COP_TORQUE_SIG)=filtfilt(d3,block_data{1,block_index}.data(:,COP_TORQUE_SIG));
     
 end
 
-actual_peaks=find_all_peaks(emg_data1,1,3,dir);
+actual_peaks=find_all_peaks(block_data,1,3,dir);
 sizet=size(actual_peaks);
 k=1;
 
@@ -162,7 +168,7 @@ for t=1:sizet(1,1)
         count(k,1)=actual_peaks(t,3);
         count(k,2)=actual_peaks(t,1);
         time_peaks(k,1)=actual_peaks(t,1);
-        time_peaks(k,2)=emg_data1{1,actual_peaks(t,1)}.data(actual_peaks(t,3),COP_TORQUE_SIG);
+        time_peaks(k,2)=block_data{1,actual_peaks(t,1)}.data(actual_peaks(t,3),COP_TORQUE_SIG);
         
         k=k+1;
     end
@@ -207,27 +213,27 @@ for i=1:csize
     end
      ran=1;
     for l=count(i,1)-380:count(i,1)+1020
-        pos2(i,ran)=(emg_data1{1,count(i,2)}.data(l,PLAT_DP_ENC_POS_SIG));
+        pos2(i,ran)=(block_data{1,count(i,2)}.data(l,PLAT_DP_ENC_POS_SIG));
         
         ran=ran+1;
     end
     ran=1;
     for l=count(i,1)-380:count(i,1)+1020
-        dptorque(i,ran)=(emg_data1{1,count(i,2)}.data(l+shift,PERT_TORQUE_SIG));
-        a(i,ran)=(emg_data1{1,count(i,2)}.data(l+shift,COP_TORQUE_SIG));
+        dptorque(i,ran)=(block_data{1,count(i,2)}.data(l+shift,PERT_TORQUE_SIG));
+        a(i,ran)=(block_data{1,count(i,2)}.data(l+shift,COP_TORQUE_SIG));
         ran=ran+1;
     end
     a(i,:)=filtfilt(d3,a(i,:));
     %     dptorque(i,:)=filtfilt(d2,dptorque(i,:));
     ran=1;
     for l=count(i,1)-380:count(i,1)+1020
-        ietorque(i,ran)=(emg_data1{1,count(i,2)}.data(l,IE_TORQUE_SIG));
+        ietorque(i,ran)=(block_data{1,count(i,2)}.data(l,IE_TORQUE_SIG));
         
         ran=ran+1;
     end
     ran=1;
     for l=count(i,1)-380:count(i,1)+1020
-        weight1(i,ran)=(emg_data1{1,count(i,2)}.data(l,WEIGHT_SIG));
+        weight1(i,ran)=(block_data{1,count(i,2)}.data(l,WEIGHT_SIG));
         
         ran=ran+1;
     end
@@ -242,9 +248,9 @@ for i=1:csize
     
     ran=1;
     
-    meanpos=mean(emg_data1{1,1}.data(:,FOOT_GON_POS_SIG));
+    meanpos=mean(block_data{1,1}.data(:,FOOT_GON_POS_SIG));
     for l=count(i,1)-380:count(i,1)+1020
-        pos(i,ran)=(emg_data1{1,count(i,2)}.data(l+221,FOOT_GON_POS_SIG)-meanpos)*DP_foot_gonio*pi/180;
+        pos(i,ran)=(block_data{1,count(i,2)}.data(l+221,FOOT_GON_POS_SIG)-meanpos)*DP_foot_gonio*pi/180;
         ran=ran+1;
     end
     pos(i,:)=pos(i,:)-mean(pos(i,1:380));
@@ -264,7 +270,7 @@ for i=1:csize
     
     ran=1;
     for l=count(i,1)-380:count(i,1)+1020
-        taemg(i,ran)=(emg_data1{1,count(i,2)}.data(l+96,1));
+        taemg(i,ran)=(block_data{1,count(i,2)}.data(l+96,1));
         ran=ran+1;
     end
     
@@ -273,7 +279,7 @@ for i=1:csize
     
     ran=1;
     for l=count(i,1)-380:count(i,1)+1020
-        solemg(i,ran)=(emg_data1{1,count(i,2)}.data(l+96,2));
+        solemg(i,ran)=(block_data{1,count(i,2)}.data(l+96,2));
         ran=ran+1;
     end
     
@@ -281,7 +287,7 @@ for i=1:csize
     solemg(i,:)=filtfilt(d3,solemg(i,:));
     ran=1;
     for l=count(i,1)-380:count(i,1)+1020
-        plemg(i,ran)=(emg_data1{1,count(i,2)}.data(l+96,3));
+        plemg(i,ran)=(block_data{1,count(i,2)}.data(l+96,3));
         ran=ran+1;
     end
     
@@ -289,7 +295,7 @@ for i=1:csize
     plemg(i,:)=filtfilt(d3,plemg(i,:));
     ran=1;
     for l=count(i,1)-380:count(i,1)+1020
-        gcaemg(i,ran)=(emg_data1{1,count(i,2)}.data(l+96,4));
+        gcaemg(i,ran)=(block_data{1,count(i,2)}.data(l+96,4));
         ran=ran+1;
     end
     
