@@ -173,31 +173,8 @@ for t=1:sizet(1,1)
         k=k+1;
     end
 end
-% sin{1}=load(strcat('DPC501','.csv'));
-% sin{2}=load(strcat('DPC502','.csv'));
-%
-%
-% for i=1:2
-%
-%     foot{i}=[sin{1,i}(:,2),sin{1,i}(:,3),sin{1,i}(:,4),sin{1,i}(:,5)];
-%     shank{i}=[sin{1,i}(:,2),sin{1,i}(:,10),sin{1,i}(:,11),sin{1,i}(:,12)];
-% end
-%
-% %
-%   time_peaks(:,2)=(floor(time_peaks(:,2)*100)/100)+0.01;
-% siz11=size(time_peaks);
-%  for i=1:siz11(1,1)
-%
-%     siz=size(foot{1,time_peaks(i,1)})
-%             for val=1:siz(1,1)
-%                 if(abs(time_peaks(i,2)-foot{1,time_peaks(i,1)}(val,1))<0.005)
-%                     value_peaks(i,1)=time_peaks(i,1);
-%                     value_peaks(i,2)=val;
-%                     break;
-%                 end
-%             end
-%
-% end
+
+
 csize=size(count);
 %%
 % abc=figure
@@ -307,31 +284,7 @@ for i=1:csize
     offsetietorque(i)=mean(ietorque(i,1:200));
     dptorque(i,:)=dptorque(i,:)-offsetdptorque(i);
     ietorque(i,:)=ietorque(i,:)-offsetietorque(i);
-    
-    %         ax1=subplot(3,2,1);
-    %         hold on
-    %
-    %         plot(temp,pos(i,:),'Color',[0.7 0.7 0.7])
-    %         axis([-200 500 -300 300])
-    %         ax2=subplot(3,2,3);
-    %         hold on
-    %
-    %         plot(temp,vel(i,:),'Color',[0.7 0.7 0.7])
-    %         axis([-150 250 -inf inf])
-    %         ax3=subplot(3,2,5);
-    %         hold on
-    %
-    %         plot(temp,acc(i,:),'Color',[0.7 0.7 0.7])
-    %         axis([-150 250 -inf inf])
-    %
-    %         ax4=subplot(3,2,2);
-    %         hold on
-    %
-    %             plot(temp,dptorque(i,:)-dptorquep,'Color',[0.7 0.7 0.7])
-    %             axis([-200 500 -100 100])
-    %           indimp(i,:)=regress(dptorque(i,380:560)'-dptorquep(380:560)',[pos(i,380:560)' vel(i,380:560)' ]);
-    %
-    
+      
 end
 %%
 posm=nanmean(pos);
