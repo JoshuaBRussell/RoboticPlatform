@@ -16,6 +16,9 @@ F4_SIG = 12;
 WEIGHT_SIG = 17;
 COP_TORQUE_SIG = 19;
 
+SAMPLE_RATE_HZ = 2000;
+SAMPLE_PERIOD = 1/SAMPLE_RATE_HZ;
+
 NUM_OF_DATA_BLOCKS = 3;
 
 %Chunks intial data from the data files for each trial.
@@ -199,11 +202,12 @@ for i=1:csize
     ran=1;
     for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         dptorque(i,ran)=(block_data{1,count(i,2)}.data(l+shift,PERT_TORQUE_SIG));
-        a(i,ran)=(block_data{1,count(i,2)}.data(l+shift,COP_TORQUE_SIG));
+        cop_torque(i,ran)=(block_data{1,count(i,2)}.data(l+shift,COP_TORQUE_SIG));
         ran=ran+1;
     end
-    a(i,:)=filtfilt(d3,a(i,:));
-    %     dptorque(i,:)=filtfilt(d2,dptorque(i,:));
+    cop_torque(i,:)=filtfilt(d3,cop_torque(i,:));
+
+    
     ran=1;
     for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         ietorque(i,ran)=(block_data{1,count(i,2)}.data(l,IE_TORQUE_SIG));
@@ -221,7 +225,7 @@ for i=1:csize
     
     for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         
-        cop(i,ran)=(a(i,ran)/mweight1);
+        cop(i,ran)=(cop_torque(i,ran)/mweight1);
         ran=ran+1;
     end
     
@@ -229,23 +233,10 @@ for i=1:csize
     
     meanpos=mean(block_data{1,1}.data(:,FOOT_GON_POS_SIG));
     for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
-        pos(i,ran)=(block_data{1,count(i,2)}.data(l+221,FOOT_GON_POS_SIG)-meanpos)*DP_foot_gonio*pi/180;
+        foot_pos(i,ran)=(block_data{1,count(i,2)}.data(l+221,FOOT_GON_POS_SIG)-meanpos)*DP_foot_gonio*pi/180;
         ran=ran+1;
     end
-    pos(i,:)=pos(i,:)-mean(pos(i,1:380));
-    vel(i,1)=0;
-    ran=2;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+1019
-        vel(i,ran)=(pos(i,ran)-pos(i,ran-1))/0.0005;
-        ran=ran+1;
-    end
-    
-    acc(i,1)=0;
-    ran=2;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+1019
-        acc(i,ran)=(vel(i,ran)-vel(i,ran-1))/0.0005;
-        ran=ran+1;
-    end
+    foot_pos(i,:)=foot_pos(i,:)-mean(foot_pos(i,1:380));
     
     ran=1;
     for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
@@ -288,10 +279,12 @@ for i=1:csize
     ietorque(i,:)=ietorque(i,:)-offsetietorque(i);
       
 end
+
+[vel, acc] = get_derivatives(foot_pos, SAMPLE_PERIOD);
 %%
-posm=nanmean(pos);
+posm=nanmean(foot_pos);
 pos2m=mean(pos2);
-am=mean(a);
+am=mean(cop_torque);
 dptorquem=nanmean(dptorque);
 ietorquem=mean(ietorque);
 velm=mean(vel);
