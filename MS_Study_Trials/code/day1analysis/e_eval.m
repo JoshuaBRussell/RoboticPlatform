@@ -15,6 +15,9 @@ F4_SIG = 12;
 WEIGHT_SIG = 17;
 COP_TORQUE_SIG = 19;
 
+SAMPLE_RATE_HZ = 2000;
+SAMPLE_PERIOD = 1/SAMPLE_RATE_HZ;
+
 NUM_OF_DATA_BLOCKS = 3;
 
 %Chunks intial data from the data files for each trial.
@@ -215,47 +218,20 @@ for i=1:csize
     
     meanpos=mean(block_data{1,1}.data(:,FOOT_GON_POS_SIG));
     for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
-        pos(i,ran)=(block_data{1,count(i,2)}.data(l+221,FOOT_GON_POS_SIG)-meanpos)*IE_foot_gonio*pi/180;
+        foot_pos(i,ran)=(block_data{1,count(i,2)}.data(l+221,FOOT_GON_POS_SIG)-meanpos)*IE_foot_gonio*pi/180;
         ran=ran+1;
     end
-    pos(i,:)=pos(i,:)-mean(pos(i,1:380));
+    foot_pos(i,:)=foot_pos(i,:)-mean(foot_pos(i,1:380));
     
     ran=1; 
-    meanpos2=mean(block_data{1,1}.data(:,PLAT_GON_POS_SIG));
+    mean_plat_pos=mean(block_data{1,1}.data(:,PLAT_GON_POS_SIG));
     for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
-        pos2(i,ran)=(block_data{1,count(i,2)}.data(l+221,PLAT_GON_POS_SIG)-meanpos2)*IE_plat_gonio*pi/180;
+        plat_pos(i,ran)=(block_data{1,count(i,2)}.data(l+221,PLAT_GON_POS_SIG)-mean_plat_pos)*IE_plat_gonio*pi/180;
         ran=ran+1;
     end
-    pos2(i,:)=pos2(i,:)-mean(pos2(i,1:380));
+    plat_pos(i,:)=plat_pos(i,:)-mean(plat_pos(i,1:380));
     ran=1;
-    pos2(i,:)=pos2(i,:)-mean(pos2(i,1:380));
     
-    vel(i,1)=0;
-    ran=2;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+1019
-        vel(i,ran)=(pos(i,ran)-pos(i,ran-1))/0.0005;
-        ran=ran+1;
-    end
-        
-    vel2(i,1)=0;
-    ran=2;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+1019
-        vel2(i,ran)=(pos2(i,ran)-pos2(i,ran-1))/0.0005;
-        ran=ran+1;
-    end
-    
-    acc(i,1)=0;
-    ran=2;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+1019
-        acc(i,ran)=(vel(i,ran)-vel(i,ran-1))/0.0005;
-        ran=ran+1;
-    end
-       acc2(i,1)=0;
-    ran=2;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+1019
-        acc2(i,ran)=(vel2(i,ran)-vel2(i,ran-1))/0.0005;
-        ran=ran+1;
-    end 
     ran=1;
     for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         weight1(i,ran)=(block_data{1,count(i,2)}.data(l,WEIGHT_SIG));
@@ -308,9 +284,11 @@ for i=1:csize
 
 end
 
+[vel, acc] = get_derivatives(foot_pos, SAMPLE_PERIOD);
+[vel2, acc2] = get_derivatives(plat_pos, SAMPLE_PERIOD);
 
-posm=nanmean(pos);
-pos2m=trimmean(pos2,30);
+posm=nanmean(foot_pos);
+plat_posm=trimmean(plat_pos,30);
 am=trimmean(a,30);
 dptorquem=trimmean(dptorque,30);
 ietorquem=nanmean(ietorque);
@@ -372,7 +350,7 @@ ax1=subplot(3,2,1);
 
 hold on
 plot(temp,posm*180/pi,'Color',[0 0 0])
-plot(temp,pos2m*180/pi,'Color',[1 0 1])
+plot(temp,plat_posm*180/pi,'Color',[1 0 1])
 %  plot(temp,(dptorquem-dptorquep)*pi/180,'k--')
 axis([-150 250 -inf inf])
 ylabel('angle')
