@@ -15,7 +15,7 @@ F4_SIG = 12;
 WEIGHT_SIG = 17;
 COP_TORQUE_SIG = 19;
 
-
+NUM_OF_DATA_BLOCKS = 3;
 
 %Chunks intial data from the data files for each trial.
 TRIAL_WINDOW_PRE_PERT  = -380;
@@ -123,13 +123,13 @@ fclose('all')
 
  clear dptorque ietorque actual_peaks count  vel acc velm  temp pos
  %%
- for l=1:3
+ for block_index=1:NUM_OF_DATA_BLOCKS
     
-   
-             h = fopen(strcat(DATA_FOLDER_REL_LOC,efile,num2str(l),'.DAT'));
-            live_data=fread(h);
-            Input1= SimulinkRealTime.utils.getFileScopeData(live_data);
-            siz=size(Input1.data);
+
+        h = fopen(strcat(DATA_FOLDER_REL_LOC,efile,num2str(block_index),'.DAT'));
+        live_data=fread(h);
+        Input1= SimulinkRealTime.utils.getFileScopeData(live_data);
+        siz=size(Input1.data);
             
         for i=1:siz(1,1)
                 if((Input1.data(i,18)>0))
@@ -140,20 +140,19 @@ fclose('all')
         end
         Input1.data(:,WEIGHT_SIG)=Input1.data(:,WEIGHT_SIG)-time;     
     
-        emg_data1{l}=Input1;
-        emg_data1{1,l}.data(:,5)=filtfilt(d1,emg_data1{1,l}.data(:,5));
-        emg_data1{1,l}.data(:,FOOT_GON_POS_SIG)=filtfilt(d1,emg_data1{1,l}.data(:,FOOT_GON_POS_SIG));
-        emg_data1{1,l}.data(:,PLAT_GON_POS_SIG)=filtfilt(d1,emg_data1{1,l}.data(:,PLAT_GON_POS_SIG));
-        emg_data1{1,l}.data(:,DP_TORQUE_SIG)=filtfilt(d2,emg_data1{1,l}.data(:,DP_TORQUE_SIG));
-        emg_data1{1,l}.data(:,PERT_TORQUE_SIG)=filtfilt(d2,emg_data1{1,l}.data(:,PERT_TORQUE_SIG));
-        emg_data1{1,l}.data(:,F1_SIG)=filtfilt(d2,emg_data1{1,l}.data(:,F1_SIG));
-        emg_data1{1,l}.data(:,F2_SIG)=filtfilt(d2,emg_data1{1,l}.data(:,F2_SIG));
-        emg_data1{1,l}.data(:,F3_SIG)=filtfilt(d2,emg_data1{1,l}.data(:,F3_SIG));
-        emg_data1{1,l}.data(:,F4_SIG)=filtfilt(d2,emg_data1{1,l}.data(:,F4_SIG));
+        emg_data1{block_index}=Input1;
+        emg_data1{1,block_index}.data(:,5)=filtfilt(d1,emg_data1{1,block_index}.data(:,5));
+        emg_data1{1,block_index}.data(:,FOOT_GON_POS_SIG)=filtfilt(d1,emg_data1{1,block_index}.data(:,FOOT_GON_POS_SIG));
+        emg_data1{1,block_index}.data(:,PLAT_GON_POS_SIG)=filtfilt(d1,emg_data1{1,block_index}.data(:,PLAT_GON_POS_SIG));
+        emg_data1{1,block_index}.data(:,DP_TORQUE_SIG)=filtfilt(d2,emg_data1{1,block_index}.data(:,DP_TORQUE_SIG));
+        emg_data1{1,block_index}.data(:,PERT_TORQUE_SIG)=filtfilt(d2,emg_data1{1,block_index}.data(:,PERT_TORQUE_SIG));
+        emg_data1{1,block_index}.data(:,F1_SIG)=filtfilt(d2,emg_data1{1,block_index}.data(:,F1_SIG));
+        emg_data1{1,block_index}.data(:,F2_SIG)=filtfilt(d2,emg_data1{1,block_index}.data(:,F2_SIG));
+        emg_data1{1,block_index}.data(:,F3_SIG)=filtfilt(d2,emg_data1{1,block_index}.data(:,F3_SIG));
+        emg_data1{1,block_index}.data(:,F4_SIG)=filtfilt(d2,emg_data1{1,block_index}.data(:,F4_SIG));
       
-        emg_data1{1,l}.data(:,WEIGHT_SIG)=filtfilt(d3,emg_data1{1,l}.data(:,WEIGHT_SIG));
-        emg_data1{1,l}.data(:,WEIGHT_SIG)=filtfilt(d3,emg_data1{1,l}.data(:,WEIGHT_SIG));
-%        emg_data1{1,l}.data(:,8)=filtfilt(d3,emg_data1{1,l}.data(:,8));
+        emg_data1{1,block_index}.data(:,WEIGHT_SIG)=filtfilt(d3,emg_data1{1,block_index}.data(:,WEIGHT_SIG));
+        emg_data1{1,block_index}.data(:,WEIGHT_SIG)=filtfilt(d3,emg_data1{1,block_index}.data(:,WEIGHT_SIG));
 
 end
 
