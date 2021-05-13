@@ -75,27 +75,27 @@ csize=size(count);
 csize=min(size(count),10);
 for i=1:csize
     ran=1;
-    for l=count(i,1)-380:count(i,1)+TRIAL_WINDOW_POST_PERT
+    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         temp(ran)=((ran-400)/2);
         
         ran=ran+1;
     end
     ran=1;
-    for l=count(i,1)-380:count(i,1)+TRIAL_WINDOW_POST_PERT
+    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         dptorque(i,ran)=(emg_data{1,count(i,2)}.data(l+shift,7));
         
         ran=ran+1;
     end
     %     dptorque(i,:)=filtfilt(d2,dptorque(i,:));
     ran=1;
-    for l=count(i,1)-380:count(i,1)+TRIAL_WINDOW_POST_PERT
+    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         ietorque(i,ran)=(emg_data{1,count(i,2)}.data(l,8));
         
         ran=ran+1;
     end
     ran=1;
     meanpos=mean(emg_data{1,1}.data(:,16));
-    for l=count(i,1)-380:count(i,1)+TRIAL_WINDOW_POST_PERT
+    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         pos(i,ran)=(emg_data{1,count(i,2)}.data(l+221,16)-meanpos)*DP_plat_gonio*pi/180;
       
         ran=ran+1;
@@ -103,13 +103,13 @@ for i=1:csize
     
     vel(i,1)=0;
     ran=2;
-    for l=count(i,1)-380:count(i,1)+1019
+    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+1019
         vel(i,ran)=(pos(i,ran)-pos(i,ran-1))/0.0005;
         ran=ran+1;
     end
     acc(i,1)=0;
     ran=2;
-    for l=count(i,1)-380:count(i,1)+1019
+    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+1019
         acc(i,ran)=(vel(i,ran)-vel(i,ran-1))/0.0005;
         ran=ran+1;
     end
@@ -135,7 +135,7 @@ fclose('all')
 for block_index=1:NUM_OF_DATA_BLOCKS
     
     
-    h = fopen(strcat(DATA_FOLDER_REL_LOC,efile,num2str(l),'.DAT'));
+    h = fopen(strcat(DATA_FOLDER_REL_LOC,efile,num2str(block_index),'.DAT'));
     live_data=fread(h);
     Input1= SimulinkRealTime.utils.getFileScopeData(live_data);
     siz=size(Input1.data);
@@ -143,7 +143,7 @@ for block_index=1:NUM_OF_DATA_BLOCKS
     Input1.data(:,19)=Input1.data(:,19)-time;
             
            
-    block_data{l}=Input1;
+    block_data{block_index}=Input1;
     block_data{1,block_index}.data(:,PLAT_DP_ENC_POS_SIG)=filtfilt(d1,block_data{1,block_index}.data(:,PLAT_DP_ENC_POS_SIG));
     
     block_data{1,block_index}.data(:,FOOT_GON_POS_SIG)=filtfilt(d1,block_data{1,block_index}.data(:,FOOT_GON_POS_SIG));
@@ -185,19 +185,19 @@ csize=min(size(count),30);
 for i=1:csize
     
     ran=1;
-    for l=count(i,1)-380:count(i,1)+TRIAL_WINDOW_POST_PERT
+    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         temp(ran)=((ran-400)/2);
         
         ran=ran+1;
     end
      ran=1;
-    for l=count(i,1)-380:count(i,1)+TRIAL_WINDOW_POST_PERT
+    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         pos2(i,ran)=(block_data{1,count(i,2)}.data(l,PLAT_DP_ENC_POS_SIG));
         
         ran=ran+1;
     end
     ran=1;
-    for l=count(i,1)-380:count(i,1)+TRIAL_WINDOW_POST_PERT
+    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         dptorque(i,ran)=(block_data{1,count(i,2)}.data(l+shift,PERT_TORQUE_SIG));
         a(i,ran)=(block_data{1,count(i,2)}.data(l+shift,COP_TORQUE_SIG));
         ran=ran+1;
@@ -205,13 +205,13 @@ for i=1:csize
     a(i,:)=filtfilt(d3,a(i,:));
     %     dptorque(i,:)=filtfilt(d2,dptorque(i,:));
     ran=1;
-    for l=count(i,1)-380:count(i,1)+TRIAL_WINDOW_POST_PERT
+    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         ietorque(i,ran)=(block_data{1,count(i,2)}.data(l,IE_TORQUE_SIG));
         
         ran=ran+1;
     end
     ran=1;
-    for l=count(i,1)-380:count(i,1)+TRIAL_WINDOW_POST_PERT
+    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         weight1(i,ran)=(block_data{1,count(i,2)}.data(l,WEIGHT_SIG));
         
         ran=ran+1;
@@ -219,7 +219,7 @@ for i=1:csize
     mweight1=mean(weight1(i,280:380));
     ran=1;
     
-    for l=count(i,1)-380:count(i,1)+TRIAL_WINDOW_POST_PERT
+    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         
         cop(i,ran)=(a(i,ran)/mweight1);
         ran=ran+1;
@@ -228,27 +228,27 @@ for i=1:csize
     ran=1;
     
     meanpos=mean(block_data{1,1}.data(:,FOOT_GON_POS_SIG));
-    for l=count(i,1)-380:count(i,1)+TRIAL_WINDOW_POST_PERT
+    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         pos(i,ran)=(block_data{1,count(i,2)}.data(l+221,FOOT_GON_POS_SIG)-meanpos)*DP_foot_gonio*pi/180;
         ran=ran+1;
     end
     pos(i,:)=pos(i,:)-mean(pos(i,1:380));
     vel(i,1)=0;
     ran=2;
-    for l=count(i,1)-380:count(i,1)+1019
+    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+1019
         vel(i,ran)=(pos(i,ran)-pos(i,ran-1))/0.0005;
         ran=ran+1;
     end
     
     acc(i,1)=0;
     ran=2;
-    for l=count(i,1)-380:count(i,1)+1019
+    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+1019
         acc(i,ran)=(vel(i,ran)-vel(i,ran-1))/0.0005;
         ran=ran+1;
     end
     
     ran=1;
-    for l=count(i,1)-380:count(i,1)+TRIAL_WINDOW_POST_PERT
+    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         taemg(i,ran)=(block_data{1,count(i,2)}.data(l+96,1));
         ran=ran+1;
     end
@@ -257,7 +257,7 @@ for i=1:csize
     taemg(i,:)=filtfilt(d3,taemg(i,:));
     
     ran=1;
-    for l=count(i,1)-380:count(i,1)+TRIAL_WINDOW_POST_PERT
+    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         solemg(i,ran)=(block_data{1,count(i,2)}.data(l+96,2));
         ran=ran+1;
     end
@@ -265,7 +265,7 @@ for i=1:csize
     solemg(i,:)= abs(solemg(i,:)-off_SOL)*100/mvc_sol;
     solemg(i,:)=filtfilt(d3,solemg(i,:));
     ran=1;
-    for l=count(i,1)-380:count(i,1)+TRIAL_WINDOW_POST_PERT
+    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         plemg(i,ran)=(block_data{1,count(i,2)}.data(l+96,3));
         ran=ran+1;
     end
@@ -273,7 +273,7 @@ for i=1:csize
     plemg(i,:)= abs(plemg(i,:)-off_PL)*100/mvc_pl;
     plemg(i,:)=filtfilt(d3,plemg(i,:));
     ran=1;
-    for l=count(i,1)-380:count(i,1)+TRIAL_WINDOW_POST_PERT
+    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         gcaemg(i,ran)=(block_data{1,count(i,2)}.data(l+96,4));
         ran=ran+1;
     end
