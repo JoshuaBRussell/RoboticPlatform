@@ -193,9 +193,6 @@ end
 count = temp_count;
 
 csize=size(count);
-%%
-% abc=figure
-
 csize=min(size(count),30);
 for i=1:csize
     
@@ -203,45 +200,15 @@ for i=1:csize
     for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         temp(ran)=((ran-400)/2);
         
-        ran=ran+1;
-    end
-     ran=1;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         pos2(i,ran)=(block_data{1,count(i,2)}.data(l,PLAT_DP_ENC_POS_SIG));
-        
-        ran=ran+1;
-    end
-    ran=1;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         dptorque(i,ran)=(block_data{1,count(i,2)}.data(l+shift,PERT_TORQUE_SIG));
-        cop_torque(i,ran)=(block_data{1,count(i,2)}.data(l+shift,COP_TORQUE_SIG));
-        ran=ran+1;
-    end
-    cop_torque(i,:)=filtfilt(d3,cop_torque(i,:));
-
-    
-    ran=1;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         ietorque(i,ran)=(block_data{1,count(i,2)}.data(l,IE_TORQUE_SIG));
-        
-        ran=ran+1;
-    end
-    ran=1;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
+        cop_torque(i,ran)=(block_data{1,count(i,2)}.data(l+shift,COP_TORQUE_SIG));
         weight1(i,ran)=(block_data{1,count(i,2)}.data(l,WEIGHT_SIG));
+        cop(i,ran) = cop_torque(i,ran)./weight1(i, ran);
         
         ran=ran+1;
     end
-    mweight1=mean(weight1(i,280:380));
-    ran=1;
-    
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
-        
-        cop(i,ran)=(cop_torque(i,ran)/mweight1);
-        ran=ran+1;
-    end
-    
-    ran=1;
     
     meanpos=mean(block_data{1,1}.data(:,FOOT_GON_POS_SIG));
     for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
