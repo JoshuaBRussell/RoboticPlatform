@@ -152,10 +152,13 @@ fclose('all')
         block_data{1,block_index}.data(:,F1_SIG)=filtfilt(d2,block_data{1,block_index}.data(:,F1_SIG));
         block_data{1,block_index}.data(:,F2_SIG)=filtfilt(d2,block_data{1,block_index}.data(:,F2_SIG));
         block_data{1,block_index}.data(:,F3_SIG)=filtfilt(d2,block_data{1,block_index}.data(:,F3_SIG));
-        block_data{1,block_index}.data(:,F4_SIG)=filtfilt(d2,block_data{1,block_index}.data(:,F4_SIG));
+        
+        temp = block_data{1,block_index}.data(:,F4_SIG);
+        temp(isnan(temp))=0
+        block_data{1,block_index}.data(:,F4_SIG)=filtfilt(d2,temp);
       
         block_data{1,block_index}.data(:,WEIGHT_SIG)=filtfilt(d3,block_data{1,block_index}.data(:,WEIGHT_SIG));
-        block_data{1,block_index}.data(:,WEIGHT_SIG)=filtfilt(d3,block_data{1,block_index}.data(:,WEIGHT_SIG));
+        block_data{1,block_index}.data(:,COP_TORQUE_SIG)=filtfilt(d3,block_data{1,block_index}.data(:,COP_TORQUE_SIG));
 
 end
 
@@ -176,8 +179,21 @@ for t=1:sizet(1,1)
     end
 end
 
+
+
+%Remove any "Dud" perturbations from being indexed
+temp_count = [];
+for block_index = 1:NUM_OF_DATA_BLOCKS
+   block_start_index = min(find(count(:, 2) == block_index)); 
+   true_block_indices = count(block_start_index:block_start_index + 10 - 1, :);
+   temp_count = [temp_count; true_block_indices];
+end
+
+count = temp_count;
+
 csize=size(count);
 csize=min(size(count),30);
+
 for i=1:csize
     
     ran=1;
@@ -188,9 +204,9 @@ for i=1:csize
     end
     ran=1;
     for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
-        dptorque(i,ran)=(block_data{1,count(i,2)}.data(l+shift,DP_TORQUE_SIG));
+        %dptorque(i,ran)=(block_data{1,count(i,2)}.data(l+shift,DP_TORQUE_SIG));
 
-           a(i,ran)=(block_data{1,count(i,2)}.data(l+shift,DP_TORQUE_SIG));
+        a(i,ran)=(block_data{1,count(i,2)}.data(l+shift,COP_TORQUE_SIG));
         ran=ran+1;
     end
 %     dptorque(i,:)=filtfilt(d2,dptorque(i,:));
@@ -276,9 +292,9 @@ for i=1:csize
     ran=1;
     
  
-    offsetdptorque(i)=mean(dptorque(i,1:200));
+%     offsetdptorque(i)=mean(dptorque(i,1:200));
     offsetietorque(i)=mean(ietorque(i,340:360));
-    dptorque(i,:)=dptorque(i,:)-offsetdptorque(i);
+%     dptorque(i,:)=dptorque(i,:)-offsetdptorque(i);
     ietorque(i,:)=ietorque(i,:)-offsetietorque(i);
     
 
@@ -290,7 +306,7 @@ end
 posm=nanmean(foot_pos);
 plat_posm=trimmean(plat_pos,30);
 am=trimmean(a,30);
-dptorquem=trimmean(dptorque,30);
+% dptorquem=trimmean(dptorque,30);
 ietorquem=nanmean(ietorque);
 velm=trimmean(vel,30);
 vel2m=trimmean(vel2,30);

@@ -154,7 +154,10 @@ for block_index=1:NUM_OF_DATA_BLOCKS
     block_data{1,block_index}.data(:,PERT_TORQUE_SIG)=filtfilt(d2,block_data{1,block_index}.data(:,PERT_TORQUE_SIG));
     block_data{1,block_index}.data(:,IE_TORQUE_SIG)=filtfilt(d2,block_data{1,block_index}.data(:,IE_TORQUE_SIG));
     block_data{1,block_index}.data(:,F1_SIG)=filtfilt(d2,block_data{1,block_index}.data(:,F1_SIG));
-    block_data{1,block_index}.data(:,F2_SIG)=filtfilt(d2,block_data{1,block_index}.data(:,F2_SIG));
+    
+    temp = block_data{1,block_index}.data(:,F2_SIG);
+    temp(isnan(temp))=0
+    block_data{1,block_index}.data(:,F2_SIG)=filtfilt(d2,temp);
     block_data{1,block_index}.data(:,F3_SIG)=filtfilt(d2,block_data{1,block_index}.data(:,F3_SIG));
     block_data{1,block_index}.data(:,F4_SIG)=filtfilt(d2,block_data{1,block_index}.data(:,F4_SIG));
     block_data{1,block_index}.data(:,WEIGHT_SIG)=filtfilt(d3,block_data{1,block_index}.data(:,WEIGHT_SIG));
@@ -179,6 +182,15 @@ for t=1:sizet(1,1)
     end
 end
 
+%Remove any "Dud" perturbations from being indexed
+temp_count = [];
+for block_index = 1:NUM_OF_DATA_BLOCKS
+   block_start_index = min(find(count(:, 2) == block_index)); 
+   true_block_indices = count(block_start_index:block_start_index + 10 - 1, :);
+   temp_count = [temp_count; true_block_indices];
+end
+
+count = temp_count;
 
 csize=size(count);
 %%
