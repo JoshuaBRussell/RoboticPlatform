@@ -1,6 +1,11 @@
 clear actual_peaks posm velm dptorquem
 
 %----Data File Signal Channels----%
+TA_EMG_SIG  = 1;
+SOL_EMG_SIG = 2;
+PL_EMG_SIG  = 3;
+GCA_EMG_SIG = 4;
+
 PLAT_DP_ENC_POS_SIG = 5;
 FOOT_GON_POS_SIG = 13;
 PLAT_GON_POS_SIG = 14;
@@ -200,57 +205,41 @@ for i=1:csize
     for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         temp(ran)=((ran-400)/2);
         
+        foot_pos(i,ran)=(block_data{1,count(i,2)}.data(l+221,FOOT_GON_POS_SIG))*DP_foot_gonio*pi/180;
         pos2(i,ran)=(block_data{1,count(i,2)}.data(l,PLAT_DP_ENC_POS_SIG));
+        
         dptorque(i,ran)=(block_data{1,count(i,2)}.data(l+shift,PERT_TORQUE_SIG));
         ietorque(i,ran)=(block_data{1,count(i,2)}.data(l,IE_TORQUE_SIG));
         cop_torque(i,ran)=(block_data{1,count(i,2)}.data(l+shift,COP_TORQUE_SIG));
         weight1(i,ran)=(block_data{1,count(i,2)}.data(l,WEIGHT_SIG));
         cop(i,ran) = cop_torque(i,ran)./weight1(i, ran);
         
+        taemg(i,ran)=(block_data{1,count(i,2)}.data(l+96,TA_EMG_SIG));
+        solemg(i,ran)=(block_data{1,count(i,2)}.data(l+96,SOL_EMG_SIG));
+        plemg(i,ran)=(block_data{1,count(i,2)}.data(l+96,PL_EMG_SIG));
+        gcaemg(i,ran)=(block_data{1,count(i,2)}.data(l+96,GCA_EMG_SIG));
+        
         ran=ran+1;
     end
-    
-    meanpos=mean(block_data{1,1}.data(:,FOOT_GON_POS_SIG));
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
-        foot_pos(i,ran)=(block_data{1,count(i,2)}.data(l+221,FOOT_GON_POS_SIG)-meanpos)*DP_foot_gonio*pi/180;
-        ran=ran+1;
-    end
+
     foot_pos(i,:)=foot_pos(i,:)-mean(foot_pos(i,1:380));
     
-    ran=1;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
-        taemg(i,ran)=(block_data{1,count(i,2)}.data(l+96,1));
-        ran=ran+1;
-    end
+   
     
     taemg(i,:)= abs(taemg(i,:)-off_TA)*100/mvc_ta;
     taemg(i,:)=filtfilt(d3,taemg(i,:));
     
-    ran=1;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
-        solemg(i,ran)=(block_data{1,count(i,2)}.data(l+96,2));
-        ran=ran+1;
-    end
     
     solemg(i,:)= abs(solemg(i,:)-off_SOL)*100/mvc_sol;
     solemg(i,:)=filtfilt(d3,solemg(i,:));
-    ran=1;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
-        plemg(i,ran)=(block_data{1,count(i,2)}.data(l+96,3));
-        ran=ran+1;
-    end
+   
     
     plemg(i,:)= abs(plemg(i,:)-off_PL)*100/mvc_pl;
     plemg(i,:)=filtfilt(d3,plemg(i,:));
-    ran=1;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
-        gcaemg(i,ran)=(block_data{1,count(i,2)}.data(l+96,4));
-        ran=ran+1;
-    end
+ 
     
     gcaemg(i,:)= abs(gcaemg(i,:)-off_GCA)*100/mvc_gca;
     gcaemg(i,:)=filtfilt(d3,gcaemg(i,:));
-    ran=1;
     
     offsetdptorque(i)=mean(dptorque(i,300:350));
     offsetietorque(i)=mean(ietorque(i,1:200));
