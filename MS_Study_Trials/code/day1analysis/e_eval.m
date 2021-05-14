@@ -1,5 +1,10 @@
 
 %----Data File Signal Channels----%
+TA_EMG_SIG  = 1;
+SOL_EMG_SIG = 2;
+PL_EMG_SIG  = 3;
+GCA_EMG_SIG = 4;
+
 PLAT_DP_ENC_POS_SIG = 5;
 FOOT_GON_POS_SIG = 13;
 PLAT_GON_POS_SIG = 14;
@@ -191,97 +196,40 @@ csize=min(size(count),30);
 for i=1:csize
     ran=1;
     for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
-        %dptorque(i,ran)=(block_data{1,count(i,2)}.data(l+shift,DP_TORQUE_SIG));
-
-        a(i,ran)=(block_data{1,count(i,2)}.data(l+shift,COP_TORQUE_SIG));
-        ran=ran+1;
-    end
-%     dptorque(i,:)=filtfilt(d2,dptorque(i,:));
-    ran=1;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
+        
+        foot_pos(i,ran)=(block_data{1,count(i,2)}.data(l+221,FOOT_GON_POS_SIG))*IE_foot_gonio*pi/180;
+        plat_pos(i,ran)=(block_data{1,count(i,2)}.data(l+221,PLAT_GON_POS_SIG))*IE_plat_gonio*pi/180;
+        
+        cop_torque(i,ran)=(block_data{1,count(i,2)}.data(l+shift,COP_TORQUE_SIG));
         ietorque(i,ran)=(block_data{1,count(i,2)}.data(l+shift,PERT_TORQUE_SIG));
-        
-        ran=ran+1;
-    end
-    ran=1;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
-        weight_ie(i,ran)=(block_data{1,count(i,2)}.data(l,WEIGHT_SIG));
-        
-        ran=ran+1;
-    end
-     mweight1=mean(weight_ie(i,280:380));
-    ran=1;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
-    
-       cop(i,ran)=(a(i,ran))/mweight1;
-    ran=ran+1;
-    end
-    
-    ran=1;
-    
-    meanpos=mean(block_data{1,1}.data(:,FOOT_GON_POS_SIG));
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
-        foot_pos(i,ran)=(block_data{1,count(i,2)}.data(l+221,FOOT_GON_POS_SIG)-meanpos)*IE_foot_gonio*pi/180;
-        ran=ran+1;
-    end
-    foot_pos(i,:)=foot_pos(i,:)-mean(foot_pos(i,1:380));
-    
-    ran=1; 
-    mean_plat_pos=mean(block_data{1,1}.data(:,PLAT_GON_POS_SIG));
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
-        plat_pos(i,ran)=(block_data{1,count(i,2)}.data(l+221,PLAT_GON_POS_SIG)-mean_plat_pos)*IE_plat_gonio*pi/180;
-        ran=ran+1;
-    end
-    plat_pos(i,:)=plat_pos(i,:)-mean(plat_pos(i,1:380));
-    ran=1;
-    
-    ran=1;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         weight1(i,ran)=(block_data{1,count(i,2)}.data(l,WEIGHT_SIG));
+        cop(i, ran) = cop_torque(i,ran)./weight1(i, ran);
         
+        taemg(i,ran)=(block_data{1,count(i,2)}.data(l+96,TA_EMG_SIG));
+        solemg(i,ran)=(block_data{1,count(i,2)}.data(l+96,SOL_EMG_SIG));
+        plemg(i,ran)=(block_data{1,count(i,2)}.data(l+96,PL_EMG_SIG));
+        gcaemg(i,ran)=(block_data{1,count(i,2)}.data(l+96,GCA_EMG_SIG));
         ran=ran+1;
     end
-    mweight1=mean(weight1(i,280:380));
     
-     ran=1;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
-        taemg(i,ran)=(block_data{1,count(i,2)}.data(l+96,1));
-        ran=ran+1;
-    end
+    foot_pos(i,:)=foot_pos(i,:)-mean(foot_pos(i,1:380));
+    plat_pos(i,:)=plat_pos(i,:)-mean(plat_pos(i,1:380));
+        
+
     
     taemg(i,:)= abs(taemg(i,:)-off_TA)*100/mvc_ta;
     taemg(i,:)=filtfilt(d3,taemg(i,:));
-    
-    ran=1;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
-        solemg(i,ran)=(block_data{1,count(i,2)}.data(l+96,2));
-        ran=ran+1;
-    end
-    
+        
     solemg(i,:)= abs(solemg(i,:)-off_SOL)*100/mvc_sol;
     solemg(i,:)=filtfilt(d3,solemg(i,:));
-    ran=1;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
-        plemg(i,ran)=(block_data{1,count(i,2)}.data(l+96,3));
-        ran=ran+1;
-    end
-    
+ 
     plemg(i,:)= abs(plemg(i,:)-off_PL)*100/mvc_pl;
     plemg(i,:)=filtfilt(d3,plemg(i,:));
-    ran=1;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
-        gcaemg(i,ran)=(block_data{1,count(i,2)}.data(l+96,4));
-        ran=ran+1;
-    end
-    
+
     gcaemg(i,:)= abs(gcaemg(i,:)-off_GCA)*100/mvc_gca;
-    gcaemg(i,:)=filtfilt(d3,gcaemg(i,:));
-    ran=1;
-    
+    gcaemg(i,:)=filtfilt(d3,gcaemg(i,:));    
  
-%     offsetdptorque(i)=mean(dptorque(i,1:200));
     offsetietorque(i)=mean(ietorque(i,340:360));
-%     dptorque(i,:)=dptorque(i,:)-offsetdptorque(i);
     ietorque(i,:)=ietorque(i,:)-offsetietorque(i);
     
 
@@ -297,7 +245,7 @@ end
 
 posm=nanmean(foot_pos);
 plat_posm=trimmean(plat_pos,30);
-am=trimmean(a,30);
+am=trimmean(cop,30);
 % dptorquem=trimmean(dptorque,30);
 ietorquem=nanmean(ietorque);
 velm=trimmean(vel,30);
@@ -322,7 +270,7 @@ emgbase(3,3)=mean(solemgm(700:1400));
 emgbase(3,2)=mean(plemgm(700:1400));
 emgbase(3,4)=mean(gcaemgm(400:1400));
 copm=mean(cop);
-weight_iem=mean(weight_ie);
+weight1m=mean(weight1);
 %%
 imp=0;
 % load('edynamics.mat')
@@ -373,7 +321,7 @@ if(plotfig==1)
     clear pk pl
     ax3=subplot(3,2,5);
     hold on
-    plot(time_axis_data,weight_iem);
+    plot(time_axis_data,weight1m);
     % plot(time_axis_data,accm,'Color',[0 0 0])
     % [pk,pl]=findpeaks(acc2m);
     %  scatter((pl-400)/2,pk,'k');
