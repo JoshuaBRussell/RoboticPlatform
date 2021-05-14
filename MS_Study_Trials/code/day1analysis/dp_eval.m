@@ -99,37 +99,28 @@ for i=1:csize
         ran=ran+1;
     end
     ran=1;
-    meanpos=mean(emg_data{1,1}.data(:,PLAT_GON_POS_SIG));
+    mean_plat_pos=mean(emg_data{1,1}.data(:,PLAT_GON_POS_SIG));
     for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
-        pos(i,ran)=(emg_data{1,count(i,2)}.data(l+221,PLAT_GON_POS_SIG)-meanpos)*DP_plat_gonio*pi/180;
+        plat_pos(i,ran)=(emg_data{1,count(i,2)}.data(l+221,PLAT_GON_POS_SIG)-mean_plat_pos)*DP_plat_gonio*pi/180;
       
         ran=ran+1;
     end
     
-    vel(i,1)=0;
-    ran=2;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+1019
-        vel(i,ran)=(pos(i,ran)-pos(i,ran-1))/0.0005;
-        ran=ran+1;
-    end
-    acc(i,1)=0;
-    ran=2;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+1019
-        acc(i,ran)=(vel(i,ran)-vel(i,ran-1))/0.0005;
-        ran=ran+1;
-    end
+    
     offsetdptorque(i)=mean(dptorque(i,1:200));
     offsetietorque(i)=mean(ietorque(i,1:200));
     dptorque(i,:)=dptorque(i,:)-offsetdptorque(i);
     ietorque(i,:)=ietorque(i,:)-offsetietorque(i);
-    pos(i,:)=pos(i,:)-pos(i,380);
+    plat_pos(i,:)=plat_pos(i,:)-plat_pos(i,380);
 end
 
-posp=mean(pos);
+[plat_vel, plat_acc] = get_derivatives(plat_pos, SAMPLE_PERIOD);
+
+posp=mean(plat_pos);
 dptorquep=mean(dptorque);
 ietorquep=mean(ietorque);
-velp=mean(vel);
-accp=mean(acc);
+velp=mean(plat_vel);
+accp=mean(plat_acc);
 fclose('all')
 % clear dptorque ietorque actual_peaks count  vel acc velm  temp pos
 %%
