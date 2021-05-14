@@ -8,11 +8,15 @@ clear;
 
 %%
 % Select the perturbation : D- DOrsiflexion p-Plantarflexion I-Inversion E-Eversion
-perturb='D';
+perturb='E';
 % Use 1 to generate figures and 0 to not plot any figures
-plotfig=0;
+plotfig=1;
 % Use the first letter of the first name for files
 Subject='O';
+
+%Select which platform to analyze:
+platform_selection = 'R'; % 'L' or 'R'
+
 
 DATA_FOLDER_REL_LOC = "./../../data/OmikDualTesting/Standing/Right/"
 
@@ -27,7 +31,7 @@ if perturb=='D'
     signal=1;
     pfile=strcat(Subject,'DPP.DAT');
     
-    clearvars -except dorsi_imp plantar_imp inver_imp ever_imp dir direction signal pfile eval_trial DATA_FOLDER_REL_LOC
+    clearvars -except dorsi_imp plantar_imp inver_imp ever_imp dir direction signal pfile eval_trial DATA_FOLDER_REL_LOC platform_selection
     load('initial');
     
     efile=strcat(Subject,'DP');
@@ -43,7 +47,7 @@ elseif perturb=='E'
     direction=3;
     signal=1;
     pfile=strcat(Subject,'IEP');
-    clearvars -except dorsi_imp plantar_imp inver_imp ever_imp dir direction signal pfile eval_trial DATA_FOLDER_REL_LOC
+    clearvars -except dorsi_imp plantar_imp inver_imp ever_imp dir direction signal pfile eval_trial DATA_FOLDER_REL_LOC platform_selection
     load('initial');
     efile=strcat(Subject,'IE');
     etitle='IE standing';
