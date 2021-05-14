@@ -191,8 +191,6 @@ for i=1:csize
     
     ran=1;
     for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
-        temp(ran)=((ran-400)/2);
-        
         foot_pos(i,ran)=(block_data{1,count(i,2)}.data(l+221,FOOT_GON_POS_SIG))*DP_foot_gonio*pi/180;
         pos2(i,ran)=(block_data{1,count(i,2)}.data(l,PLAT_DP_ENC_POS_SIG));
         
@@ -284,7 +282,10 @@ imp(4)=goodness;
 imp=[imp,emgbase(1,:),alalal,sweight]
  fclose('all')
 if(plotfig==1)
-   fig= figure
+    
+    time_axis_data = TRIAL_WINDOW_PRE_PERT/2:0.5:TRIAL_WINDOW_POST_PERT/2; %Each sample is 0.5 ms
+    
+    fig= figure
     ax1=subplot(3,2,1);
     if(perturb=='D')
         title(strcat('Dorsiflexion    ',etitle));
@@ -293,23 +294,23 @@ if(plotfig==1)
         title(strcat('Plantarflexion    ',etitle));
     end
     hold on
-    plot(temp,posm*180/pi,'Color',[0 0 0])
-    plot(temp,posp*180/pi,'Color',[1 0 1])
-    plot(temp,pos2m,'Color',[0 1 1])
+    plot(time_axis_data,posm*180/pi,'Color',[0 0 0])
+    plot(time_axis_data,posp*180/pi,'Color',[1 0 1])
+    plot(time_axis_data,pos2m,'Color',[0 1 1])
     
     %  plot(temp,(dptorquem-dptorquep)*pi/180,'k--')
     axis([-150 250 -inf inf])
     ylabel('angle')
     ax2=subplot(3,2,3);
     hold on
-    plot(temp,velm,'Color',[0 0 0])
-    plot(temp,velp,'Color',[1 0 1])
+    plot(time_axis_data,velm,'Color',[0 0 0])
+    plot(time_axis_data,velp,'Color',[1 0 1])
     axis([-150 250 -inf inf])
     ylabel('velocity')
     clear pk pl
     ax3=subplot(3,2,5);
     hold on
-    plot(temp,accm,'Color',[0 0 0])
+    plot(time_axis_data,accm,'Color',[0 0 0])
 %     [pk,pl]=findpeaks(accp);
 %     scatter((pl-400)/2,pk,'k');
 %     plot(temp,dptorquep,'c');
@@ -322,10 +323,10 @@ if(plotfig==1)
     ax4=subplot(3,2,2);
     hold on
     
-    plot(temp,dptorquem-dptorquep,'Color',[0 0 0])
+    plot(time_axis_data,dptorquem-dptorquep,'Color',[0 0 0])
     hold on
-    plot(temp,dptorquep,'c');
-    plot(temp,dptorquem,'y');
+    plot(time_axis_data,dptorquep,'c');
+    plot(time_axis_data,dptorquem,'y');
     
     %     plot(temp,accm*0.0530,'r');
     axis([-150 250 -inf inf])
@@ -334,16 +335,16 @@ if(plotfig==1)
     %  plot(temp,0.3*accm,'r');
     %     imp=regress(dptorquem(380:560)'-dptorquep(380:560)'-0.007*accm(380:560)',[posm(380:560)' velm(380:560)' ]);
     %      plot(temp,posm*imp(1)+velm*imp(2),'r');
-    plot(temp,posm*imp(1)+velm*imp(2)+imp(3)*accm,'r');
+    plot(time_axis_data,posm*imp(1)+velm*imp(2)+imp(3)*accm,'r');
     ax5=subplot(3,2,4)
     hold on
-    plot(temp,imp(1)*posm,'r');
-    plot(temp,imp(2)*velm,'g');
+    plot(time_axis_data,imp(1)*posm,'r');
+    plot(time_axis_data,imp(2)*velm,'g');
     
-    plot(temp,imp(1)*posm+imp(2)*velm+imp(3)*accm,'m');
-    plot(temp,imp(3)*accm,'b');
+    plot(time_axis_data,imp(1)*posm+imp(2)*velm+imp(3)*accm,'m');
+    plot(time_axis_data,imp(3)*accm,'b');
     
-    plot(temp,dptorquem-dptorquep,'k');
+    plot(time_axis_data,dptorquem-dptorquep,'k');
     axis([-150 250 -inf inf])
     % saveas(abc,strcat('inertia',num2str(6*direction),'_',act),'fig')
     % saveas(abc,strcat('inertia',num2str(6*direction),'_',act),'png')

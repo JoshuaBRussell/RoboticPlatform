@@ -74,12 +74,6 @@ csize=min(size(count),12);
 for i=1:csize
     ran=1;
     for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
-        temp(ran)=((ran-400)/2);
-        
-        ran=ran+1;
-    end
-    ran=1;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         dptorque(i,ran)=(emg_data{1,count(i,2)}.data(l+shift,7));
         
         ran=ran+1;
@@ -195,13 +189,6 @@ csize=size(count);
 csize=min(size(count),30);
 
 for i=1:csize
-    
-    ran=1;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
-        temp(ran)=((ran-400)/2);
-        
-        ran=ran+1;
-    end
     ran=1;
     for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
         %dptorque(i,ran)=(block_data{1,count(i,2)}.data(l+shift,DP_TORQUE_SIG));
@@ -360,82 +347,83 @@ imp=[imp,emgbase(1,:),alalal,sweight];
 
 fclose('all')
 if(plotfig==1)
-   fig= figure
-ax1=subplot(3,2,1);
+    time_axis_data = TRIAL_WINDOW_PRE_PERT/2:0.5:TRIAL_WINDOW_POST_PERT/2; %Each sample is 0.5 ms
+    fig= figure
+    ax1=subplot(3,2,1);
     title(strcat('Eversion    ',etitle));
 
-hold on
-plot(temp,posm*180/pi,'Color',[0 0 0])
-plot(temp,plat_posm*180/pi,'Color',[1 0 1])
-%  plot(temp,(dptorquem-dptorquep)*pi/180,'k--')
-axis([-150 250 -inf inf])
-ylabel('angle')
-ax2=subplot(3,2,3);
-hold on
-plot(temp,velm,'Color',[0 0 0])
-% plot(temp,velp,'Color',[1 0 1])
-
-axis([-150 250 -inf inf])
-ylabel('velocity')
-clear pk pl
-ax3=subplot(3,2,5);
-hold on
-plot(temp,weight_iem);
-% plot(temp,accm,'Color',[0 0 0])
-% [pk,pl]=findpeaks(acc2m);
-%  scatter((pl-400)/2,pk,'k');
-%  plot(temp,ietorquep,'c');
-%  [pk,pl]=findpeaks(ietorquep);
-%  scatter((pl-400)/2,pk,'c');
-% plot(temp,ietorquep,'Color',[1 0.5 0.5]);
- axis([-150 250 -inf inf])
-ylabel('weight')
-clear pk pl
-
-ax4=subplot(3,2,2);
-hold on
-
-    plot(temp,ietorquem-ietorquep-1*min(k(380:450)),'Color',[0 0 0]);
     hold on
-     plot(temp,ietorquep,'c');
-     plot(temp,ietorquem,'y');
+    plot(time_axis_data,posm*180/pi,'Color',[0 0 0])
+    plot(time_axis_data,plat_posm*180/pi,'Color',[1 0 1])
+    %  plot(temp,(dptorquem-dptorquep)*pi/180,'k--')
+    axis([-150 250 -inf inf])
+    ylabel('angle')
+    ax2=subplot(3,2,3);
+    hold on
+    plot(time_axis_data,velm,'Color',[0 0 0])
+    % plot(temp,velp,'Color',[1 0 1])
+
+    axis([-150 250 -inf inf])
+    ylabel('velocity')
+    clear pk pl
+    ax3=subplot(3,2,5);
+    hold on
+    plot(time_axis_data,weight_iem);
+    % plot(time_axis_data,accm,'Color',[0 0 0])
+    % [pk,pl]=findpeaks(acc2m);
+    %  scatter((pl-400)/2,pk,'k');
+    %  plot(time_axis_data,ietorquep,'c');
+    %  [pk,pl]=findpeaks(ietorquep);
+    %  scatter((pl-400)/2,pk,'c');
+    % plot(time_axis_data,ietorquep,'Color',[1 0.5 0.5]);
+     axis([-150 250 -inf inf])
+    ylabel('weight')
+    clear pk pl
+
+    ax4=subplot(3,2,2);
+    hold on
+
+    plot(time_axis_data,ietorquem-ietorquep-1*min(k(380:450)),'Color',[0 0 0]);
+    hold on
+    plot(time_axis_data,ietorquep,'c');
+    plot(time_axis_data,ietorquem,'y');
     
-%     plot(temp,accm*0.0530,'r');
+%     plot(time_axis_data,accm*0.0530,'r');
     axis([-150 250 -inf inf])
     ylabel('ietorque')
 %     imp=regress(ietorquem(350:801)'-ietorquep(350:801)',[ accm(350:801)']);
-%  plot(temp,0.3*accm,'r');
+%  plot(time_axis_data,0.3*accm,'r');
 %     imp=regress(dptorquem(380:550)'-dptorquep(380:550)'-0.007*accm(380:550)',[posm(380:550)' velm(380:550)' ]);
-%      plot(temp,posm*imp(1)+velm*imp(2),'r');
+%      plot(time_axis_data,posm*imp(1)+velm*imp(2),'r');
 
-  plot(temp,posm*imp(1)+velm*imp(2)+imp(3)*accm,'r');
-ax5=subplot(3,2,4)
-hold on
- plot(temp,imp(1)*posm,'r');
-  plot(temp,imp(2)*velm,'g');
+    plot(time_axis_data,posm*imp(1)+velm*imp(2)+imp(3)*accm,'r');
+    ax5=subplot(3,2,4)
+    hold on
+    plot(time_axis_data,imp(1)*posm,'r');
+    plot(time_axis_data,imp(2)*velm,'g');
 
-   plot(temp,imp(1)*posm+imp(2)*velm+imp(3)*accm,'m');
-           plot(temp,0.003*accm,'b');
-    
-   plot(temp,ietorquem-ietorquep-1*min(k(380:450)),'k');
-axis([-150 250 -inf inf])
-% saveas(abc,strcat('inertia',num2str(6*direction),'_',act),'fig')
-% saveas(abc,strcat('inertia',num2str(6*direction),'_',act),'png')
+    plot(time_axis_data,imp(1)*posm+imp(2)*velm+imp(3)*accm,'m');
+    plot(time_axis_data,0.003*accm,'b');
+
+    plot(time_axis_data,ietorquem-ietorquep-1*min(k(380:450)),'k');
+    axis([-150 250 -inf inf])
+    % saveas(abc,strcat('inertia',num2str(6*direction),'_',act),'fig')
+    % saveas(abc,strcat('inertia',num2str(6*direction),'_',act),'png')
 
 
-fclose('all')
+    fclose('all')
 
-%       legend(strcat('k=',num2str((imp(1))),',   b=',num2str((imp(2))),',   i=',num2str((imp(3)))),'location','SouthOutside');
- 
+    %       legend(strcat('k=',num2str((imp(1))),',   b=',num2str((imp(2))),',   i=',num2str((imp(3)))),'location','SouthOutside');
+
      legend(strcat('k=',num2str((imp(1))),',   b=',num2str((imp(2))),',   i=',num2str((imp(3)))),'location','SouthOutside');
- 
-%  axis([-200 500 -50 50])
-subplot(3,2,6)
-plot(0,0,'r');
-plot(0,0,'b');
- legend(strcat('t=',num2str(shift/2),',   goodness=',num2str(goodness)),'location','South');
- 
 
- linkaxes([ax1,ax2,ax3,ax4,ax5],'x');
- saveas(fig,strcat(etitle,'_ie','.jpg'));
+    %  axis([-200 500 -50 50])
+    subplot(3,2,6)
+    plot(0,0,'r');
+    plot(0,0,'b');
+    legend(strcat('t=',num2str(shift/2),',   goodness=',num2str(goodness)),'location','South');
+
+
+    linkaxes([ax1,ax2,ax3,ax4,ax5],'x');
+    saveas(fig,strcat(etitle,'_ie','.jpg'));
 end
