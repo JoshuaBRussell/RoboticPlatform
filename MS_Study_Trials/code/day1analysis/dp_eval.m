@@ -53,11 +53,9 @@ for l=1
             Input1= SimulinkRealTime.utils.getFileScopeData(live_data); 
     end
     emg_data{l}=Input1;
-    emg_data{1,l}.data(:,5)=filtfilt(d1,emg_data{1,l}.data(:,5));
-    emg_data{1,l}.data(:,16)=filtfilt(d1,emg_data{1,l}.data(:,16));
-    emg_data{1,l}.data(:,7)=filtfilt(d2,emg_data{1,l}.data(:,7));
+    emg_data{1,l}.data(:,PLAT_GON_POS_SIG)=filtfilt(d1,emg_data{1,l}.data(:,PLAT_GON_POS_SIG));
+    emg_data{1,l}.data(:,PERT_TORQUE_SIG)=filtfilt(d2,emg_data{1,l}.data(:,PERT_TORQUE_SIG));
     emg_data{1,l}.data(:,8)=filtfilt(d2,emg_data{1,l}.data(:,8));
-    %       emg_data{1,l}.data(:,8)=filtfilt(d3,emg_data{1,l}.data(:,8));
     
 end
 
@@ -90,21 +88,20 @@ for i=1:csize
     end
     ran=1;
     for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
-        dptorque(i,ran)=(emg_data{1,count(i,2)}.data(l+shift,7));
-        
-        ran=ran+1;
-    end
-    %     dptorque(i,:)=filtfilt(d2,dptorque(i,:));
-    ran=1;
-    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
-        ietorque(i,ran)=(emg_data{1,count(i,2)}.data(l,8));
+        dptorque(i,ran)=(emg_data{1,count(i,2)}.data(l+shift,PERT_TORQUE_SIG));
         
         ran=ran+1;
     end
     ran=1;
-    meanpos=mean(emg_data{1,1}.data(:,16));
     for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
-        pos(i,ran)=(emg_data{1,count(i,2)}.data(l+221,16)-meanpos)*DP_plat_gonio*pi/180;
+        ietorque(i,ran)=(emg_data{1,count(i,2)}.data(l,IE_TORQUE_SIG));
+        
+        ran=ran+1;
+    end
+    ran=1;
+    meanpos=mean(emg_data{1,1}.data(:,PLAT_GON_POS_SIG));
+    for l=count(i,1)+TRIAL_WINDOW_PRE_PERT:count(i,1)+TRIAL_WINDOW_POST_PERT
+        pos(i,ran)=(emg_data{1,count(i,2)}.data(l+221,PLAT_GON_POS_SIG)-meanpos)*DP_plat_gonio*pi/180;
       
         ran=ran+1;
     end
@@ -223,21 +220,16 @@ for i=1:csize
     end
 
     foot_pos(i,:)=foot_pos(i,:)-mean(foot_pos(i,1:380));
-    
-   
-    
+       
     taemg(i,:)= abs(taemg(i,:)-off_TA)*100/mvc_ta;
     taemg(i,:)=filtfilt(d3,taemg(i,:));
-    
     
     solemg(i,:)= abs(solemg(i,:)-off_SOL)*100/mvc_sol;
     solemg(i,:)=filtfilt(d3,solemg(i,:));
    
-    
     plemg(i,:)= abs(plemg(i,:)-off_PL)*100/mvc_pl;
     plemg(i,:)=filtfilt(d3,plemg(i,:));
- 
-    
+  
     gcaemg(i,:)= abs(gcaemg(i,:)-off_GCA)*100/mvc_gca;
     gcaemg(i,:)=filtfilt(d3,gcaemg(i,:));
     
