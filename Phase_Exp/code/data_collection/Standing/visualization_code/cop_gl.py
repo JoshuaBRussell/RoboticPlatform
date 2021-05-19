@@ -14,8 +14,6 @@ class CoP_GL(QtOpenGL.QGLWidget):
         self.cop_x = 0.1
         self.cop_y = 0.0
 
-        self.index = 0.0
-
     def initializeGL(self):
         gl.glClearColor(0.0, 0.0, 0.0, 0.0)
         gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -33,10 +31,6 @@ class CoP_GL(QtOpenGL.QGLWidget):
 
         gl.glClearColor(0.0, 0.0, 0.0, 0.0) # black screen
         gl.glClear(GL_COLOR_BUFFER_BIT) # clear color buffer and set color
-        
-        self.index = (self.index + 0.05)%3.14
-        self.cop_x = math.cos(self.index)
-        self.cop_y = math.cos(self.index)
 
         self.update_cop_location()
 
