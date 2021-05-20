@@ -44,7 +44,7 @@ class MainWindow(QtWidgets.QMainWindow, cop_and_weight_layout.Ui_MainWindow):
         # Timer to update visualization
         timer = QtCore.QTimer(self)
         timer.setInterval(20) # in ms
-        # Updates Plot 
+        # Updates Plot
         timer.timeout.connect(self.cop_widget.updateGL)
         timer.timeout.connect(self.weight_widget.updateGL)
         timer.start()
@@ -60,7 +60,7 @@ class MainWindow(QtWidgets.QMainWindow, cop_and_weight_layout.Ui_MainWindow):
         self.RX_data_frame = []
         for i in range(RXFRAMESIZE):
             self.RX_data_frame.append(0) # init values
-    
+
         # Pointer to read data from the frame
         self.frame_ptr = 0 # pointer of frame
         self.busy_flag = False # to enable/disable receiving data
@@ -74,8 +74,8 @@ class MainWindow(QtWidgets.QMainWindow, cop_and_weight_layout.Ui_MainWindow):
 
 
         if not self.ser.isOpen():
-            # if open create variable of serial data 
-            self.ser = serial.Serial(port='COM17',baudrate=115200,parity=serial.PARITY_NONE,bytesize=serial.EIGHTBITS,timeout=0)
+            # if open create variable of serial data
+            self.ser = serial.Serial(port='COM17',baudrate=115200,parity=serial.PARITY_NONE,bytesize=serial.EIGHTBITS,timeout=10)
 
             # Start the timer to collect data and update the graph
             self.data_timer.start()
@@ -90,12 +90,12 @@ class MainWindow(QtWidgets.QMainWindow, cop_and_weight_layout.Ui_MainWindow):
         else:
             print("Disconnected")
 
-    
+
     # Update function
     def update(self):
 
         # Check A2, A3, A6, A7
-        
+
         if self.ser.isOpen():
             try:
                 #--- Extract data from the transmision frame ---#
@@ -117,6 +117,8 @@ class MainWindow(QtWidgets.QMainWindow, cop_and_weight_layout.Ui_MainWindow):
 
                         # --- Extract data frame --- #
                         # Right platform
+                        weight_r = (self.RX_data_frame[A1_BYTE1] << 8) + \
+                              self.RX_data_frame[A1_BYTE2]
                         y_r = (self.RX_data_frame[A2_BYTE1] << 8) + \
                               self.RX_data_frame[A2_BYTE2]
                         x_r = (self.RX_data_frame[A3_BYTE1] << 8) + \
@@ -134,21 +136,22 @@ class MainWindow(QtWidgets.QMainWindow, cop_and_weight_layout.Ui_MainWindow):
                         self.frame_ptr = RXFIRSTBYTE # 0
 
                         # ---  Update the circle position --- #
-                        # Move the left subject circle, scaled based on monitor 
-                        self.cop_widget.cop_x = (0.0024*(x_r)-1.25)
-                        self.cop_widget.cop_y = (0.0024*(y_r)-1.25)
+                        self.cop_widget.cop_x =(0.0024*(x_r)-1.25)
+                        self.cop_widget.cop_y =(0.0024*(y_r)-1.25)
 
-                        
+                        self.weight_widget.normalized_weight = (0.0024*(weight_r)-1.25)
+
+
                     else:
                         pass # do nothing
                 else:
-                    pass # do nothing              
-                                    
+                    pass # do nothing
+
             except:
                 #print(temp)
                 print("Fault detected during communication !!!")
                 self.frame_ptr = RXFIRSTBYTE # reset pointer if fault
-                
+
         else: # self.ser.isOpen():
             # do nothing
             pass

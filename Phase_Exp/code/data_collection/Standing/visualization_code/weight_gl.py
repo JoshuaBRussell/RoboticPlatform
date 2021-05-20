@@ -33,9 +33,9 @@ class Weight_GL(QtOpenGL.QGLWidget):
     def paintGL(self) -> None:
         gl.glClearColor(0.0, 0.0, 0.0, 0.0) # black screen
         gl.glClear(GL_COLOR_BUFFER_BIT) # clear color buffer and set color
-        
-        self.index = (self.index + 0.02)%1
-        self.normalized_weight = self.index
+
+        # self.index = (self.index + 0.02)%1
+        # self.normalized_weight = self.index
         self.update_weight_bar()
 
 
@@ -44,24 +44,22 @@ class Weight_GL(QtOpenGL.QGLWidget):
         # #Draw a a ring around the origin
         self.draw_bar(0.05, 1.0, 0.0, 0.45, 255.0, 255.0, 255.0)
         self.draw_bar(0.05, 1.0, 0.0, -0.45,255.0, 255.0, 255.0)
-        
-        
+
+
         if  abs(self.normalized_weight < 0.45):
             self.draw_bar(self.normalized_weight, 0.5, self.x_pos, self.y_pos,   0.0, 255.0, 0.0)
         else:
             self.draw_bar(self.normalized_weight, 0.5, self.x_pos, self.y_pos, 255.0,  50.0, 0.0)
-        
+
 
     def draw_bar(self, height, width, x_pos, y_pos, r, g, b):
         gl.glColor(r/255.0, g/255.0, b/255.0)
 
         gl.glLineWidth(5.0)
-        
+
         gl.glBegin(gl.GL_QUADS)
         gl.glVertex2f(-width/2 + x_pos,    0.0 + y_pos)
         gl.glVertex2f(-width/2 + x_pos, height + y_pos)
         gl.glVertex2f( width/2 + x_pos, height + y_pos)
         gl.glVertex2f( width/2 + x_pos,    0.0 + y_pos)
         gl.glEnd()
-        
-        

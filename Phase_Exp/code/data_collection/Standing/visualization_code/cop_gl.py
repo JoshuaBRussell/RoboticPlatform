@@ -40,25 +40,22 @@ class CoP_GL(QtOpenGL.QGLWidget):
         #Draw a a ring around the origin
         self.draw_circle(0.0, 0.0, 0.5, 255.0, 255.0, 255.0)
         self.draw_circle(0.0, 0.0, 0.45, 0.0, 0.0, 0.0)
-        
-        
+
+
         if math.sqrt(self.cop_x**2 + self.cop_y**2) < 0.45:
             self.draw_circle(self.cop_x, self.cop_y, 0.1, 0.0, 255.0, 0.0)
         else:
             self.draw_circle(self.cop_x, self.cop_y, 0.1, 255.0, 50.0, 0.0)
-        
+
 
 
     def draw_circle(self, posx, posy, radius, r, g, b):
         gl.glColor(r/255.0, g/255.0, b/255.0) # set orange color
-        sides = 200            
+        sides = 200
         gl.glLineWidth(5.0)
-        gl.glBegin(gl.GL_POLYGON)    
-        for i in range(200):    
-            cosine= radius * math.cos(i*2*math.pi/sides) + posx 
-            sine  = radius * math.sin(i*2*math.pi/sides) + posy 
+        gl.glBegin(gl.GL_POLYGON)
+        for i in range(200):
+            cosine= radius * math.cos(i*2*math.pi/sides) + posx
+            sine  = radius * math.sin(i*2*math.pi/sides) + posy
             gl.glVertex2f(cosine,sine)
         gl.glEnd()
-
-        
-        
