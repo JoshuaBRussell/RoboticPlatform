@@ -45,7 +45,7 @@ class CoP_GL(QtOpenGL.QGLWidget):
         if math.sqrt(self.cop_x**2 + self.cop_y**2) < 0.45:
             self.draw_circle(self.cop_x, self.cop_y, 0.1, 0.0, 255.0, 0.0)
         else:
-            self.draw_circle(self.cop_x, self.cop_x, 0.1, 255.0, 50.0, 0.0)
+            self.draw_circle(self.cop_x, self.cop_y, 0.1, 255.0, 50.0, 0.0)
         
 
 
