@@ -19,7 +19,9 @@ plot_hist=1;
 plot_torque=0;
 shift=0;
 
-
+%The PreTrial window starts 400 samples minus the peak start. Then the perturbation happens,
+%900(?) samples after word -> 400+900 = 1300
+%THIS WILL NEED TO CHANGE FOR EACH INDIVIDUAL SUBJECT
 REGRESSION_WINDOW_MIN_INDEX = 1300;
 REGRESSION_WINDOW_MAX_INDEX = 1500;
 
