@@ -1,9 +1,13 @@
 close all
 clear all
+
+
 mvc_evaluation;
 % Insert subject initial and name. Make sure it matches the format for naming
-sub_initial='C';
-sub_name='MSClayton';
+sub_initial='O';
+sub_name='Omik';
+
+DATA_FOLDER_REL_LOC = "./";
 % insert lower limit of inertia of foot in the fit
 lim=0;
 % change these flags to 1 for figures (normal fit and constrained fit)
@@ -17,9 +21,13 @@ shift=0;
 d3 = designfilt('lowpassiir','FilterOrder',4,'HalfPowerFrequency',5,'DesignMethod','butter','Samplerate',2000);
 d1 = designfilt('lowpassiir','FilterOrder',4,'HalfPowerFrequency',20,'DesignMethod','butter','Samplerate',2000);
 %% Section to calculate goniometer gains
-t=gonio_values_func('D');
-DP_foot_gonio=t(1);
-DP_plat_gonio=t(2);
+% t=gonio_values_func('D');
+% DP_foot_gonio=t(1);
+% DP_plat_gonio=t(2);
+perturb_type = 'D';
+[DP_foot_gonio, DP_plat_gonio] = get_gonio_sf(DATA_FOLDER_REL_LOC, perturb_type); %Finding gains of goniometer
+
+
 %close all    %uncomment to close all figures
 %%
 i=0;
