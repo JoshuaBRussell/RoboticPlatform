@@ -18,6 +18,13 @@ plot_hist=1;
 %  Change to get torque plot comparison figure
 plot_torque=0;
 shift=0;
+
+
+REGRESSION_WINDOW_MIN_INDEX = 1300;
+REGRESSION_WINDOW_MAX_INDEX = 1500;
+
+
+
 d3 = designfilt('lowpassiir','FilterOrder',4,'HalfPowerFrequency',5,'DesignMethod','butter','Samplerate',2000);
 d1 = designfilt('lowpassiir','FilterOrder',4,'HalfPowerFrequency',20,'DesignMethod','butter','Samplerate',2000);
 %% Section to calculate goniometer gains
@@ -74,9 +81,9 @@ for trials=1:5
     gca=abs(gca-off_GCA)*100/mvc_gca;
     w1=filtfilt(d1,Input1.data(:,18));
     flag=Input1.data(:,17);
-    foot_pos_data=filtfilt(d1,Input1.data(:,14));
+    foot_pos_data=filtfilt(d1,Input1.data(:,13));
     foot_pos_data=((foot_pos_data-mean(foot_pos_data))*DP_foot_gonio*pi/180);
-    plat_pos_data=filtfilt(d1,Input1.data(:,16));
+    plat_pos_data=filtfilt(d1,Input1.data(:,14));
     plat_pos_data=((plat_pos_data-mean(plat_pos_data))*DP_plat_gonio*pi/180);
     [test,peaks]=findpeaks(Input1.data(:,17));
     for i=1:length(peaks)
@@ -187,7 +194,7 @@ for i=1:analysis_value-1
     diff_p1_foot_pos(i,:)=p1_foot_pos(i,:)-p0_foot_posm;
   
     
-    diff_p1_foot_pos(i,:)=diff_p1_foot_pos(i,:)-diff_p1_foot_pos(i,1120);
+    diff_p1_foot_pos(i,:)=diff_p1_foot_pos(i,:)-diff_p1_foot_pos(i,REGRESSION_WINDOW_MIN_INDEX);
   
     p1_plat_vel(i,1)=0;
     for l=2:length(p1_plat_posm)
@@ -250,7 +257,7 @@ exc_rigid=[p1];
 analysis_value=min(exc_rigid);
 for i=1:analysis_value-1
     diff_p1_plat_torqueimp(i,:)=diff_p1_plat_torque(i,:)-0.1945*diff_p1_plat_accm;%+0.02*diff_p1_foot_accm;%+1*diff_p1_foot_velm;
-    diff_p1_plat_torqueimp(i,:)=diff_p1_plat_torqueimp(i,:)-diff_p1_plat_torqueimp(i,1120);
+    diff_p1_plat_torqueimp(i,:)=diff_p1_plat_torqueimp(i,:)-diff_p1_plat_torqueimp(i,REGRESSION_WINDOW_MIN_INDEX);
     
     diff_p1_foot_vel(i,:)=diff_p1_foot_vel(i,:);
     diff_p1_foot_acc(i,:)=diff_p1_foot_acc(i,:);
@@ -271,10 +278,10 @@ diff_p1_foot_velm=trimmean(diff_p1_foot_vel,30);
 
 for i=1:analysis_value-1
     
-    p1imp(i,:)=regress(diff_p1_plat_torqueimp(i,1120:1320)',[diff_p1_foot_pos(i,1120:1320)' diff_p1_foot_vel(i,1120:1320)' diff_p1_foot_acc(i,1120:1320)']);
-    p1impm=regress(diff_p1_plat_torqueimpm(1120:1320)',[diff_p1_foot_posm(1120:1320)' diff_p1_foot_velm(1120:1320)' diff_p1_foot_accm(1120:1320)' ]);
-    C=[diff_p1_foot_posm(1120:1320)' diff_p1_foot_velm(1120:1320)' diff_p1_foot_accm(1120:1320)'];
-    d=diff_p1_plat_torqueimpm(1120:1320)';
+    p1imp(i,:)=regress(diff_p1_plat_torqueimp(i,REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)',[diff_p1_foot_pos(i,REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' diff_p1_foot_vel(i,REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' diff_p1_foot_acc(i,REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)']);
+    p1impm=regress(diff_p1_plat_torqueimpm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)',[diff_p1_foot_posm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' diff_p1_foot_velm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' diff_p1_foot_accm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' ]);
+    C=[diff_p1_foot_posm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' diff_p1_foot_velm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' diff_p1_foot_accm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)'];
+    d=diff_p1_plat_torqueimpm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
     A=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
       B=[0 ;0 ;1000;1000;-1*lim;0.07];
     p1impm2=lsqlin(C,d,A,B);
