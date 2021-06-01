@@ -3,6 +3,9 @@ function[actualpeaks]=find_all_peaks(emg_data,aa,ab,dir)
 k=255;
 ct=1;
 
+%Finds the first jump in a series of jumps plus its location.
+%If the dir variable is positive, a 1 is associated with it.
+%If the dir variable is negative, a 2 is associated with it. 
 for j=aa:ab
 [a,b]=findpeaks(-1*dir*emg_data{1,j}.data(:,18));
 sizep=size(a);
