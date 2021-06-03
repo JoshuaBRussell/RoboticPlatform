@@ -307,7 +307,7 @@ if(plotfig==1)
 
     hold on
     plot(time_axis_data,posm*180/pi,'Color',[0 0 0])
-    plot(time_axis_data,plat_posm*180/pi,'Color',[1 0 1])
+    plot(time_axis_data,-1*plat_posm*180/pi,'Color',[1 0 1])
     %  plot(temp,(dptorquem-dptorquep)*pi/180,'k--')
     axis([-150 250 -inf inf])
     ylabel('angle')
