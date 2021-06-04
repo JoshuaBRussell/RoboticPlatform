@@ -4,12 +4,18 @@ clear all
 
 mvc_evaluation;
 % Insert subject initial and name. Make sure it matches the format for naming
-sub_initial='O';
-sub_name='Omik';
+sub_initial='V';
+sub_name='Vu';
 
 DATA_FOLDER_REL_LOC = "./";
+
+NUM_OF_BLOCKS = 6;
 % insert lower limit of inertia of foot in the fit
-lim=0;
+% u_lim is the upper limit of the inertia and lim
+% is the lower limit
+lim= 0.007;
+u_lim=0.02;
+
 % change these flags to 1 for figures (normal fit and constrained fit)
 plot_figs=1;
 plot_figs_constrained=1;
@@ -49,7 +55,7 @@ p5=1;
 p6=1;
 p7=1;
 
-for trials=1:5
+for trials=1:NUM_OF_BLOCKS
     
     
     if(trials<10)
@@ -284,8 +290,10 @@ for i=1:analysis_value-1
     p1impm=regress(diff_p1_plat_torqueimpm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)',[diff_p1_foot_posm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' diff_p1_foot_velm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' diff_p1_foot_accm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' ]);
     C=[diff_p1_foot_posm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' diff_p1_foot_velm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' diff_p1_foot_accm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)'];
     d=diff_p1_plat_torqueimpm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
+%     A=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
+%     B=[0 ;0 ;1000;1000;-1*lim;0.07];
     A=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-      B=[0 ;0 ;1000;1000;-1*lim;0.07];
+    B=[0 ;0 ;1000;1000;-1*lim;u_lim];
     p1impm2=lsqlin(C,d,A,B);
     
     p1imp3(1)=trimmean(p1imp(:,1),30);
