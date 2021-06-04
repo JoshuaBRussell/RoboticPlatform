@@ -4,10 +4,12 @@ clear all
 
 mvc_evaluation;
 % Insert subject initial and name. Make sure it matches the format for naming
-sub_initial='O';
-sub_name='Omik';
+sub_initial='V';
+sub_name='Vu';
 
 DATA_FOLDER_REL_LOC = "./";
+
+NUM_OF_BLOCKS = 6;
 % insert lower limit of inertia of foot in the fit
 lim=0;
 % change these flags to 1 for figures (normal fit and constrained fit)
@@ -49,7 +51,7 @@ p5=1;
 p6=1;
 p7=1;
 
-for trials=1:5
+for trials=1:NUM_OF_BLOCKS
     
     
     if(trials<10)
