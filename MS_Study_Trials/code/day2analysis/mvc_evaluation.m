@@ -1,5 +1,4 @@
-clear all
-h = fopen('MVC.dat')
+h = fopen(strcat(DATA_FOLDER_REL_LOC,'MVC.dat'));
 live_data=fread(h);
 Input3= SimulinkRealTime.utils.getFileScopeData(live_data);
 siz=size(Input3.data)
