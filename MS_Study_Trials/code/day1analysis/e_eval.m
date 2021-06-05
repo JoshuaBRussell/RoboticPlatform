@@ -31,6 +31,13 @@ TRIAL_WINDOW_POST_PERT = 1020;
 
 shift=0;
 
+% insert lower limit of inertia of foot in the fit
+% u_lim is the upper limit of the inertia and lim
+% is the lower limit
+lim= 0.002;
+u_lim=0.004;
+
+
 time=0;
 fclose('all')
  d1 = designfilt('lowpassiir','FilterOrder',2,'HalfPowerFrequency',20,'DesignMethod','butter','Samplerate',2000);
@@ -280,8 +287,8 @@ d=ietorquem(380:550)'-ietorquep(380:550)';
 d=d-1*min(k(380:450));
 
 
-A=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1;0 0 1];
-B=[0 ;0 ;1000;1000;-0.002;0.004];
+ A=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
+ B=[0 ;0 ;1000;1000;-1*lim;u_lim];
 imp=lsqlin(C,d,A,B)
 
 vartorque=var(ietorquem(380:550)-ietorquep(380:550)-1*min(k(380:450)));

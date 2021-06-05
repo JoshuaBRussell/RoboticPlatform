@@ -30,6 +30,13 @@ NUM_OF_DATA_BLOCKS = 3;
 TRIAL_WINDOW_PRE_PERT  = -380;
 TRIAL_WINDOW_POST_PERT = 1020;
 
+
+% insert lower limit of inertia of foot in the fit
+% u_lim is the upper limit of the inertia and lim
+% is the lower limit
+lim= 0.007;
+u_lim=0.02;
+
 shift=0;
 
 time=0;
@@ -269,8 +276,8 @@ d=dptorquem(380:560)'-dptorquep(380:560)'-0.007*accm(380:560)';
 
 
 
-A=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1;0 0 1];
-B=[0 ;0 ;1000;1000;-0.005;0.02];
+ A=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
+ B=[0 ;0 ;1000;1000;-1*lim;u_lim];
 imp=lsqlin(C,d,A,B)
 
 vartorque=var(dptorquem(380:560)-dptorquep(380:560));
