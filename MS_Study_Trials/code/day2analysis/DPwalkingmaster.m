@@ -2,7 +2,7 @@ close all
 clear all
 
 
-mvc_evaluation;
+
 % Insert subject initial and name. Make sure it matches the format for naming
 sub_initial='V';
 sub_name='Vu';
@@ -42,7 +42,7 @@ d1 = designfilt('lowpassiir','FilterOrder',4,'HalfPowerFrequency',20,'DesignMeth
 perturb_type = 'D';
 [DP_foot_gonio, DP_plat_gonio] = get_gonio_sf(DATA_FOLDER_REL_LOC, perturb_type); %Finding gains of goniometer
 
-
+mvc_evaluation;
 %close all    %uncomment to close all figures
 %%
 i=0;
