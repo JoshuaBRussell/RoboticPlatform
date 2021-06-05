@@ -7,7 +7,7 @@ clear all
 sub_initial='V';
 sub_name='Vu';
 
-DATA_FOLDER_REL_LOC = "./";
+DATA_FOLDER_REL_LOC = "./../../data/Vu_Testing/Walking/";
 
 NUM_OF_BLOCKS = 6;
 % insert lower limit of inertia of foot in the fit
@@ -59,9 +59,9 @@ for trials=1:NUM_OF_BLOCKS
     
     
     if(trials<10)
-        h = fopen(strcat(sub_initial,'W0',num2str(trials),'.dat'));
+        h = fopen(strcat(DATA_FOLDER_REL_LOC, sub_initial,'W0',num2str(trials),'.dat'));
     else
-        h = fopen(strcat(sub_initial,'W',num2str(trials),'.dat'));
+        h = fopen(strcat(DATA_FOLDER_REL_LOC, sub_initial,'W',num2str(trials),'.dat'));
     end
     
     live_data=fread(h);
@@ -71,9 +71,9 @@ for trials=1:NUM_OF_BLOCKS
     [x,img_st]=findpeaks(diff(Img_flag));
     img_st=round(img_st(1)/20);
     if(trials<10)
-        Img=csvread(strcat(sub_name,'_00',num2str(trials),'.csv'));
+        Img=csvread(strcat(DATA_FOLDER_REL_LOC, sub_name,'_00',num2str(trials),'.csv'));
     else
-        Img=csvread(strcat(sub_name,'_0',num2str(trials),'.csv'));
+        Img=csvread(strcat(DATA_FOLDER_REL_LOC, sub_name,'_0',num2str(trials),'.csv'));
     end
     
     %             %d1 = designfilt('lowpassiir','FilterOrder',4,'HalfPowerFrequency',20,'DesignMethod','butter','CWamplerate',2000);
