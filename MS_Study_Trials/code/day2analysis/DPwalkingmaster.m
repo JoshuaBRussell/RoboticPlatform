@@ -4,10 +4,10 @@ clear all
 
 
 % Insert subject initial and name. Make sure it matches the format for naming
-sub_initial='V';
-sub_name='Vu';
+sub_initial='K';
+sub_name='Kwanghee';
 
-DATA_FOLDER_REL_LOC = "./../../data/Vu_Testing/Walking/";
+DATA_FOLDER_REL_LOC = "./../../data/Kwanghee_Testing2/Walking/";
 
 OUTLIER_CRITERION_STD = 3;
 
@@ -165,18 +165,25 @@ end
 
 %% ---- Outlier Removal ---- %
 %Position Oulier Rejection
+[p0_pos_seg_outliers_rm, p0_pos_seg_removed_ind] = rmoutliers(p0_foot_pos, 'ThresholdFactor', OUTLIER_CRITERION_STD);
 [p1_pos_seg_outliers_rm, p1_pos_seg_removed_ind] = rmoutliers(p1_foot_pos, 'ThresholdFactor', OUTLIER_CRITERION_STD);
 
 %Torque Outlier Rejection
+[p0_trq_seg_outliers_rm, p0_trq_seg_removed_ind] = rmoutliers(p0_plat_torque, 'ThresholdFactor', OUTLIER_CRITERION_STD);
 [p1_trq_seg_outliers_rm, p1_trq_seg_removed_ind] = rmoutliers(p1_plat_torque, 'ThresholdFactor', OUTLIER_CRITERION_STD);
 
-trials_to_keep = ~(p1_trq_seg_removed_ind | p1_pos_seg_removed_ind);
+p0_trials_to_keep = ~(p0_trq_seg_removed_ind | p0_pos_seg_removed_ind);
+p1_trials_to_keep = ~(p1_trq_seg_removed_ind | p1_pos_seg_removed_ind);
 
 
 
-p1_foot_pos = p1_foot_pos(trials_to_keep, :);
-p1_plat_pos = p1_plat_pos(trials_to_keep, :);
-p1_plat_torque = p1_plat_torque(trials_to_keep, :);
+p0_foot_pos = p0_foot_pos(p0_trials_to_keep, :);
+p0_plat_pos = p0_plat_pos(p0_trials_to_keep, :);
+p0_plat_torque = p0_plat_torque(p0_trials_to_keep, :);
+
+p1_foot_pos = p1_foot_pos(p1_trials_to_keep, :);
+p1_plat_pos = p1_plat_pos(p1_trials_to_keep, :);
+p1_plat_torque = p1_plat_torque(p1_trials_to_keep, :);
 
 
 
@@ -185,12 +192,12 @@ p1_plat_torque = p1_plat_torque(trials_to_keep, :);
 weight1m=nanmean(weight1);
 
 weight4m=trimmean(weight4,30);
-p0_plat_torquem=trimmean(p0_plat_torque,30);
-p0_plat_posm=trimmean(p0_plat_pos,30);
+p0_plat_torquem=nanmean(p0_plat_torque);
+p0_plat_posm=nanmean(p0_plat_pos);
 p0_foot_posm=nanmean(p0_foot_pos);
-p1_plat_torquem=trimmean(p1_plat_torque,30);
-p1_plat_posm=trimmean(p1_plat_pos,30);
-p1_foot_posm=trimmean(p1_foot_pos,30);
+p1_plat_torquem=nanmean(p1_plat_torque);
+p1_plat_posm=nanmean(p1_plat_pos);
+p1_foot_posm=nanmean(p1_foot_pos);
 
 for i=1:p0-1
     
