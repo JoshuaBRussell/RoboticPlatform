@@ -4,10 +4,12 @@ clear all
 
 
 % Insert subject initial and name. Make sure it matches the format for naming
-sub_initial='V';
-sub_name='Vu';
+sub_initial='K';
+sub_name='Kwanghee';
 
-DATA_FOLDER_REL_LOC = "./../../data/Vu_Testing/Walking/";
+DATA_FOLDER_REL_LOC = "./../../data/Kwanghee_Testing2/Walking/";
+
+OUTLIER_CRITERION_STD = 3;
 
 NUM_OF_BLOCKS = 6;
 % insert lower limit of inertia of foot in the fit
@@ -161,17 +163,41 @@ end
 
 
 
+%% ---- Outlier Removal ---- %
+%Position Oulier Rejection
+[p0_pos_seg_outliers_rm, p0_pos_seg_removed_ind] = rmoutliers(p0_foot_pos, 'ThresholdFactor', OUTLIER_CRITERION_STD);
+[p1_pos_seg_outliers_rm, p1_pos_seg_removed_ind] = rmoutliers(p1_foot_pos, 'ThresholdFactor', OUTLIER_CRITERION_STD);
+
+%Torque Outlier Rejection
+[p0_trq_seg_outliers_rm, p0_trq_seg_removed_ind] = rmoutliers(p0_plat_torque, 'ThresholdFactor', OUTLIER_CRITERION_STD);
+[p1_trq_seg_outliers_rm, p1_trq_seg_removed_ind] = rmoutliers(p1_plat_torque, 'ThresholdFactor', OUTLIER_CRITERION_STD);
+
+p0_trials_to_keep = ~(p0_trq_seg_removed_ind | p0_pos_seg_removed_ind);
+p1_trials_to_keep = ~(p1_trq_seg_removed_ind | p1_pos_seg_removed_ind);
+
+
+
+p0_foot_pos = p0_foot_pos(p0_trials_to_keep, :);
+p0_plat_pos = p0_plat_pos(p0_trials_to_keep, :);
+p0_plat_torque = p0_plat_torque(p0_trials_to_keep, :);
+
+p1_foot_pos = p1_foot_pos(p1_trials_to_keep, :);
+p1_plat_pos = p1_plat_pos(p1_trials_to_keep, :);
+p1_plat_torque = p1_plat_torque(p1_trials_to_keep, :);
+
+
+
 
 %%
 weight1m=nanmean(weight1);
 
 weight4m=trimmean(weight4,30);
-p0_plat_torquem=trimmean(p0_plat_torque,30);
-p0_plat_posm=trimmean(p0_plat_pos,30);
+p0_plat_torquem=nanmean(p0_plat_torque);
+p0_plat_posm=nanmean(p0_plat_pos);
 p0_foot_posm=nanmean(p0_foot_pos);
-p1_plat_torquem=trimmean(p1_plat_torque,30);
-p1_plat_posm=trimmean(p1_plat_pos,30);
-p1_foot_posm=trimmean(p1_foot_pos,30);
+p1_plat_torquem=nanmean(p1_plat_torque);
+p1_plat_posm=nanmean(p1_plat_pos);
+p1_foot_posm=nanmean(p1_foot_pos);
 
 for i=1:p0-1
     
@@ -191,9 +217,8 @@ gca_emgm=trimmean(gca_emg,30);
 
 
 %%
-excluded=[p1];
-analysis_value=min(excluded);
-for i=1:analysis_value-1
+num_of_valid_trials = size(p1_foot_pos, 1);
+for i=1:num_of_valid_trials
     
     diff_p1_plat_pos(i,:)=p1_plat_pos(i,:);
    
@@ -261,9 +286,8 @@ diff_p1_foot_accm=trimmean(diff_p1_foot_acc,30);
 
 
 %%
-exc_rigid=[p1];
-analysis_value=min(exc_rigid);
-for i=1:analysis_value-1
+
+for i=1:num_of_valid_trials
     diff_p1_plat_torqueimp(i,:)=diff_p1_plat_torque(i,:)-0.1945*diff_p1_plat_accm;%+0.02*diff_p1_foot_accm;%+1*diff_p1_foot_velm;
     diff_p1_plat_torqueimp(i,:)=diff_p1_plat_torqueimp(i,:)-diff_p1_plat_torqueimp(i,REGRESSION_WINDOW_MIN_INDEX);
     
@@ -284,23 +308,24 @@ diff_p1_foot_posm=trimmean(diff_p1_foot_pos,30);
 diff_p1_plat_velm=trimmean(diff_p1_plat_vel,30);
 diff_p1_foot_velm=trimmean(diff_p1_foot_vel,30);
 
-for i=1:analysis_value-1
-    
+
+
+C=[diff_p1_foot_posm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' diff_p1_foot_velm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' diff_p1_foot_accm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)'];
+d=diff_p1_plat_torqueimpm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
+A=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
+B=[0 ;0 ;1000;1000;-1*lim;u_lim];
+p1impm2=lsqlin(C,d,A,B);
+
+p1impm=regress(diff_p1_plat_torqueimpm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)',[diff_p1_foot_posm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' diff_p1_foot_velm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' diff_p1_foot_accm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' ]);
+
+
+for i=1:num_of_valid_trials    
     p1imp(i,:)=regress(diff_p1_plat_torqueimp(i,REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)',[diff_p1_foot_pos(i,REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' diff_p1_foot_vel(i,REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' diff_p1_foot_acc(i,REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)']);
-    p1impm=regress(diff_p1_plat_torqueimpm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)',[diff_p1_foot_posm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' diff_p1_foot_velm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' diff_p1_foot_accm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' ]);
-    C=[diff_p1_foot_posm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' diff_p1_foot_velm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' diff_p1_foot_accm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)'];
-    d=diff_p1_plat_torqueimpm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)';
-%     A=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-%     B=[0 ;0 ;1000;1000;-1*lim;0.07];
-    A=[-1 0 0;0 -1 0;1 0 0;0 1 0;0 0 -1; 0 0 1];
-    B=[0 ;0 ;1000;1000;-1*lim;u_lim];
-    p1impm2=lsqlin(C,d,A,B);
-    
-    p1imp3(1)=trimmean(p1imp(:,1),30);
-    p1imp3(2)=trimmean(p1imp(:,2),30);
-    p1imp3(3)=trimmean(p1imp(:,3),30);
 end
 
+p1imp3(1)=trimmean(p1imp(:,1),30);
+p1imp3(2)=trimmean(p1imp(:,2),30);
+p1imp3(3)=trimmean(p1imp(:,3),30);
 
 
 

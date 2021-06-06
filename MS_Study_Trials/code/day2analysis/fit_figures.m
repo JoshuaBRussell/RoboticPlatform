@@ -5,7 +5,7 @@ ax1=subplot(4,1,1)
 
 s_time=-50:0.5:150;
 
-for i=1:p1-1 
+for i=1:num_of_valid_trials 
     plot(s_time,diff_p1_foot_pos(i,1200:1600),'Color',[0.7 0.7 0.7]);
     hold on
 end
@@ -13,14 +13,14 @@ plot(s_time,diff_p1_foot_posm(1200:1600),'k');
 ylim([-0.1 0.1])
 title('rigid');
 ax2=subplot(4,1,2)
-for i=1:p1-1 
+for i=1:num_of_valid_trials 
 
     plot(s_time,diff_p1_foot_vel(i,1200:1600),'Color',[0.7 0.7 0.7]);
     hold on
 end
 plot(s_time,diff_p1_foot_velm(1200:1600),'k');
 ax3=subplot(4,1,3)
-for i=1:p1-1
+for i=1:num_of_valid_trials
     plot(s_time,diff_p1_foot_acc(i,1200:1600),'Color',[0.7 0.7 0.7]);
     hold on
 end
