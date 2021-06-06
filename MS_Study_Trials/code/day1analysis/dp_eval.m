@@ -241,6 +241,8 @@ end
 if (platform_selection == 'L')
     foot_pos = -1*foot_pos;
     pos2 = -1*pos2;
+    posp = -1*posp;
+    velp = -1*velp;
 end
 [vel, acc] = get_derivatives(foot_pos, SAMPLE_PERIOD);
 %%
