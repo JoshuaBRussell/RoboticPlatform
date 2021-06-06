@@ -9,6 +9,8 @@ sub_name='Vu';
 
 DATA_FOLDER_REL_LOC = "./../../data/Vu_Testing/Walking/";
 
+OUTLIER_CRITERION_STD = 3;
+
 NUM_OF_BLOCKS = 6;
 % insert lower limit of inertia of foot in the fit
 % u_lim is the upper limit of the inertia and lim
@@ -161,6 +163,23 @@ end
 
 
 
+%% ---- Outlier Removal ---- %
+%Position Oulier Rejection
+[p1_pos_seg_outliers_rm, p1_pos_seg_removed_ind] = rmoutliers(p1_foot_pos, 'ThresholdFactor', OUTLIER_CRITERION_STD);
+
+%Torque Outlier Rejection
+[p1_trq_seg_outliers_rm, p1_trq_seg_removed_ind] = rmoutliers(p1_plat_torque, 'ThresholdFactor', OUTLIER_CRITERION_STD);
+
+trials_to_keep = ~(p1_trq_seg_removed_ind | p1_pos_seg_removed_ind);
+
+
+
+p1_foot_pos = p1_foot_pos(trials_to_keep, :);
+p1_plat_pos = p1_plat_pos(trials_to_keep, :);
+p1_plat_torque = p1_plat_torque(trials_to_keep, :);
+
+
+
 
 %%
 weight1m=nanmean(weight1);
@@ -191,9 +210,8 @@ gca_emgm=trimmean(gca_emg,30);
 
 
 %%
-excluded=[p1];
-analysis_value=min(excluded);
-for i=1:analysis_value-1
+num_of_valid_trials = size(p1_foot_pos, 1);
+for i=1:num_of_valid_trials
     
     diff_p1_plat_pos(i,:)=p1_plat_pos(i,:);
    
@@ -261,9 +279,8 @@ diff_p1_foot_accm=trimmean(diff_p1_foot_acc,30);
 
 
 %%
-exc_rigid=[p1];
-analysis_value=min(exc_rigid);
-for i=1:analysis_value-1
+
+for i=1:num_of_valid_trials
     diff_p1_plat_torqueimp(i,:)=diff_p1_plat_torque(i,:)-0.1945*diff_p1_plat_accm;%+0.02*diff_p1_foot_accm;%+1*diff_p1_foot_velm;
     diff_p1_plat_torqueimp(i,:)=diff_p1_plat_torqueimp(i,:)-diff_p1_plat_torqueimp(i,REGRESSION_WINDOW_MIN_INDEX);
     
@@ -284,7 +301,7 @@ diff_p1_foot_posm=trimmean(diff_p1_foot_pos,30);
 diff_p1_plat_velm=trimmean(diff_p1_plat_vel,30);
 diff_p1_foot_velm=trimmean(diff_p1_foot_vel,30);
 
-for i=1:analysis_value-1
+for i=1:num_of_valid_trials
     
     p1imp(i,:)=regress(diff_p1_plat_torqueimp(i,REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)',[diff_p1_foot_pos(i,REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' diff_p1_foot_vel(i,REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' diff_p1_foot_acc(i,REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)']);
     p1impm=regress(diff_p1_plat_torqueimpm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)',[diff_p1_foot_posm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' diff_p1_foot_velm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' diff_p1_foot_accm(REGRESSION_WINDOW_MIN_INDEX:REGRESSION_WINDOW_MAX_INDEX)' ]);
