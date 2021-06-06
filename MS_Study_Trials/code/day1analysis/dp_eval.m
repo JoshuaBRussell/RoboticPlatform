@@ -24,7 +24,8 @@ COP_TORQUE_SIG = 19;
 SAMPLE_RATE_HZ = 2000;
 SAMPLE_PERIOD = 1/SAMPLE_RATE_HZ;
 
-NUM_OF_DATA_BLOCKS = 3;
+NUM_OF_DATA_BLOCKS = 2;
+NUM_OF_TRIALS_PER_BLOCK = 15;
 
 %Chunks intial data from the data files for each trial.
 TRIAL_WINDOW_PRE_PERT  = -380;
@@ -165,7 +166,7 @@ for block_index=1:NUM_OF_DATA_BLOCKS
     
 end
 
-actual_peaks=find_all_peaks(block_data,1,3,dir);
+actual_peaks=find_all_peaks(block_data,1,NUM_OF_DATA_BLOCKS,dir);
 sizet=size(actual_peaks);
 k=1;
 
@@ -186,7 +187,7 @@ end
 temp_count = [];
 for block_index = 1:NUM_OF_DATA_BLOCKS
    block_start_index = min(find(count(:, 2) == block_index)); 
-   true_block_indices = count(block_start_index:block_start_index + 10 - 1, :);
+   true_block_indices = count(block_start_index:block_start_index + NUM_OF_TRIALS_PER_BLOCK - 1, :);
    temp_count = [temp_count; true_block_indices];
 end
 
