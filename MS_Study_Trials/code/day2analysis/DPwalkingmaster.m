@@ -325,6 +325,25 @@ goodness_constrained;
 Final_value=[impedance, goodnessn];
 Final_value_constrained=[impedance_constrained, goodnessc];
 
+weight_mean = mean(weight1(:, REGRESSION_WINDOW_MIN_INDEX - 1));
+weight_std  = std(weight1(:, REGRESSION_WINDOW_MIN_INDEX - 1));
+
+cop_mean = mean(cop1(:, REGRESSION_WINDOW_MIN_INDEX - 1));
+cop_std  = std(cop1(:, REGRESSION_WINDOW_MIN_INDEX - 1));
+
+ta_mean = mean(ta_emg(:, REGRESSION_WINDOW_MIN_INDEX - 1));
+sol_mean = mean(sol_emg(:, REGRESSION_WINDOW_MIN_INDEX - 1));
+pl_mean = mean(pl_emg(:, REGRESSION_WINDOW_MIN_INDEX - 1));
+gca_mean = mean(gca_emg(:, REGRESSION_WINDOW_MIN_INDEX - 1));
+
+ta_std  = std(ta_emg(:, REGRESSION_WINDOW_MIN_INDEX - 1));
+sol_std  = std(sol_emg(:, REGRESSION_WINDOW_MIN_INDEX - 1));
+pl_std  = std(pl_emg(:, REGRESSION_WINDOW_MIN_INDEX - 1));
+gca_std  = std(gca_emg(:, REGRESSION_WINDOW_MIN_INDEX - 1));
+
+independant_factor_means = [weight_mean, cop_mean, ta_mean, sol_mean, pl_mean, gca_mean];
+independant_factor_std = [weight_std, cop_std, ta_std, sol_std, pl_std, gca_std];
+
 
 if(plot_figs==1)
    fit_figures; 
