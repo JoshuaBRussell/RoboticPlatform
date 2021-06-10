@@ -4,10 +4,10 @@ clear all
 
 
 % Insert subject initial and name. Make sure it matches the format for naming
-sub_initial='';
-sub_name='';
+sub_initial='R';
+sub_name='Rodney';
 
-DATA_FOLDER_REL_LOC = "./../../data//Walking/";
+DATA_FOLDER_REL_LOC = "./../../data/Rodney/Walking/";
 
 OUTLIER_CRITERION_STD = 3;
 
@@ -92,6 +92,7 @@ for trials=1:NUM_OF_BLOCKS
     gca=Input1.data(:,4);
     gca=abs(gca-off_GCA)*100/mvc_gca;
     w1=filtfilt(d1,Input1.data(:,18));
+    cop_torque = filtfilt(d1, Input1.data(:, 19));
     flag=Input1.data(:,17);
     foot_pos_data=filtfilt(d1,Input1.data(:,13));
     foot_pos_data=((foot_pos_data-mean(foot_pos_data))*DP_foot_gonio*pi/180);
@@ -105,6 +106,10 @@ for trials=1:NUM_OF_BLOCKS
             
             weight1(p1,:)=w1(peaks(i)-400:peaks(i)+1800)-w1(peaks(i)-360);%+w2(peaks(i)-400:peaks(i)+1800)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+1800)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+1800)-w4(peaks(i)-20);
             p1_plat_torque(p1,:)=pert_torque(peaks(i)-400:peaks(i)+1800)-pert_torque(peaks(i)+50);
+            cop_torque1(p1, :) = cop_torque(peaks(i)-400:peaks(i)+1800) - cop_torque(peaks(i) - 360);
+            
+            cop1(p1, :) = cop_torque1(p1, :)./weight1(p1, :);
+            
             p1_plat_pos(p1,:)=plat_pos_data(peaks(i)-179:peaks(i)+2021);
             p1_foot_pos(p1,:)=foot_pos_data(peaks(i)-179+shift:peaks(i)+2021+shift);
             img1_pos(p1)=getmin(peaks(i),img_st,Img);
