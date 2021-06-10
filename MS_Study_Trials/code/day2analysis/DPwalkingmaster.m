@@ -4,10 +4,10 @@ clear all
 
 
 % Insert subject initial and name. Make sure it matches the format for naming
-sub_initial='';
-sub_name='';
+sub_initial='R';
+sub_name='Rodney';
 
-DATA_FOLDER_REL_LOC = "./../../data//Walking/";
+DATA_FOLDER_REL_LOC = "./../../data/Rodney/Walking/";
 
 OUTLIER_CRITERION_STD = 3;
 
@@ -35,6 +35,11 @@ shift=0;
 REGRESSION_WINDOW_MIN_INDEX = 1300;
 REGRESSION_WINDOW_MAX_INDEX = 1500;
 
+
+TA_EMG_SIG  = 1;
+SOL_EMG_SIG = 2;
+PL_EMG_SIG  = 3;
+GCA_EMG_SIG = 4;
 
 
 d3 = designfilt('lowpassiir','FilterOrder',4,'HalfPowerFrequency',5,'DesignMethod','butter','Samplerate',2000);
@@ -83,15 +88,16 @@ for trials=1:NUM_OF_BLOCKS
     %             %d1 = designfilt('lowpassiir','FilterOrder',4,'HalfPowerFrequency',20,'DesignMethod','butter','CWamplerate',2000);
     %d1 = designfilt('lowpassfir', 'FilterOrder', 50, 'CutoffFrequency', 20, 'CWampleRate', 2000, 'DesignMethod', 'window');
     pert_torque=filtfilt(d1,Input1.data(:,7));
-    ta=Input1.data(:,1);
-    ta=abs(ta-off_TA)*100/mvc_ta;
-    sol=Input1.data(:,2);
-    sol=abs(sol-off_SOL)*100/mvc_sol;
-    pl=Input1.data(:,3);
-    pl=abs(pl-off_PL)*100/mvc_pl;
-    gca=Input1.data(:,4);
-    gca=abs(gca-off_GCA)*100/mvc_gca;
+    ta=filtfilt(d3,abs(Input1.data(:,TA_EMG_SIG)));
+    %ta=abs(ta-off_TA)*100/mvc_ta;
+    sol=filtfilt(d3,abs(Input1.data(:,SOL_EMG_SIG)));
+    %sol=abs(sol-off_SOL)*100/mvc_sol;
+    pl=filtfilt(d3,abs(Input1.data(:,PL_EMG_SIG)));
+    %pl=abs(pl-off_PL)*100/mvc_pl;
+    gca=filtfilt(d3,abs(Input1.data(:,GCA_EMG_SIG)));
+    %gca=abs(gca-off_GCA)*100/mvc_gca;
     w1=filtfilt(d1,Input1.data(:,18));
+    cop_torque = filtfilt(d1, Input1.data(:, 19));
     flag=Input1.data(:,17);
     foot_pos_data=filtfilt(d1,Input1.data(:,13));
     foot_pos_data=((foot_pos_data-mean(foot_pos_data))*DP_foot_gonio*pi/180);
@@ -105,6 +111,15 @@ for trials=1:NUM_OF_BLOCKS
             
             weight1(p1,:)=w1(peaks(i)-400:peaks(i)+1800)-w1(peaks(i)-360);%+w2(peaks(i)-400:peaks(i)+1800)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+1800)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+1800)-w4(peaks(i)-20);
             p1_plat_torque(p1,:)=pert_torque(peaks(i)-400:peaks(i)+1800)-pert_torque(peaks(i)+50);
+            cop_torque1(p1, :) = cop_torque(peaks(i)-400:peaks(i)+1800) - cop_torque(peaks(i) - 360);
+            
+            cop1(p1, :) = cop_torque1(p1, :)./weight1(p1, :);
+            
+            ta_emg(p1,:)=ta(peaks(i)-400:peaks(i)+1800);
+            sol_emg(p1,:)=sol(peaks(i)-400:peaks(i)+1800);
+            pl_emg(p1,:)=pl(peaks(i)-400:peaks(i)+1800);
+            gca_emg(p1,:)=gca(peaks(i)-400:peaks(i)+1800);
+            
             p1_plat_pos(p1,:)=plat_pos_data(peaks(i)-179:peaks(i)+2021);
             p1_foot_pos(p1,:)=foot_pos_data(peaks(i)-179+shift:peaks(i)+2021+shift);
             img1_pos(p1)=getmin(peaks(i),img_st,Img);
@@ -112,10 +127,7 @@ for trials=1:NUM_OF_BLOCKS
             
         end
         if test(i)==2
-            ta_emg(p0,:)=ta(peaks(i)-400:peaks(i)+1800);
-            sol_emg(p0,:)=sol(peaks(i)-400:peaks(i)+1800);
-            pl_emg(p0,:)=pl(peaks(i)-400:peaks(i)+1800);
-            gca_emg(p0,:)=gca(peaks(i)-400:peaks(i)+1800);
+            
             weight4(p0,:)=w1(peaks(i)-400:peaks(i)+1800)-w1(peaks(i)-360);%+w2(peaks(i)-400:peaks(i)+1800)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+1800)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+1800)-w4(peaks(i)-20);
             p0_plat_torque(p0,:)=pert_torque(peaks(i)-400:peaks(i)+1800)-pert_torque(peaks(i)+50);
             p0_plat_pos(p0,:)=plat_pos_data(peaks(i)-179:peaks(i)+2021);
@@ -136,6 +148,15 @@ for trials=1:NUM_OF_BLOCKS
 end
 p0_er=0;
 p1_er=0;
+
+% for i=1:p1-1
+%     
+%     ta_emg(i,:)=filtfilt(d3,ta_emg(i,:));
+%     pl_emg(i,:)=filtfilt(d3,pl_emg(i,:));
+%     sol_emg(i,:)=filtfilt(d3,sol_emg(i,:));
+%     gca_emg(i,:)=filtfilt(d3,gca_emg(i,:));
+%     
+% end
 
 %% ---- Outlier Removal ---- %
 %Foot Placement Removal
@@ -163,7 +184,21 @@ p1_foot_pos = p1_foot_pos(p1_trials_to_keep, :);
 p1_plat_pos = p1_plat_pos(p1_trials_to_keep, :);
 p1_plat_torque = p1_plat_torque(p1_trials_to_keep, :);
 
+cop1 = cop1(p1_trials_to_keep, :);
 
+ta_emg = ta_emg(p1_trials_to_keep, :);
+pl_emg = pl_emg(p1_trials_to_keep, :);
+sol_emg = sol_emg(p1_trials_to_keep, :);
+gca_emg = gca_emg(p1_trials_to_keep, :);
+
+%Normalize to the largest amplitude of the accepted trials.
+ta_emg = ta_emg/max(ta_emg, [], 'all');
+sol_emg = sol_emg/max(sol_emg, [], 'all');
+pl_emg = pl_emg/max(pl_emg, [], 'all');
+gca_emg = gca_emg/max(gca_emg, [], 'all');
+
+
+weight1 = weight1(p1_trials_to_keep, :);
 
 
 %%
@@ -177,21 +212,8 @@ p1_plat_torquem=nanmean(p1_plat_torque);
 p1_plat_posm=nanmean(p1_plat_pos);
 p1_foot_posm=nanmean(p1_foot_pos);
 
-for i=1:p0-1
-    
-    ta_emg(i,:)=filtfilt(d3,ta_emg(i,:));
-    pl_emg(i,:)=filtfilt(d3,pl_emg(i,:));
-    sol_emg(i,:)=filtfilt(d3,sol_emg(i,:));
-    gca_emg(i,:)=filtfilt(d3,gca_emg(i,:));
-    
-end
 
 
-
-ta_emgm=trimmean(ta_emg,30);
-sol_emgm=trimmean(sol_emg,30);
-pl_emgm=trimmean(pl_emg,30);
-gca_emgm=trimmean(gca_emg,30);
 
 
 %%
@@ -314,6 +336,25 @@ goodness;
 goodness_constrained;
 Final_value=[impedance, goodnessn];
 Final_value_constrained=[impedance_constrained, goodnessc];
+
+weight_mean = mean(weight1(:, REGRESSION_WINDOW_MIN_INDEX - 1));
+weight_std  = std(weight1(:, REGRESSION_WINDOW_MIN_INDEX - 1));
+
+cop_mean = mean(cop1(:, REGRESSION_WINDOW_MIN_INDEX - 1));
+cop_std  = std(cop1(:, REGRESSION_WINDOW_MIN_INDEX - 1));
+
+ta_mean = mean(ta_emg(:, REGRESSION_WINDOW_MIN_INDEX - 1));
+sol_mean = mean(sol_emg(:, REGRESSION_WINDOW_MIN_INDEX - 1));
+pl_mean = mean(pl_emg(:, REGRESSION_WINDOW_MIN_INDEX - 1));
+gca_mean = mean(gca_emg(:, REGRESSION_WINDOW_MIN_INDEX - 1));
+
+ta_std  = std(ta_emg(:, REGRESSION_WINDOW_MIN_INDEX - 1));
+sol_std  = std(sol_emg(:, REGRESSION_WINDOW_MIN_INDEX - 1));
+pl_std  = std(pl_emg(:, REGRESSION_WINDOW_MIN_INDEX - 1));
+gca_std  = std(gca_emg(:, REGRESSION_WINDOW_MIN_INDEX - 1));
+
+independant_factor_means = [weight_mean, cop_mean, ta_mean, pl_mean, sol_mean, gca_mean];
+independant_factor_std = [weight_std, cop_std, ta_std, pl_std, sol_std, gca_std];
 
 
 if(plot_figs==1)
