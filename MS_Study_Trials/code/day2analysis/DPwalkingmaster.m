@@ -191,6 +191,13 @@ pl_emg = pl_emg(p1_trials_to_keep, :);
 sol_emg = sol_emg(p1_trials_to_keep, :);
 gca_emg = gca_emg(p1_trials_to_keep, :);
 
+%Normalize to the largest amplitude of the accepted trials.
+ta_emg = ta_emg/max(ta_emg, [], 'all');
+sol_emg = sol_emg/max(sol_emg, [], 'all');
+pl_emg = pl_emg/max(pl_emg, [], 'all');
+gca_emg = gca_emg/max(gca_emg, [], 'all');
+
+
 weight1 = weight1(p1_trials_to_keep, :);
 
 
@@ -346,8 +353,8 @@ sol_std  = std(sol_emg(:, REGRESSION_WINDOW_MIN_INDEX - 1));
 pl_std  = std(pl_emg(:, REGRESSION_WINDOW_MIN_INDEX - 1));
 gca_std  = std(gca_emg(:, REGRESSION_WINDOW_MIN_INDEX - 1));
 
-independant_factor_means = [weight_mean, cop_mean, ta_mean, sol_mean, pl_mean, gca_mean];
-independant_factor_std = [weight_std, cop_std, ta_std, sol_std, pl_std, gca_std];
+independant_factor_means = [weight_mean, cop_mean, ta_mean, pl_mean, sol_mean, gca_mean];
+independant_factor_std = [weight_std, cop_std, ta_std, pl_std, sol_std, gca_std];
 
 
 if(plot_figs==1)
