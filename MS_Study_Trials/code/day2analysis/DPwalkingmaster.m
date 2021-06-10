@@ -36,6 +36,11 @@ REGRESSION_WINDOW_MIN_INDEX = 1300;
 REGRESSION_WINDOW_MAX_INDEX = 1500;
 
 
+TA_EMG_SIG  = 1;
+SOL_EMG_SIG = 2;
+PL_EMG_SIG  = 3;
+GCA_EMG_SIG = 4;
+
 
 d3 = designfilt('lowpassiir','FilterOrder',4,'HalfPowerFrequency',5,'DesignMethod','butter','Samplerate',2000);
 d1 = designfilt('lowpassiir','FilterOrder',4,'HalfPowerFrequency',20,'DesignMethod','butter','Samplerate',2000);
@@ -83,14 +88,14 @@ for trials=1:NUM_OF_BLOCKS
     %             %d1 = designfilt('lowpassiir','FilterOrder',4,'HalfPowerFrequency',20,'DesignMethod','butter','CWamplerate',2000);
     %d1 = designfilt('lowpassfir', 'FilterOrder', 50, 'CutoffFrequency', 20, 'CWampleRate', 2000, 'DesignMethod', 'window');
     pert_torque=filtfilt(d1,Input1.data(:,7));
-    ta=Input1.data(:,1);
-    ta=abs(ta-off_TA)*100/mvc_ta;
-    sol=Input1.data(:,2);
-    sol=abs(sol-off_SOL)*100/mvc_sol;
-    pl=Input1.data(:,3);
-    pl=abs(pl-off_PL)*100/mvc_pl;
-    gca=Input1.data(:,4);
-    gca=abs(gca-off_GCA)*100/mvc_gca;
+    ta=filtfilt(d3,abs(Input1.data(:,TA_EMG_SIG)));
+    %ta=abs(ta-off_TA)*100/mvc_ta;
+    sol=filtfilt(d3,abs(Input1.data(:,SOL_EMG_SIG)));
+    %sol=abs(sol-off_SOL)*100/mvc_sol;
+    pl=filtfilt(d3,abs(Input1.data(:,PL_EMG_SIG)));
+    %pl=abs(pl-off_PL)*100/mvc_pl;
+    gca=filtfilt(d3,abs(Input1.data(:,GCA_EMG_SIG)));
+    %gca=abs(gca-off_GCA)*100/mvc_gca;
     w1=filtfilt(d1,Input1.data(:,18));
     cop_torque = filtfilt(d1, Input1.data(:, 19));
     flag=Input1.data(:,17);
@@ -144,14 +149,14 @@ end
 p0_er=0;
 p1_er=0;
 
-for i=1:p1-1
-    
-    ta_emg(i,:)=filtfilt(d3,ta_emg(i,:));
-    pl_emg(i,:)=filtfilt(d3,pl_emg(i,:));
-    sol_emg(i,:)=filtfilt(d3,sol_emg(i,:));
-    gca_emg(i,:)=filtfilt(d3,gca_emg(i,:));
-    
-end
+% for i=1:p1-1
+%     
+%     ta_emg(i,:)=filtfilt(d3,ta_emg(i,:));
+%     pl_emg(i,:)=filtfilt(d3,pl_emg(i,:));
+%     sol_emg(i,:)=filtfilt(d3,sol_emg(i,:));
+%     gca_emg(i,:)=filtfilt(d3,gca_emg(i,:));
+%     
+% end
 
 %% ---- Outlier Removal ---- %
 %Foot Placement Removal
