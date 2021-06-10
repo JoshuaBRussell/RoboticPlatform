@@ -144,6 +144,15 @@ end
 p0_er=0;
 p1_er=0;
 
+for i=1:p1-1
+    
+    ta_emg(i,:)=filtfilt(d3,ta_emg(i,:));
+    pl_emg(i,:)=filtfilt(d3,pl_emg(i,:));
+    sol_emg(i,:)=filtfilt(d3,sol_emg(i,:));
+    gca_emg(i,:)=filtfilt(d3,gca_emg(i,:));
+    
+end
+
 %% ---- Outlier Removal ---- %
 %Foot Placement Removal
 p0_removed_ind = (img0_pos < -0.5)' | (img0_pos > POS_REJECTION_LIMIT)';
@@ -170,7 +179,14 @@ p1_foot_pos = p1_foot_pos(p1_trials_to_keep, :);
 p1_plat_pos = p1_plat_pos(p1_trials_to_keep, :);
 p1_plat_torque = p1_plat_torque(p1_trials_to_keep, :);
 
+cop1 = cop1(p1_trials_to_keep, :);
 
+ta_emg = ta_emg(p1_trials_to_keep, :);
+pl_emg = pl_emg(p1_trials_to_keep, :);
+sol_emg = sol_emg(p1_trials_to_keep, :);
+gca_emg = gca_emg(p1_trials_to_keep, :);
+
+weight1 = weight1(p1_trials_to_keep, :);
 
 
 %%
@@ -184,14 +200,7 @@ p1_plat_torquem=nanmean(p1_plat_torque);
 p1_plat_posm=nanmean(p1_plat_pos);
 p1_foot_posm=nanmean(p1_foot_pos);
 
-for i=1:p1-1
-    
-    ta_emg(i,:)=filtfilt(d3,ta_emg(i,:));
-    pl_emg(i,:)=filtfilt(d3,pl_emg(i,:));
-    sol_emg(i,:)=filtfilt(d3,sol_emg(i,:));
-    gca_emg(i,:)=filtfilt(d3,gca_emg(i,:));
-    
-end
+
 
 
 
