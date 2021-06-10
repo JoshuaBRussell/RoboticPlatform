@@ -110,6 +110,11 @@ for trials=1:NUM_OF_BLOCKS
             
             cop1(p1, :) = cop_torque1(p1, :)./weight1(p1, :);
             
+            ta_emg(p1,:)=ta(peaks(i)-400:peaks(i)+1800);
+            sol_emg(p1,:)=sol(peaks(i)-400:peaks(i)+1800);
+            pl_emg(p1,:)=pl(peaks(i)-400:peaks(i)+1800);
+            gca_emg(p1,:)=gca(peaks(i)-400:peaks(i)+1800);
+            
             p1_plat_pos(p1,:)=plat_pos_data(peaks(i)-179:peaks(i)+2021);
             p1_foot_pos(p1,:)=foot_pos_data(peaks(i)-179+shift:peaks(i)+2021+shift);
             img1_pos(p1)=getmin(peaks(i),img_st,Img);
@@ -117,10 +122,7 @@ for trials=1:NUM_OF_BLOCKS
             
         end
         if test(i)==2
-            ta_emg(p0,:)=ta(peaks(i)-400:peaks(i)+1800);
-            sol_emg(p0,:)=sol(peaks(i)-400:peaks(i)+1800);
-            pl_emg(p0,:)=pl(peaks(i)-400:peaks(i)+1800);
-            gca_emg(p0,:)=gca(peaks(i)-400:peaks(i)+1800);
+            
             weight4(p0,:)=w1(peaks(i)-400:peaks(i)+1800)-w1(peaks(i)-360);%+w2(peaks(i)-400:peaks(i)+1800)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+1800)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+1800)-w4(peaks(i)-20);
             p0_plat_torque(p0,:)=pert_torque(peaks(i)-400:peaks(i)+1800)-pert_torque(peaks(i)+50);
             p0_plat_pos(p0,:)=plat_pos_data(peaks(i)-179:peaks(i)+2021);
@@ -182,7 +184,7 @@ p1_plat_torquem=nanmean(p1_plat_torque);
 p1_plat_posm=nanmean(p1_plat_pos);
 p1_foot_posm=nanmean(p1_foot_pos);
 
-for i=1:p0-1
+for i=1:p1-1
     
     ta_emg(i,:)=filtfilt(d3,ta_emg(i,:));
     pl_emg(i,:)=filtfilt(d3,pl_emg(i,:));
@@ -191,12 +193,6 @@ for i=1:p0-1
     
 end
 
-
-
-ta_emgm=trimmean(ta_emg,30);
-sol_emgm=trimmean(sol_emg,30);
-pl_emgm=trimmean(pl_emg,30);
-gca_emgm=trimmean(gca_emg,30);
 
 
 %%
