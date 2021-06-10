@@ -4,10 +4,10 @@ clear all
 
 
 % Insert subject initial and name. Make sure it matches the format for naming
-sub_initial='K';
-sub_name='Kwanghee';
+sub_initial='';
+sub_name='';
 
-DATA_FOLDER_REL_LOC = "./../../data/Kwanghee_Testing2/Walking/";
+DATA_FOLDER_REL_LOC = "./../../data//Walking/";
 
 OUTLIER_CRITERION_STD = 3;
 
@@ -18,6 +18,8 @@ NUM_OF_BLOCKS = 6;
 lim= 0.007;
 u_lim=0.02;
 
+
+POS_REJECTION_LIMIT = 2.5; %cm
 % change these flags to 1 for figures (normal fit and constrained fit)
 plot_figs=1;
 plot_figs_constrained=1;
@@ -135,35 +137,11 @@ end
 p0_er=0;
 p1_er=0;
 
-%%
-
-   
-
-for i=1:p1-1
-
-    med=median(img1_pos);
-    [ra idx]=min(abs(img1_pos-med))
-    if(img1_pos(i)< (mean(img1_pos)-std(img1_pos,'omitNaN'))||img1_pos(i)> (mean(img1_pos)+std(img1_pos,'omitNaN')))
-        p1_plat_torque(i,:)=NaN;
-        p1_foot_pos(i,:)=NaN;
-        p1_er=p1_er+1;
-    end
-end
-
-
-for i=1:p0-1
-    med=median(img0_pos);
-    [ra idx]=min(abs(img0_pos-med))
-    if(img0_pos(i)< (mean(img0_pos)-std(img0_pos))||img0_pos(i)> (mean(img0_pos)+std(img0_pos)))
-        p0_plat_torque(i,:)=NaN;
-        p0_foot_pos(i,:)=NaN;
-        p0_er=p0_er+1;
-    end
-end
-
-
-
 %% ---- Outlier Removal ---- %
+%Foot Placement Removal
+p0_removed_ind = (img0_pos < -0.5)' | (img0_pos > POS_REJECTION_LIMIT)';
+p1_removed_ind = (img1_pos < -0.5)' | (img0_pos > POS_REJECTION_LIMIT)';
+
 %Position Oulier Rejection
 [p0_pos_seg_outliers_rm, p0_pos_seg_removed_ind] = rmoutliers(p0_foot_pos, 'ThresholdFactor', OUTLIER_CRITERION_STD);
 [p1_pos_seg_outliers_rm, p1_pos_seg_removed_ind] = rmoutliers(p1_foot_pos, 'ThresholdFactor', OUTLIER_CRITERION_STD);
@@ -172,8 +150,8 @@ end
 [p0_trq_seg_outliers_rm, p0_trq_seg_removed_ind] = rmoutliers(p0_plat_torque, 'ThresholdFactor', OUTLIER_CRITERION_STD);
 [p1_trq_seg_outliers_rm, p1_trq_seg_removed_ind] = rmoutliers(p1_plat_torque, 'ThresholdFactor', OUTLIER_CRITERION_STD);
 
-p0_trials_to_keep = ~(p0_trq_seg_removed_ind | p0_pos_seg_removed_ind);
-p1_trials_to_keep = ~(p1_trq_seg_removed_ind | p1_pos_seg_removed_ind);
+p0_trials_to_keep = ~(p0_trq_seg_removed_ind | p0_pos_seg_removed_ind | p0_removed_ind);
+p1_trials_to_keep = ~(p1_trq_seg_removed_ind | p1_pos_seg_removed_ind | p1_removed_ind);
 
 
 
