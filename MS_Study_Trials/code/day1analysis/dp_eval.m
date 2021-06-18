@@ -257,7 +257,8 @@ taemgm=mean(taemg);
 solemgm=mean(solemg);
 plemgm=mean(plemg);
 gcaemgm=mean(gcaemg);
-sweight=mean(weight1(300:400))*50/weight;
+sweight=mean(nanmean(weight1(:, 300:400)'));
+std_weight = std(nanmean(weight1(:, 300:400)'));
 emgbase(1,1)=mean(taemgm(300:400));
 emgbase(1,3)=mean(solemgm(300:400));
 emgbase(1,2)=mean(plemgm(300:400));
@@ -270,7 +271,8 @@ emgbase(3,1)=mean(taemgm(700:1400));
 emgbase(3,3)=mean(solemgm(700:1400));
 emgbase(3,2)=mean(plemgm(700:1400));
 emgbase(3,4)=mean(gcaemgm(400:1400));
-copm=mean(cop);
+copm=mean(nanmean(cop(:, 300:400)'))*100; %x100 converts from meters to cm
+std_cop = std(nanmean(cop(:, 300:400)'));
 %%
 
 imp=0;
@@ -287,14 +289,14 @@ vartorque=var(dptorquem(380:560)-dptorquep(380:560));
 varimp=var(-(imp(1)*posm(380:560)+imp(2)*velm(380:560)+imp(3)*accm(380:560))+dptorquem(380:560)-dptorquep(380:560));
 % plot(goodnessfit(:,1),goodnessfit(:,2));
 goodness=100*(1-varimp/vartorque);
-alalal=mean(copm(300:380))*100
+
 
 
 aaa=dptorquem(350:550)-dptorquep(350:550);
 imp=imp';
 imp(4)=goodness;
 
-imp=[imp,emgbase(1,:),alalal,sweight]
+imp=[imp,emgbase(1,:),sweight, std_weight, copm, std_cop];
  fclose('all')
 if(plotfig==1)
     
