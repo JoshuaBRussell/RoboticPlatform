@@ -174,7 +174,7 @@ xline(0.31,'-','31%')
 xline(0.44,'-','44%')
 xline(0.57,'-','57%')
 
-formatSpec = 'CoP Profile %s';
+formatSpec = 'Weight Profile %s';
 str = sprintf(formatSpec,sub_name);
 title(str)
 legend('Rigid');
@@ -182,3 +182,34 @@ xlabel('Gait Cycle (%)');
 ylabel('Weight');
 
 saveas(gcf,strcat(RESULTS_DIR,'weight_plot.jpg'));
+
+
+%% Normalized (Time) Ankle Torque Plot
+
+for i = 1:size(data_total, 1)
+   time_i = 0:(1/2000):stance_phase_duration(p0_raw_data_ind(i));
+   normalized_time_i = time_i/stance_phase_duration(p0_raw_data_ind(i));
+   
+   data_i = interp1(normalized_time_i', weight0(p0_raw_data_ind(i), p0_peakst(p0_raw_data_ind(i)):p0_peakend(p0_raw_data_ind(i))), 0:1/max(p0_sample_length):1);
+   
+   %plot(normalized_time_i, (p0_cop_torque(i, p0_peakst(i):p0_peakend(i))./weight4(i, p0_peakst(i):p0_peakend(i)));
+   %plot(0:1/1441:1, data_i);
+   %hold on;
+   data_total(i, :) = data_i;
+end
+figure();
+plot(0:1/max(p0_sample_length):1, mean(data_total));
+xline(0.18,'-','18%')
+xline(0.31,'-','31%')
+xline(0.44,'-','44%')
+xline(0.57,'-','57%')
+
+formatSpec = 'Weight Profile %s';
+str = sprintf(formatSpec,sub_name);
+title(str)
+legend('Rigid');
+xlabel('Gait Cycle (%)');
+ylabel('Weight');
+
+saveas(gcf,strcat(RESULTS_DIR,'weight_plot.jpg'));
+
