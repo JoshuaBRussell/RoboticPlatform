@@ -55,11 +55,12 @@ for subjects = 1:length(SUBJ_DATA_DIRS)
     load(strcat(curr_results_dir, sub_name, "_bootstrap_vars.mat"));
     
     %figure();
-    scatter(sqrt(bio_factors_p1.CoP)', regress_coeffs_p1(:, 1)); hold on;
-    scatter(sqrt(bio_factors_p2.CoP)', regress_coeffs_p2(:, 1));
-    scatter(sqrt(bio_factors_p3.CoP)', regress_coeffs_p3(:, 1));
-    scatter(sqrt(bio_factors_p4.CoP)', regress_coeffs_p4(:, 1)); %hold off;
-    %title(sub_name);
+    scatter(sqrt(bio_factors_p1.CoP)', regress_coeffs_p1(:, 1), 'k'); hold on;
+    scatter(sqrt(bio_factors_p2.CoP)', regress_coeffs_p2(:, 1), 'r');
+    scatter(sqrt(bio_factors_p3.CoP)', regress_coeffs_p3(:, 1), 'g');
+    scatter(sqrt(bio_factors_p4.CoP)', regress_coeffs_p4(:, 1), 'b'); %hold off;
+    %title(sub_name;
+    legend(["31";"44"; "57"; "18"])
     
     %saveas(gcf,strcat(RESULTS_DIR, sub_name,'copf_plot.jpg'));
 
