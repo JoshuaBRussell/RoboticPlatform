@@ -1,4 +1,4 @@
-function [] = find_emg_normalization(DATA_DIR)
+function [] = find_emg_normalization(DATA_DIR, DATA_FILE_NAME)
 
 TA_EMG_SIG  = 1;
 SOL_EMG_SIG = 2;
@@ -7,6 +7,11 @@ GCA_EMG_SIG = 4;
 
 TRIAL_WINDOW_PRE_PERT = -400;
 TRIAL_WINDOW_POST_PERT = 2000;
+
+
+WEIGHT_PERCENTAGE_CUTOFF = 0.025;
+
+NUM_TRAINING_TRIALS = 5;
 
 [num,den] = butter(2,10/1000);
 [filt_num, filt_den] = butter(2,10/1000);
@@ -52,10 +57,15 @@ for trials=1:1
   
     f6=Input1.data(:,21)*53.4/2;
     
-    ta=filtfilt(d1, Input1.data(:,TA_EMG_SIG));
-    sol=filtfilt(d1, Input1.data(:,SOL_EMG_SIG));
-    pl=filtfilt(d1, Input1.data(:,PL_EMG_SIG));
-    gca=filtfilt(d1, Input1.data(:,GCA_EMG_SIG)); 
+    ta=Input1.data(:,TA_EMG_SIG);
+    sol=Input1.data(:,SOL_EMG_SIG);
+    pl=Input1.data(:,PL_EMG_SIG);
+    gca=Input1.data(:,GCA_EMG_SIG); 
+    
+    off_TA = mean(ta);
+    off_SOL = mean(sol);
+    off_PL = mean(pl);
+    off_GCA = mean(gca);
   
     w1=filtfilt(d1,Input1.data(:,18));
   
@@ -83,11 +93,21 @@ for trials=1:1
             
             weight1r(p0,:)=w1(peaks(i)-400:peaks(i)+2000)-w1(peaks(i)-360);%+w2(peaks(i)-400:peaks(i)+2000)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+2000)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+2000)-w4(peaks(i)-20);
             
-            ta_emg(p0, :)  = ta(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
-            sol_emg(p0, :) = sol(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
-            pl_emg(p0, :)  = pl(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
-            gca_emg(p0, :) = gca(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
+            ta_emg(p0, :) = ta(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
+            ta_emg(p0, :) = abs(ta_emg(p0, :)-off_TA);
+            ta_emg(p0, :) = filtfilt(d3, ta_emg(p0, :));
             
+            sol_emg(p0, :) = sol(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
+            sol_emg(p0, :) = abs(sol_emg(p0, :)-off_SOL);
+            sol_emg(p0, :) = filtfilt(d3, sol_emg(p0, :));
+            
+            pl_emg(p0, :)  = pl(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
+            pl_emg(p0, :) = abs(pl_emg(p0, :)-off_TA);
+            pl_emg(p0, :) = filtfilt(d3, pl_emg(p0, :));
+            
+            gca_emg(p0, :) = gca(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
+            gca_emg(p0, :) = abs(gca_emg(p0, :)-off_TA);
+            gca_emg(p0, :) = filtfilt(d3, gca_emg(p0, :));
             
 %             p1r_plat_pos(p0,:)=plat_pos_data(peaks(i)-400:peaks(i)+2000);
 %             p1r_foot_pos(p0,:)=foot_pos_data(peaks(i)-400:peaks(i)+2000);
@@ -97,6 +117,24 @@ for trials=1:1
     end
     
   end
+    %True Gait Phase
+    max_weight = mean(max(weight1r'));
+    start_index_vec_r = zeros(1, NUM_TRAINING_TRIALS); 
+    end_index_vec_r = zeros(1, NUM_TRAINING_TRIALS);
+
+    for i = 1:NUM_TRAINING_TRIALS
+    start_index = min(find(weight1r(i,:) > WEIGHT_PERCENTAGE_CUTOFF*max_weight)); %This is
+    end_index = max(find(weight1r(i,:) > WEIGHT_PERCENTAGE_CUTOFF*max_weight));
+    start_index_vec_r(i) = start_index;
+    end_index_vec_r(i) = end_index;
+    end
+
+    stance_phase_duration_vec = end_index_vec_r - start_index_vec_r;
+
+    mean_start_index = mean(start_index_vec_r);
+    mean_stance_phase_duration = mean(stance_phase_duration_vec);
+    median_stance_phase_duration = median(stance_phase_duration_vec);
+
     
 end
 
