@@ -28,7 +28,7 @@ pop_data_map = containers.Map(pop_data_key, pop_data_value);
 %% ---- Look at Summary Results ---- %%
 SUBJ_NAME = 'Vu';
 NUM_OF_DATA_POINTS = 16;
-RESULTS_DIR = strcat('./results/', SUBJ_NAME);
+RESULTS_DIR = strcat('./results/', SUBJ_NAME, '/');
 
 
 %Open Results Excel Sheet
@@ -96,13 +96,30 @@ legend([SUBJ_NAME; "Population Avg."])
 saveas(gcf,strcat(RESULTS_DIR, 'Stiffness_vs_Weight.png'));
 
 %% Plot Stiffness Bar Graph
-figure();
+
+CI_95 = data_map('Stiffness95%CI');
+POP_CI_95 = pop_data_map('Stiffness 95% CI'); %Even though they look exactly the same in the Excel file, the the POP and Inidividual subject have a slightly different key string.
+
 y = [data_map('Stiffness'), pop_data_map('Stiffness')];
-bar(y);
+
+figure();
+bar_graph = bar(y); hold on;
+
+[ngroups, nbars] = size(y);
+
+%Get X coords of the bars
+x = nan(nbars, ngroups);
+for i = 1:nbars
+   x(i, :) = bar_graph(i).XEndPoints; 
+end
+
+errorbar(x', y, [CI_95, POP_CI_95], 'k','linestyle','none');
+
 legend([SUBJ_NAME; "Population Avg."], 'Location', 'northwest');
 xlabel("Stance Phase Point");
 ylabel("Stiffness");
-title("Stiffness Over Stance Phase");
+title("Stiffness Over Stance Phase (95% CI)");
+
 
 saveas(gcf,strcat(RESULTS_DIR, 'Stiffness_BarGraph.png'));
 
@@ -116,7 +133,7 @@ xlabel("Stance Phase Point");
 ylabel("CoP");
 title("CoP Over Stance Phase");
 
-saveas(gcf,strcat(RESULTS_DIR, 'CoP_BarGraph.png'));
+%saveas(gcf,strcat(RESULTS_DIR, 'CoP_BarGraph.png'));
 
 %% Plot EMG Bar Graph
 figure();
