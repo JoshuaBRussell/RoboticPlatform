@@ -1,4 +1,4 @@
-function [] = find_emg_normalization(DATA_DIR, DATA_FILE_NAME)
+function [TA_NORM, SOL_NORM, PL_NORM, GCA_NORM] = find_emg_normalization(DATA_DIR, DATA_FILE_NAME)
 
 TA_EMG_SIG  = 1;
 SOL_EMG_SIG = 2;
@@ -134,11 +134,12 @@ for trials=1:1
     mean_start_index = mean(start_index_vec_r);
     mean_stance_phase_duration = mean(stance_phase_duration_vec);
     median_stance_phase_duration = median(stance_phase_duration_vec);
-
-    
 end
 
-
+TA_NORM  = max(max(ta_emg(:, -TRIAL_WINDOW_PRE_PERT:-TRIAL_WINDOW_PRE_PERT+median_stance_phase_duration)'));
+SOL_NORM = max(max(sol_emg(:, -TRIAL_WINDOW_PRE_PERT:-TRIAL_WINDOW_PRE_PERT+median_stance_phase_duration)'));
+PL_NORM  = max(max(pl_emg(:, -TRIAL_WINDOW_PRE_PERT:-TRIAL_WINDOW_PRE_PERT+median_stance_phase_duration)'));
+GCA_NORM = max(max(gca_emg(:, -TRIAL_WINDOW_PRE_PERT:-TRIAL_WINDOW_PRE_PERT+median_stance_phase_duration)'));
 
 end
 
