@@ -195,6 +195,19 @@ count = temp_count;
 
 csize=size(count);
 csize=min(size(count),30);
+
+
+%Find EMG Normalization factors from short walking stint.
+
+if (platform_selection == 'L')
+   emg_norm_filename = 'GRFL.DAT';
+elseif (platform_selection == 'R')
+   emg_norm_filename = 'GRF.DAT';
+end
+
+[ta_norm, sol_norm, pl_norm, gca_norm] = find_emg_normalization(DATA_FOLDER_REL_LOC, emg_norm_filename);
+
+
 for i=1:csize
     
     ran=1;
@@ -218,16 +231,16 @@ for i=1:csize
 
     foot_pos(i,:)=foot_pos(i,:)-mean(foot_pos(i,1:380));
        
-    taemg(i,:)= abs(taemg(i,:)-off_TA)*100/mvc_ta;
+    taemg(i,:)= abs(taemg(i,:)-off_TA)*100/ta_norm;
     taemg(i,:)=filtfilt(d3,taemg(i,:));
     
-    solemg(i,:)= abs(solemg(i,:)-off_SOL)*100/mvc_sol;
+    solemg(i,:)= abs(solemg(i,:)-off_SOL)*100/sol_norm;
     solemg(i,:)=filtfilt(d3,solemg(i,:));
    
-    plemg(i,:)= abs(plemg(i,:)-off_PL)*100/mvc_pl;
+    plemg(i,:)= abs(plemg(i,:)-off_PL)*100/pl_norm;
     plemg(i,:)=filtfilt(d3,plemg(i,:));
   
-    gcaemg(i,:)= abs(gcaemg(i,:)-off_GCA)*100/mvc_gca;
+    gcaemg(i,:)= abs(gcaemg(i,:)-off_GCA)*100/gca_norm;
     gcaemg(i,:)=filtfilt(d3,gcaemg(i,:));
     
     offsetdptorque(i)=mean(dptorque(i,300:350));
@@ -257,11 +270,12 @@ taemgm=mean(taemg);
 solemgm=mean(solemg);
 plemgm=mean(plemg);
 gcaemgm=mean(gcaemg);
-sweight=mean(weight1(300:400))*50/weight;
-emgbase(1,1)=mean(taemgm(300:400));
-emgbase(1,3)=mean(solemgm(300:400));
-emgbase(1,2)=mean(plemgm(300:400));
-emgbase(1,4)=mean(gcaemgm(300:400));
+sweight=mean(nanmean(weight1(:, 300:400)'));
+std_weight = std(nanmean(weight1(:, 300:400)'));
+emgbase(1,1)=mean(taemgm(280:380));
+emgbase(1,3)=mean(solemgm(280:380));
+emgbase(1,2)=mean(plemgm(280:380));
+emgbase(1,4)=mean(gcaemgm(280:380));
 emgbase(2,1)=mean(taemgm(400:700));
 emgbase(2,3)=mean(solemgm(400:700));
 emgbase(2,2)=mean(plemgm(400:700));
@@ -270,7 +284,8 @@ emgbase(3,1)=mean(taemgm(700:1400));
 emgbase(3,3)=mean(solemgm(700:1400));
 emgbase(3,2)=mean(plemgm(700:1400));
 emgbase(3,4)=mean(gcaemgm(400:1400));
-copm=mean(cop);
+copm=mean(nanmean(cop(:, 300:400)'))*100; %x100 converts from meters to cm
+std_cop = std(nanmean(cop(:, 300:400)'));
 %%
 
 imp=0;
@@ -287,14 +302,14 @@ vartorque=var(dptorquem(380:560)-dptorquep(380:560));
 varimp=var(-(imp(1)*posm(380:560)+imp(2)*velm(380:560)+imp(3)*accm(380:560))+dptorquem(380:560)-dptorquep(380:560));
 % plot(goodnessfit(:,1),goodnessfit(:,2));
 goodness=100*(1-varimp/vartorque);
-alalal=mean(copm(300:380))*100
+
 
 
 aaa=dptorquem(350:550)-dptorquep(350:550);
 imp=imp';
 imp(4)=goodness;
 
-imp=[imp,emgbase(1,:),alalal,sweight]
+imp=[imp,emgbase(1,:),sweight, std_weight, copm, std_cop];
  fclose('all')
 if(plotfig==1)
     
