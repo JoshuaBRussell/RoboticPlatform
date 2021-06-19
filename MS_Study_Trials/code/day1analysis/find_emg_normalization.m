@@ -6,7 +6,7 @@ PL_EMG_SIG  = 3;
 GCA_EMG_SIG = 4;
 
 TRIAL_WINDOW_PRE_PERT = -400;
-TRIAL_WINDOW_POST_PERT = 2000;
+TRIAL_WINDOW_POST_PERT = 3500;
 
 
 WEIGHT_PERCENTAGE_CUTOFF = 0.025;
@@ -35,7 +35,7 @@ for trials=1:1
     
   if(ismember(trials,exclude)==0)  
     if(trials<10)
-        h = fopen(strcat(DATA_DIR, 'GRF','.dat'));
+        h = fopen(strcat(DATA_DIR, DATA_FILE_NAME));
     end
     
     live_data=fread(h);
@@ -81,7 +81,7 @@ for trials=1:1
     
     for i=1:length(peaks)
         
-        time=[-200:0.5:1000];
+        time=[-200:0.5:2500];
        
         if test(i)==2
             force1r_1(p0,:)=f1(peaks(i)-400:peaks(i)+2000)-f1(peaks(i)-360);
@@ -91,7 +91,7 @@ for trials=1:1
             force1r_5(p0,:)=f5(peaks(i)-400:peaks(i)+2000)-f5(peaks(i)-360);
             force1r_6(p0,:)=f6(peaks(i)-400:peaks(i)+2000)-f6(peaks(i)-360);
             
-            weight1r(p0,:)=w1(peaks(i)-400:peaks(i)+2000)-w1(peaks(i)-360);%+w2(peaks(i)-400:peaks(i)+2000)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+2000)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+2000)-w4(peaks(i)-20);
+            weight1r(p0,:)=w1(peaks(i)-400:peaks(i)+TRIAL_WINDOW_POST_PERT)-w1(peaks(i)-360);%+w2(peaks(i)-400:peaks(i)+2000)-w2(peaks(i)-360)+w3(peaks(i)-400:peaks(i)+2000)-w3(peaks(i)-360)+w4(peaks(i)-400:peaks(i)+2000)-w4(peaks(i)-20);
             
             ta_emg(p0, :) = ta(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
             ta_emg(p0, :) = abs(ta_emg(p0, :)-off_TA);
@@ -136,10 +136,10 @@ for trials=1:1
     median_stance_phase_duration = median(stance_phase_duration_vec);
 end
 
-TA_NORM  = max(max(ta_emg(:, -TRIAL_WINDOW_PRE_PERT:-TRIAL_WINDOW_PRE_PERT+median_stance_phase_duration)'));
-SOL_NORM = max(max(sol_emg(:, -TRIAL_WINDOW_PRE_PERT:-TRIAL_WINDOW_PRE_PERT+median_stance_phase_duration)'));
-PL_NORM  = max(max(pl_emg(:, -TRIAL_WINDOW_PRE_PERT:-TRIAL_WINDOW_PRE_PERT+median_stance_phase_duration)'));
-GCA_NORM = max(max(gca_emg(:, -TRIAL_WINDOW_PRE_PERT:-TRIAL_WINDOW_PRE_PERT+median_stance_phase_duration)'));
+TA_NORM  = max(max(ta_emg(1:NUM_TRAINING_TRIALS, -TRIAL_WINDOW_PRE_PERT:-TRIAL_WINDOW_PRE_PERT+median_stance_phase_duration)'));
+SOL_NORM = max(max(sol_emg(1:NUM_TRAINING_TRIALS, -TRIAL_WINDOW_PRE_PERT:-TRIAL_WINDOW_PRE_PERT+median_stance_phase_duration)'));
+PL_NORM  = max(max(pl_emg(1:NUM_TRAINING_TRIALS, -TRIAL_WINDOW_PRE_PERT:-TRIAL_WINDOW_PRE_PERT+median_stance_phase_duration)'));
+GCA_NORM = max(max(gca_emg(1:NUM_TRAINING_TRIALS, -TRIAL_WINDOW_PRE_PERT:-TRIAL_WINDOW_PRE_PERT+median_stance_phase_duration)'));
 
 end
 
