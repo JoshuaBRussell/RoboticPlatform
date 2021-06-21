@@ -37,6 +37,7 @@ legend('Rigid');
 xlabel('Gait Cycle (%)');
 ylabel('CoP(cm)');
 xlim([0, 1])
+ylim([-5, 20])
 saveas(gcf,strcat(RESULTS_DIR, 'copf_plot.jpg'));
 
 
