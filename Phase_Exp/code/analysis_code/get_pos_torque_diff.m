@@ -38,8 +38,8 @@ for i = 1:RESAMPLE_COUNT
    %Random selection of Foot Position Curves 
     [pos_data_sample, sample_ind] = datasample(p0_pos_profiles, bs_selection_count);
     
-    pos_mean = mean(pos_data_sample);
-    torque_mean = mean(p0_torque_profiles(sample_ind, :));
+    pos_mean = mean(pos_data_sample, 1);
+    torque_mean = mean(p0_torque_profiles(sample_ind, :), 1);
     
     mean_p0_pos_profiles(i, :) = pos_mean;
     mean_p0_torque_profiles(i, :) = torque_mean;
@@ -48,14 +48,14 @@ end
 
 
 %% ---- Perturbation Profiles ---- %%
-
+bs_selection_count = round(0.6*size(pert_pos_profiles, 1));
 for i = 1:RESAMPLE_COUNT
    %Random selection of Foot Position Curves 
     [pos_data_sample, sample_ind] = datasample(pert_pos_profiles, bs_selection_count);
     
-    pos_mean = mean(pos_data_sample);
-    torque_mean = mean(pert_torque_profiles(sample_ind, :));
-    diff_plat_pos_mean = mean(diff_plat_pos_profiles(sample_ind, :));
+    pos_mean = mean(pos_data_sample, 1);
+    torque_mean = mean(pert_torque_profiles(sample_ind, :), 1);
+    diff_plat_pos_mean = mean(diff_plat_pos_profiles(sample_ind, :), 1);
     
     mean_pert_pos_profiles(i, :) = pos_mean;
     mean_pert_torque_profiles(i, :) = torque_mean;
