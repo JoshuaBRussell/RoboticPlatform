@@ -1019,6 +1019,7 @@ remaining_after_VAF4 = vaf_info_p4.remaining_after_VAF;
 
 %Remove the low %VAF bootstrap sample regression results from the corresponding bio_factor data
 bio_factors_p1.CoP     = bio_factors_p1.CoP(vaf_info_p1.removal_indices);
+bio_factors_p1.ankle_ang = bio_factors_p1.ankle_ang(vaf_info_p1.removal_indices);
 bio_factors_p1.Weight  = bio_factors_p1.Weight(vaf_info_p1.removal_indices);
 bio_factors_p1.EMG.TA  = bio_factors_p1.EMG.TA(vaf_info_p1.removal_indices);
 bio_factors_p1.EMG.PL  = bio_factors_p1.EMG.PL(vaf_info_p1.removal_indices);
@@ -1026,6 +1027,7 @@ bio_factors_p1.EMG.SOL = bio_factors_p1.EMG.SOL(vaf_info_p1.removal_indices);
 bio_factors_p1.EMG.GCA = bio_factors_p1.EMG.GCA(vaf_info_p1.removal_indices); 
 
 bio_factors_p2.CoP     = bio_factors_p2.CoP(vaf_info_p2.removal_indices);
+bio_factors_p2.ankle_ang = bio_factors_p2.ankle_ang(vaf_info_p2.removal_indices);
 bio_factors_p2.Weight  = bio_factors_p2.Weight(vaf_info_p2.removal_indices);
 bio_factors_p2.EMG.TA  = bio_factors_p2.EMG.TA(vaf_info_p2.removal_indices);
 bio_factors_p2.EMG.PL  = bio_factors_p2.EMG.PL(vaf_info_p2.removal_indices);
@@ -1033,6 +1035,7 @@ bio_factors_p2.EMG.SOL = bio_factors_p2.EMG.SOL(vaf_info_p2.removal_indices);
 bio_factors_p2.EMG.GCA = bio_factors_p2.EMG.GCA(vaf_info_p2.removal_indices); 
 
 bio_factors_p3.CoP     = bio_factors_p3.CoP(vaf_info_p3.removal_indices);
+bio_factors_p3.ankle_ang = bio_factors_p3.ankle_ang(vaf_info_p3.removal_indices);
 bio_factors_p3.Weight  = bio_factors_p3.Weight(vaf_info_p3.removal_indices);
 bio_factors_p3.EMG.TA  = bio_factors_p3.EMG.TA(vaf_info_p3.removal_indices);
 bio_factors_p3.EMG.PL  = bio_factors_p3.EMG.PL(vaf_info_p3.removal_indices);
@@ -1040,6 +1043,7 @@ bio_factors_p3.EMG.SOL = bio_factors_p3.EMG.SOL(vaf_info_p3.removal_indices);
 bio_factors_p3.EMG.GCA = bio_factors_p3.EMG.GCA(vaf_info_p3.removal_indices); 
 
 bio_factors_p4.CoP     = bio_factors_p4.CoP(vaf_info_p4.removal_indices);
+bio_factors_p4.ankle_ang = bio_factors_p4.ankle_ang(vaf_info_p4.removal_indices);
 bio_factors_p4.Weight  = bio_factors_p4.Weight(vaf_info_p4.removal_indices);
 bio_factors_p4.EMG.TA  = bio_factors_p4.EMG.TA(vaf_info_p4.removal_indices);
 bio_factors_p4.EMG.PL  = bio_factors_p4.EMG.PL(vaf_info_p4.removal_indices);
