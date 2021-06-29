@@ -75,6 +75,7 @@ for i = 1:RESAMPLE_COUNT
     mean_pert_SOL_profiles(i, :) = emg_SOL_mean;
     mean_pert_PL_profiles(i, :) = emg_PL_mean;
     mean_pert_GCA_profiles(i, :) = emg_GCA_mean;
+    mean_pert_ang(i) = pos_mean(100);
 end
 
 
@@ -140,6 +141,8 @@ EMG_DATA_OUT.SOL = mean_pert_SOL_profiles;
 EMG_DATA_OUT.GCA = mean_pert_GCA_profiles;
 
 bio_factors_struct.EMG = EMG_DATA_OUT;
+
+bio_factors_struct.ankle_ang = mean_pert_ang;
 
 
 % %----MSE NonPerturb Average Reduction Method----%                                                    

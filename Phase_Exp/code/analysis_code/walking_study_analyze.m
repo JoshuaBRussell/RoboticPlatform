@@ -731,10 +731,10 @@ p4_EMG_vals.PL  = p4_EMG_vals.PL(~p4_seg_removed_ind, :);
 p4_EMG_vals.SOL = p4_EMG_vals.SOL(~p4_seg_removed_ind, :);
 p4_EMG_vals.GCA = p4_EMG_vals.GCA(~p4_seg_removed_ind, :);
 
-[diff_p1_foot_pos, diff_p1_plat_torque, diff_p1_plat_pos, bio_factors_p1] = get_pos_torque_diff(p0_foot_pos30, p1_foot_pos_segment(~p1_seg_removed_ind, :), p0_plat_torque30, p1_plat_torque_segment(~p1_seg_removed_ind, :), diff_p1_plat_pos(~p1_foot_placement_rej_ind, :), p1_cop_val(~p1_foot_placement_rej_ind), p1_weight_val(~p1_foot_placement_rej_ind), p1_EMG_vals);
-[diff_p2_foot_pos, diff_p2_plat_torque, diff_p2_plat_pos, bio_factors_p2] = get_pos_torque_diff(p0_foot_pos45, p2_foot_pos_segment(~p2_seg_removed_ind, :), p0_plat_torque45, p2_plat_torque_segment(~p2_seg_removed_ind, :), diff_p2_plat_pos(~p2_foot_placement_rej_ind, :), p2_cop_val(~p2_foot_placement_rej_ind), p2_weight_val(~p2_foot_placement_rej_ind), p2_EMG_vals);
-[diff_p3_foot_pos, diff_p3_plat_torque, diff_p3_plat_pos, bio_factors_p3] = get_pos_torque_diff(p0_foot_pos60, p3_foot_pos_segment(~p3_seg_removed_ind, :), p0_plat_torque60, p3_plat_torque_segment(~p3_seg_removed_ind, :), diff_p3_plat_pos(~p3_foot_placement_rej_ind, :), p3_cop_val(~p3_foot_placement_rej_ind), p3_weight_val(~p3_foot_placement_rej_ind), p3_EMG_vals);
-[diff_p4_foot_pos, diff_p4_plat_torque, diff_p4_plat_pos, bio_factors_p4] = get_pos_torque_diff(p0_foot_pos15, p4_foot_pos_segment(~p4_seg_removed_ind, :), p0_plat_torque15, p4_plat_torque_segment(~p4_seg_removed_ind, :), diff_p4_plat_pos(~p4_foot_placement_rej_ind, :), p4_cop_val(~p4_foot_placement_rej_ind), p4_weight_val(~p4_foot_placement_rej_ind), p4_EMG_vals);
+[diff_p1_foot_pos, diff_p1_plat_torque, diff_p1_plat_pos, bio_factors_p1] = get_pos_torque_diff(p0_foot_pos30, p1_foot_pos_segment(~p1_seg_removed_ind, :), p0_plat_torque30, p1_plat_torque_segment(~p1_seg_removed_ind, :), diff_p1_plat_pos(~p1_seg_removed_ind, :), p1_cop_val(~p1_seg_removed_ind), p1_weight_val(~p1_seg_removed_ind), p1_EMG_vals);
+[diff_p2_foot_pos, diff_p2_plat_torque, diff_p2_plat_pos, bio_factors_p2] = get_pos_torque_diff(p0_foot_pos45, p2_foot_pos_segment(~p2_seg_removed_ind, :), p0_plat_torque45, p2_plat_torque_segment(~p2_seg_removed_ind, :), diff_p2_plat_pos(~p2_seg_removed_ind, :), p2_cop_val(~p2_seg_removed_ind), p2_weight_val(~p2_seg_removed_ind), p2_EMG_vals);
+[diff_p3_foot_pos, diff_p3_plat_torque, diff_p3_plat_pos, bio_factors_p3] = get_pos_torque_diff(p0_foot_pos60, p3_foot_pos_segment(~p3_seg_removed_ind, :), p0_plat_torque60, p3_plat_torque_segment(~p3_seg_removed_ind, :), diff_p3_plat_pos(~p3_seg_removed_ind, :), p3_cop_val(~p3_seg_removed_ind), p3_weight_val(~p3_seg_removed_ind), p3_EMG_vals);
+[diff_p4_foot_pos, diff_p4_plat_torque, diff_p4_plat_pos, bio_factors_p4] = get_pos_torque_diff(p0_foot_pos15, p4_foot_pos_segment(~p4_seg_removed_ind, :), p0_plat_torque15, p4_plat_torque_segment(~p4_seg_removed_ind, :), diff_p4_plat_pos(~p4_seg_removed_ind, :), p4_cop_val(~p4_seg_removed_ind), p4_weight_val(~p4_seg_removed_ind), p4_EMG_vals);
 
 
 
@@ -1019,6 +1019,7 @@ remaining_after_VAF4 = vaf_info_p4.remaining_after_VAF;
 
 %Remove the low %VAF bootstrap sample regression results from the corresponding bio_factor data
 bio_factors_p1.CoP     = bio_factors_p1.CoP(vaf_info_p1.removal_indices);
+bio_factors_p1.ankle_ang = bio_factors_p1.ankle_ang(vaf_info_p1.removal_indices);
 bio_factors_p1.Weight  = bio_factors_p1.Weight(vaf_info_p1.removal_indices);
 bio_factors_p1.EMG.TA  = bio_factors_p1.EMG.TA(vaf_info_p1.removal_indices);
 bio_factors_p1.EMG.PL  = bio_factors_p1.EMG.PL(vaf_info_p1.removal_indices);
@@ -1026,6 +1027,7 @@ bio_factors_p1.EMG.SOL = bio_factors_p1.EMG.SOL(vaf_info_p1.removal_indices);
 bio_factors_p1.EMG.GCA = bio_factors_p1.EMG.GCA(vaf_info_p1.removal_indices); 
 
 bio_factors_p2.CoP     = bio_factors_p2.CoP(vaf_info_p2.removal_indices);
+bio_factors_p2.ankle_ang = bio_factors_p2.ankle_ang(vaf_info_p2.removal_indices);
 bio_factors_p2.Weight  = bio_factors_p2.Weight(vaf_info_p2.removal_indices);
 bio_factors_p2.EMG.TA  = bio_factors_p2.EMG.TA(vaf_info_p2.removal_indices);
 bio_factors_p2.EMG.PL  = bio_factors_p2.EMG.PL(vaf_info_p2.removal_indices);
@@ -1033,6 +1035,7 @@ bio_factors_p2.EMG.SOL = bio_factors_p2.EMG.SOL(vaf_info_p2.removal_indices);
 bio_factors_p2.EMG.GCA = bio_factors_p2.EMG.GCA(vaf_info_p2.removal_indices); 
 
 bio_factors_p3.CoP     = bio_factors_p3.CoP(vaf_info_p3.removal_indices);
+bio_factors_p3.ankle_ang = bio_factors_p3.ankle_ang(vaf_info_p3.removal_indices);
 bio_factors_p3.Weight  = bio_factors_p3.Weight(vaf_info_p3.removal_indices);
 bio_factors_p3.EMG.TA  = bio_factors_p3.EMG.TA(vaf_info_p3.removal_indices);
 bio_factors_p3.EMG.PL  = bio_factors_p3.EMG.PL(vaf_info_p3.removal_indices);
@@ -1040,6 +1043,7 @@ bio_factors_p3.EMG.SOL = bio_factors_p3.EMG.SOL(vaf_info_p3.removal_indices);
 bio_factors_p3.EMG.GCA = bio_factors_p3.EMG.GCA(vaf_info_p3.removal_indices); 
 
 bio_factors_p4.CoP     = bio_factors_p4.CoP(vaf_info_p4.removal_indices);
+bio_factors_p4.ankle_ang = bio_factors_p4.ankle_ang(vaf_info_p4.removal_indices);
 bio_factors_p4.Weight  = bio_factors_p4.Weight(vaf_info_p4.removal_indices);
 bio_factors_p4.EMG.TA  = bio_factors_p4.EMG.TA(vaf_info_p4.removal_indices);
 bio_factors_p4.EMG.PL  = bio_factors_p4.EMG.PL(vaf_info_p4.removal_indices);
