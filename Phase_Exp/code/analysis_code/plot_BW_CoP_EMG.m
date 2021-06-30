@@ -15,12 +15,9 @@ for i = 1:size(copr15, 1)
    normalized_time_i = time_i/stance_phase_duration(p0_raw_data_ind(i));
    
    cop_i = p0_cop_torque(i, p0_peakst(p0_raw_data_ind(i)):p0_peakend(p0_raw_data_ind(i)));
-   weight_i = weight4(p0_raw_data_ind(i), p0_peakst(p0_raw_data_ind(i)):p0_peakend(p0_raw_data_ind(i)));
+   weight_i = weight0(p0_raw_data_ind(i), p0_peakst(p0_raw_data_ind(i)):p0_peakend(p0_raw_data_ind(i)));
    data_i = interp1(normalized_time_i', cop_i./weight_i, 0:1/max(p0_sample_length):1);
    
-   %plot(normalized_time_i, (p0_cop_torque(i, p0_peakst(i):p0_peakend(i))./weight4(i, p0_peakst(i):p0_peakend(i)));
-   %plot(0:1/1441:1, data_i);
-   %hold on;
    data_total(i, :) = data_i;
 end
 
@@ -238,4 +235,69 @@ ylabel('Ankle Angle');
 
 saveas(gcf,strcat(RESULTS_DIR,'ankle_angle_plot.jpg'));
 
+%% Normalized (Time) FZ
 
+for i = 1:size(data_total, 1)
+   time_i = 0:(1/2000):stance_phase_duration(p0_raw_data_ind(i));
+   normalized_time_i = time_i/stance_phase_duration(p0_raw_data_ind(i));
+   
+   F5 = force0_5(p0_raw_data_ind(i), p0_peakst(p0_raw_data_ind(i)):p0_peakend(p0_raw_data_ind(i)));
+   F6 = force0_6(p0_raw_data_ind(i), p0_peakst(p0_raw_data_ind(i)):p0_peakend(p0_raw_data_ind(i)));
+   FZ_i = F5+F6;
+   data_i = interp1(normalized_time_i', FZ_i, 0:1/max(p0_sample_length):1);
+
+   data_total(i, :) = data_i;
+end
+figure();
+plot(0:1/max(p0_sample_length):1, mean(data_total));
+xline(0.18,'-','18%')
+xline(0.31,'-','31%')
+xline(0.44,'-','44%')
+xline(0.57,'-','57%')
+
+formatSpec = 'FZ Profile %s';
+str = sprintf(formatSpec,sub_name);
+title(str)
+legend('Rigid');
+xlabel('Gait Cycle (%)');
+ylabel('FZ');
+
+saveas(gcf,strcat(RESULTS_DIR,'FZ_plot.jpg'));
+
+%% Normalized (Time) atan2(Weight, FZ) Plot
+
+p0_sample_length = p0_peakend-p0_peakst;
+stance_phase_duration = p0_sample_length * (1/2000);
+
+
+%Preallocates memory
+data_total = zeros(size(copr15, 1), max(p0_sample_length)+1);
+figure();
+for i = 1:size(copr15, 1)
+   time_i = 0:(1/2000):stance_phase_duration(p0_raw_data_ind(i));
+   normalized_time_i = time_i/stance_phase_duration(p0_raw_data_ind(i));
+   
+   F5 = force0_5(p0_raw_data_ind(i), p0_peakst(p0_raw_data_ind(i)):p0_peakend(p0_raw_data_ind(i)));
+   F6 = force0_6(p0_raw_data_ind(i), p0_peakst(p0_raw_data_ind(i)):p0_peakend(p0_raw_data_ind(i)));
+   FZ_i = F5+F6;
+   weight_i = weight0(p0_raw_data_ind(i), p0_peakst(p0_raw_data_ind(i)):p0_peakend(p0_raw_data_ind(i)));
+   data_i = interp1(normalized_time_i', atan2d(weight_i, FZ_i), 0:1/max(p0_sample_length):1);
+   
+   data_total(i, :) = data_i;
+end
+
+plot(0:1/max(p0_sample_length):1, mean(data_total));
+xline(0.18,'-','18%')
+xline(0.31,'-','31%')
+xline(0.44,'-','44%')
+xline(0.57,'-','57%')
+
+% formatSpec = 'CoP Profile %s';
+% str = sprintf(formatSpec,sub_name);
+% title(str)
+% legend('Rigid');
+% xlabel('Gait Cycle (%)');
+% ylabel('CoP(cm)');
+% xlim([0, 1])
+% ylim([-5, 20])
+% saveas(gcf,strcat(RESULTS_DIR, 'copf_plot.jpg'));

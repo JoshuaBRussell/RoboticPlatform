@@ -3,10 +3,9 @@ function [diff_pos,diff_torque, mean_plat_pos_profiles, bio_factors_struct] = ge
                                                       diff_plat_pos_profiles, ...
                                                       cop_vals, ...
                                                       weight_vals, ...
-                                                      emg_vals) %This will be a struct since passing in each
-                                                                    %individual set of EMG curves would create a 
-                                                                    %long function
-                                                                    
+                                                      emg_vals, ... %This will be a struct since passing in each individual set of EMG curves would create a long function 
+                                                      FZ, ...
+                                                      time_since_healstrike)
                                                                     
                                                                    
                                                                     
@@ -67,6 +66,8 @@ for i = 1:RESAMPLE_COUNT
     emg_PL_mean = mean(emg_vals.PL(sample_ind, :));
     emg_SOL_mean = mean(emg_vals.SOL(sample_ind, :));
     emg_GCA_mean = mean(emg_vals.GCA(sample_ind, :));
+    FZ_mean = mean(FZ(sample_ind, :));
+    time_since_healstrike_mean = mean(time_since_healstrike(sample_ind, :));
     
     
     mean_pert_cop_profiles(i, :) = cop_mean;
@@ -76,6 +77,8 @@ for i = 1:RESAMPLE_COUNT
     mean_pert_PL_profiles(i, :) = emg_PL_mean;
     mean_pert_GCA_profiles(i, :) = emg_GCA_mean;
     mean_pert_ang(i) = pos_mean(100);
+    mean_pert_FZ_profiles(i, :) = FZ_mean;
+    mean_time_since_healstrike_profiles(i, :) = time_since_healstrike_mean;
 end
 
 
@@ -143,6 +146,8 @@ EMG_DATA_OUT.GCA = mean_pert_GCA_profiles;
 bio_factors_struct.EMG = EMG_DATA_OUT;
 
 bio_factors_struct.ankle_ang = mean_pert_ang;
+bio_factors_struct.FZ = mean_pert_FZ_profiles;
+bio_factors_struct.time_since_healstrike = mean_time_since_healstrike_profiles;
 
 
 % %----MSE NonPerturb Average Reduction Method----%                                                    

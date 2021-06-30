@@ -528,13 +528,16 @@ for i=1:p0_total_accepted
     end
 end
 
-%CoP, BW, EMG Vals
+%CoP, BW, EMG Vals, etc. BioMech vals just before/at perturbation onset
 for i = 1:size(p1_cop_torque, 1)
     p1_cop_val(i,:)=p1_cop_torque(i, p1_peakst(i))./weight1(i, p1_peakst(i));
     p2_cop_val(i,:)=p2_cop_torque(i, p2_peakst(i))./weight2(i, p2_peakst(i));
     
     p1_weight_val(i, :) = weight1(i, p1_peakst(i));
     p2_weight_val(i, :) = weight2(i, p2_peakst(i));
+    
+    p1_FZ(i, :) = force1_5(i, p1_peakst(i)) + force1_6(i, p1_peakst(i));
+    p2_FZ(i, :) = force2_5(i, p2_peakst(i)) + force2_6(i, p2_peakst(i));
     
     p1_EMG_vals.TA(i, 1)  = p1_EMG.TA(i, p1_peakst(i));
     p1_EMG_vals.SOL(i, 1) = p1_EMG.SOL(i, p1_peakst(i));
@@ -546,6 +549,9 @@ for i = 1:size(p1_cop_torque, 1)
     p2_EMG_vals.PL(i, 1)  = p2_EMG.PL(i, p2_peakst(i));
     p2_EMG_vals.GCA(i, 1) = p2_EMG.GCA(i, p2_peakst(i));
     
+    p1_time_since_healstrike = (p1_peakst - TRIAL_WINDOW_PRE_PERT)*SAMPLE_PERIOD;
+    p2_time_since_healstrike = (p2_peakst - TRIAL_WINDOW_PRE_PERT)*SAMPLE_PERIOD;
+    
 end
 for i = 1:size(p3_cop_torque, 1)
     p3_cop_val(i,:)=p3_cop_torque(i, p3_peakst(i))./weight3(i, p3_peakst(i));
@@ -553,6 +559,9 @@ for i = 1:size(p3_cop_torque, 1)
 
     p3_weight_val(i, :) = weight3(i, p3_peakst(i));
     p4_weight_val(i, :) = weight4(i, p4_peakst(i));
+    
+    p3_FZ(i, :) = force3_5(i, p3_peakst(i)) + force3_6(i, p3_peakst(i));
+    p4_FZ(i, :) = force4_5(i, p4_peakst(i)) + force4_6(i, p4_peakst(i));
 
     p3_EMG_vals.TA(i, 1)  = p3_EMG.TA(i, p3_peakst(i));
     p3_EMG_vals.SOL(i, 1) = p3_EMG.SOL(i, p3_peakst(i));
@@ -563,6 +572,9 @@ for i = 1:size(p3_cop_torque, 1)
     p4_EMG_vals.SOL(i, 1) = p4_EMG.SOL(i, p4_peakst(i));
     p4_EMG_vals.PL(i, 1)  = p4_EMG.PL(i, p4_peakst(i));
     p4_EMG_vals.GCA(i, 1) = p4_EMG.GCA(i, p4_peakst(i));
+
+    p3_time_since_healstrike = (p3_peakst - TRIAL_WINDOW_PRE_PERT)*SAMPLE_PERIOD;
+    p4_time_since_healstrike = (p4_peakst - TRIAL_WINDOW_PRE_PERT)*SAMPLE_PERIOD;
 end
 
 
@@ -731,10 +743,10 @@ p4_EMG_vals.PL  = p4_EMG_vals.PL(~p4_seg_removed_ind, :);
 p4_EMG_vals.SOL = p4_EMG_vals.SOL(~p4_seg_removed_ind, :);
 p4_EMG_vals.GCA = p4_EMG_vals.GCA(~p4_seg_removed_ind, :);
 
-[diff_p1_foot_pos, diff_p1_plat_torque, diff_p1_plat_pos, bio_factors_p1] = get_pos_torque_diff(p0_foot_pos30, p1_foot_pos_segment(~p1_seg_removed_ind, :), p0_plat_torque30, p1_plat_torque_segment(~p1_seg_removed_ind, :), diff_p1_plat_pos(~p1_seg_removed_ind, :), p1_cop_val(~p1_seg_removed_ind), p1_weight_val(~p1_seg_removed_ind), p1_EMG_vals);
-[diff_p2_foot_pos, diff_p2_plat_torque, diff_p2_plat_pos, bio_factors_p2] = get_pos_torque_diff(p0_foot_pos45, p2_foot_pos_segment(~p2_seg_removed_ind, :), p0_plat_torque45, p2_plat_torque_segment(~p2_seg_removed_ind, :), diff_p2_plat_pos(~p2_seg_removed_ind, :), p2_cop_val(~p2_seg_removed_ind), p2_weight_val(~p2_seg_removed_ind), p2_EMG_vals);
-[diff_p3_foot_pos, diff_p3_plat_torque, diff_p3_plat_pos, bio_factors_p3] = get_pos_torque_diff(p0_foot_pos60, p3_foot_pos_segment(~p3_seg_removed_ind, :), p0_plat_torque60, p3_plat_torque_segment(~p3_seg_removed_ind, :), diff_p3_plat_pos(~p3_seg_removed_ind, :), p3_cop_val(~p3_seg_removed_ind), p3_weight_val(~p3_seg_removed_ind), p3_EMG_vals);
-[diff_p4_foot_pos, diff_p4_plat_torque, diff_p4_plat_pos, bio_factors_p4] = get_pos_torque_diff(p0_foot_pos15, p4_foot_pos_segment(~p4_seg_removed_ind, :), p0_plat_torque15, p4_plat_torque_segment(~p4_seg_removed_ind, :), diff_p4_plat_pos(~p4_seg_removed_ind, :), p4_cop_val(~p4_seg_removed_ind), p4_weight_val(~p4_seg_removed_ind), p4_EMG_vals);
+[diff_p1_foot_pos, diff_p1_plat_torque, diff_p1_plat_pos, bio_factors_p1] = get_pos_torque_diff(p0_foot_pos30, p1_foot_pos_segment(~p1_seg_removed_ind, :), p0_plat_torque30, p1_plat_torque_segment(~p1_seg_removed_ind, :), diff_p1_plat_pos(~p1_seg_removed_ind, :), p1_cop_val(~p1_seg_removed_ind), p1_weight_val(~p1_seg_removed_ind), p1_EMG_vals, p1_FZ(~p1_seg_removed_ind), p1_time_since_healstrike(~p1_seg_removed_ind)');
+[diff_p2_foot_pos, diff_p2_plat_torque, diff_p2_plat_pos, bio_factors_p2] = get_pos_torque_diff(p0_foot_pos45, p2_foot_pos_segment(~p2_seg_removed_ind, :), p0_plat_torque45, p2_plat_torque_segment(~p2_seg_removed_ind, :), diff_p2_plat_pos(~p2_seg_removed_ind, :), p2_cop_val(~p2_seg_removed_ind), p2_weight_val(~p2_seg_removed_ind), p2_EMG_vals, p2_FZ(~p2_seg_removed_ind), p2_time_since_healstrike(~p2_seg_removed_ind)');
+[diff_p3_foot_pos, diff_p3_plat_torque, diff_p3_plat_pos, bio_factors_p3] = get_pos_torque_diff(p0_foot_pos60, p3_foot_pos_segment(~p3_seg_removed_ind, :), p0_plat_torque60, p3_plat_torque_segment(~p3_seg_removed_ind, :), diff_p3_plat_pos(~p3_seg_removed_ind, :), p3_cop_val(~p3_seg_removed_ind), p3_weight_val(~p3_seg_removed_ind), p3_EMG_vals, p3_FZ(~p3_seg_removed_ind), p3_time_since_healstrike(~p3_seg_removed_ind)');
+[diff_p4_foot_pos, diff_p4_plat_torque, diff_p4_plat_pos, bio_factors_p4] = get_pos_torque_diff(p0_foot_pos15, p4_foot_pos_segment(~p4_seg_removed_ind, :), p0_plat_torque15, p4_plat_torque_segment(~p4_seg_removed_ind, :), diff_p4_plat_pos(~p4_seg_removed_ind, :), p4_cop_val(~p4_seg_removed_ind), p4_weight_val(~p4_seg_removed_ind), p4_EMG_vals, p4_FZ(~p4_seg_removed_ind), p4_time_since_healstrike(~p4_seg_removed_ind)');
 
 
 
