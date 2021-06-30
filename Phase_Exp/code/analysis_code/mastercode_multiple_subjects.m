@@ -171,5 +171,5 @@ end
 partialcorr([K, cop_data, emg_data_TA, emg_data_TS, bw_data, ang_data]);
 corr([K, cop_data, emg_data_TA, emg_data_TS, bw_data, ang_data]);
 
-mdl_1 = fitlm([cop_data, emg_data_TS, bw_data, ang_data], K);
-mdl_2 = fitlm([cop_data, emg_data_TS, ang_data], K);
+mdl_1 = fitlm([cop_data, emg_data_TA, emg_data_TS, bw_data, ang_data], K);
+mdl_2 = fitlm([cop_data, emg_data_TS, emg_data_TS, bw_data], K);
