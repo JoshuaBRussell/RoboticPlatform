@@ -3,10 +3,9 @@ function [diff_pos,diff_torque, mean_plat_pos_profiles, bio_factors_struct] = ge
                                                       diff_plat_pos_profiles, ...
                                                       cop_vals, ...
                                                       weight_vals, ...
-                                                      emg_vals) %This will be a struct since passing in each
-                                                                    %individual set of EMG curves would create a 
-                                                                    %long function
-                                                                    
+                                                      emg_vals, ... %This will be a struct since passing in each individual set of EMG curves would create a long function 
+                                                      FZ, ...
+                                                      time_since_healstrike)
                                                                     
                                                                    
                                                                     
