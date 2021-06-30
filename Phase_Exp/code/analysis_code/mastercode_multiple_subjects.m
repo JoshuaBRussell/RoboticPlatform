@@ -157,16 +157,19 @@ SUBJ_DATA_DIRS = {'Carl_121720', ...
                   
 % Collect Data to Perform Regression with 
 K = [];
+BW_norm_K_data = [];
+stiff_range_norm_K_data = [];
+
 cop_data = [];
 ang_data = [];
 emg_data_TA = []; %Tibialis Anterior
 emg_data_TS = []; %Triceps Surae
 bw_data = [];
 
-figure();
+subj_weight_vec = get_subj_weight(DATA_FOLDER_REL_LOC, "WEIGHT.DAT", SUBJ_DATA_DIRS);
 
-for subjects = 1:length(SUBJ_DATA_DIRS)
-    temp_cell_array = split(SUBJ_DATA_DIRS{subjects}, '_');
+for subj_index = 1:length(SUBJ_DATA_DIRS)
+    temp_cell_array = split(SUBJ_DATA_DIRS{subj_index}, '_');
     sub_name = temp_cell_array{1};
     curr_results_dir = strcat(RESULTS_DIR, sub_name, '/');
 
@@ -174,6 +177,12 @@ for subjects = 1:length(SUBJ_DATA_DIRS)
     
     subj_K = [regress_coeffs_p1(:, 1); regress_coeffs_p2(:, 1); regress_coeffs_p3(:, 1); regress_coeffs_p4(:, 1)]; 
     K = [K; subj_K];
+    
+    subj_BW_norm_K = subj_K/subj_weight_vec(subj_index);
+    BW_norm_K_data = [BW_norm_K_data; subj_BW_norm_K];
+    
+    subj_stiff_range_norm_K = subj_K/(max(subj_K) - min(subj_K));
+    stiff_range_norm_K_data = [stiff_range_norm_K_data; subj_stiff_range_norm_K];
     
     subj_cop = [bio_factors_p1.CoP; bio_factors_p2.CoP; bio_factors_p3.CoP; bio_factors_p4.CoP];
     cop_data = [cop_data; subj_cop];
@@ -195,8 +204,30 @@ for subjects = 1:length(SUBJ_DATA_DIRS)
 
 end
 
+pop_stiff_range_norm_K_data = K/(max(K) - min(K));
+
+
 partialcorr([K, cop_data, emg_data_TA, emg_data_TS, bw_data, ang_data]);
 corr([K, cop_data, emg_data_TA, emg_data_TS, bw_data, ang_data]);
 
-mdl_1 = fitlm([cop_data, emg_data_TA, emg_data_TS, bw_data, ang_data], K);
-mdl_2 = fitlm([cop_data, emg_data_TS, emg_data_TS, bw_data], K);
+%Am going to take the sqrt of the CoP data and EMG Triceps Surae data
+cop_sign_data = sign(cop_data);
+cop_data = cop_sign_data.*(sqrt(abs(cop_data)));
+emg_data_TS = sqrt(emg_data_TS);
+
+% ---- Create Regression Models ---- %
+% Y = K
+mdl_K_1 = fitlm([cop_data, emg_data_TA, emg_data_TS, bw_data, ang_data], K); 
+mdl_K_2 = fitlm([cop_data, emg_data_TS, emg_data_TS, bw_data], K); %same as 1 above but missing ankle angle
+
+%Y = BW_norm_K_data
+mdl_BW_norm_K_1 = fitlm([cop_data, emg_data_TA, emg_data_TS, bw_data, ang_data], BW_norm_K_data); 
+mdl_BW_norm_K_2 = fitlm([cop_data, emg_data_TS, emg_data_TS, bw_data], BW_norm_K_data); %same as 1 above but missing ankle angle
+
+%Y = stiff_range_norm_K_data
+mdl_stiff_range_norm_K_1 = fitlm([cop_data, emg_data_TA, emg_data_TS, bw_data, ang_data], stiff_range_norm_K_data); 
+mdl_stiff_range_norm_K_2 = fitlm([cop_data, emg_data_TS, emg_data_TS, bw_data], stiff_range_norm_K_data); %same as 1 above but missing ankle angle
+
+%Y = pop_stiff_range_norm_K_data
+mdl_pop_stiff_range_norm_K_1 = fitlm([cop_data, emg_data_TA, emg_data_TS, bw_data, ang_data], pop_stiff_range_norm_K_data); 
+mdl_pop_stiff_range_norm_K_2 = fitlm([cop_data, emg_data_TS, emg_data_TS, bw_data], pop_stiff_range_norm_K_data); %same as 1 above but missing ankle angle
