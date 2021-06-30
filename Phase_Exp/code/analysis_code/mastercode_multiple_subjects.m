@@ -89,7 +89,7 @@ for subjects = 1:length(SUBJ_DATA_DIRS)
 
 end
 
-%% K vs Time Sine Healstrike
+%% K vs Time Since Healstrike
 figure();
 for subjects = 1:length(SUBJ_DATA_DIRS)
     temp_cell_array = split(SUBJ_DATA_DIRS{subjects}, '_');
@@ -111,11 +111,38 @@ for subjects = 1:length(SUBJ_DATA_DIRS)
 
 end
 
+%% K (BodyWeight Normalized) vs Time Since Healstrike 
+DATA_FOLDER_REL_LOC = "./../../data/";
+
+subj_weight_vec = get_subj_weight(DATA_FOLDER_REL_LOC, "WEIGHT.DAT", SUBJ_DATA_DIRS);
+
+figure();
+for subjects = 1:length(SUBJ_DATA_DIRS)
+    temp_cell_array = split(SUBJ_DATA_DIRS{subjects}, '_');
+    sub_name = temp_cell_array{1};
+    curr_results_dir = strcat(RESULTS_DIR, sub_name, '/');
+
+    load(strcat(curr_results_dir, sub_name, "_bootstrap_vars.mat"));
+    
+    %figure();
+    scatter(bio_factors_p1.time_since_healstrike, regress_coeffs_p1(:, 1)/subj_weight_vec(subjects), 'k'); hold on;
+    scatter(bio_factors_p2.time_since_healstrike, regress_coeffs_p2(:, 1)/subj_weight_vec(subjects), 'r');
+    scatter(bio_factors_p3.time_since_healstrike, regress_coeffs_p3(:, 1)/subj_weight_vec(subjects), 'g');
+    scatter(bio_factors_p4.time_since_healstrike, regress_coeffs_p4(:, 1)/subj_weight_vec(subjects), 'b'); %hold off;
+    %title(sub_name;
+    legend(["31";"44"; "57"; "18"])
+    
+    %saveas(gcf,strcat(RESULTS_DIR, sub_name,'copf_plot.jpg'));
+
+
+end
+
 
 %% ---- Regression Procedure ---- %%
 RESULTS_DIR = './results/';
+DATA_FOLDER_REL_LOC = "./../../data/";
 
-SUBJ_DATA_DIRS = { ...%'Carl_121720', ...
+SUBJ_DATA_DIRS = {'Carl_121720', ...
                   'Vu_121420', ...
                   'Emily_122020', ...
                   'Ashley_011721', ...
