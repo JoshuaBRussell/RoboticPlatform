@@ -311,11 +311,6 @@ end
 
 pop_stiff_range_norm_K_data = K/(max(K) - min(K));
 
-% Plot the various versions of K vs stance phase:
-figure();
-scatter
-
-
 partialcorr([K, cop_data, emg_data_TA, emg_data_TS, bw_data, ang_data]);
 corr([K, cop_data, emg_data_TA, emg_data_TS, bw_data, ang_data]);
 
