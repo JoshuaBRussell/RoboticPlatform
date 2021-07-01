@@ -55,17 +55,18 @@ for subjects = 1:length(SUBJ_DATA_DIRS)
     load(strcat(curr_results_dir, sub_name, "_bootstrap_vars.mat"));
     
     %figure();
-    scatter(sqrt(bio_factors_p1.CoP)', regress_coeffs_p1(:, 1), 'k'); hold on;
-    scatter(sqrt(bio_factors_p2.CoP)', regress_coeffs_p2(:, 1), 'r');
-    scatter(sqrt(bio_factors_p3.CoP)', regress_coeffs_p3(:, 1), 'g');
-    scatter(sqrt(bio_factors_p4.CoP)', regress_coeffs_p4(:, 1), 'b'); %hold off;
-    %title(sub_name;
-    legend(["31";"44"; "57"; "18"])
-    
-    %saveas(gcf,strcat(RESULTS_DIR, sub_name,'copf_plot.jpg'));
-
+    scatter(sign(bio_factors_p1.CoP).*sqrt(abs(bio_factors_p1.CoP)), regress_coeffs_p1(:, 1), 'k'); hold on;
+    scatter(sign(bio_factors_p2.CoP).*sqrt(abs(bio_factors_p2.CoP)), regress_coeffs_p2(:, 1), 'r');
+    scatter(sign(bio_factors_p3.CoP).*sqrt(abs(bio_factors_p3.CoP)), regress_coeffs_p3(:, 1), 'g');
+    scatter(sign(bio_factors_p4.CoP).*sqrt(abs(bio_factors_p4.CoP)), regress_coeffs_p4(:, 1), 'b'); %hold off;
 
 end
+
+legend(["31";"44"; "57"; "18"])
+title("K vs Sqrt(CoP)");
+xlabel("Sqrt(CoP)");
+ylabel("Stiffness (Nm/rad)");
+saveas(gcf,strcat('copf_plot.jpg'));
 
 %% K vs Ankle Angle
 figure();
@@ -80,14 +81,86 @@ for subjects = 1:length(SUBJ_DATA_DIRS)
     scatter(bio_factors_p1.ankle_ang', regress_coeffs_p1(:, 1), 'k'); hold on;
     scatter(bio_factors_p2.ankle_ang', regress_coeffs_p2(:, 1), 'r');
     scatter(bio_factors_p3.ankle_ang', regress_coeffs_p3(:, 1), 'g');
-    scatter(bio_factors_p4.ankle_ang', regress_coeffs_p4(:, 1), 'b'); %hold off;
-    %title(sub_name;
-    legend(["31";"44"; "57"; "18"])
-    
-    %saveas(gcf,strcat(RESULTS_DIR, sub_name,'copf_plot.jpg'));
-
-
+    scatter(bio_factors_p4.ankle_ang', regress_coeffs_p4(:, 1), 'b'); 
 end
+
+legend(["31";"44"; "57"; "18"])
+title("K vs Ankle Angle");
+xlabel("Ankle Angle (rads)");
+ylabel("Stiffness (Nm/rad)");
+saveas(gcf,strcat('ankle_angle_plot.jpg'));
+
+
+%% K vs EMG TA
+figure();
+for subjects = 1:length(SUBJ_DATA_DIRS)
+    temp_cell_array = split(SUBJ_DATA_DIRS{subjects}, '_');
+    sub_name = temp_cell_array{1};
+    curr_results_dir = strcat(RESULTS_DIR, sub_name, '/');
+
+    load(strcat(curr_results_dir, sub_name, "_bootstrap_vars.mat"));
+    
+    %figure();
+    scatter(bio_factors_p1.EMG.TA, regress_coeffs_p1(:, 1), 'k'); hold on;
+    scatter(bio_factors_p2.EMG.TA, regress_coeffs_p2(:, 1), 'r');
+    scatter(bio_factors_p3.EMG.TA, regress_coeffs_p3(:, 1), 'g');
+    scatter(bio_factors_p4.EMG.TA, regress_coeffs_p4(:, 1), 'b'); 
+end
+
+legend(["31";"44"; "57"; "18"])
+title("K vs Tibialis Anterior");
+xlabel("Tibialis Anterior(%MVC)");
+ylabel("Stiffness (Nm/rad)");
+saveas(gcf,strcat('EMG_TA_plot.jpg'));
+
+%% K vs EMG Triceps Surae
+figure();
+for subjects = 1:length(SUBJ_DATA_DIRS)
+    temp_cell_array = split(SUBJ_DATA_DIRS{subjects}, '_');
+    sub_name = temp_cell_array{1};
+    curr_results_dir = strcat(RESULTS_DIR, sub_name, '/');
+
+    load(strcat(curr_results_dir, sub_name, "_bootstrap_vars.mat"));
+    
+    x1 = sqrt(bio_factors_p1.EMG.GCA + bio_factors_p1.EMG.SOL);
+    x2 = sqrt(bio_factors_p2.EMG.GCA + bio_factors_p2.EMG.SOL);
+    x3 = sqrt(bio_factors_p3.EMG.GCA + bio_factors_p3.EMG.SOL);
+    x4 = sqrt(bio_factors_p4.EMG.GCA + bio_factors_p4.EMG.SOL);
+    
+    %figure();
+    scatter(x1, regress_coeffs_p1(:, 1), 'k'); hold on;
+    scatter(x2, regress_coeffs_p2(:, 1), 'r');
+    scatter(x3, regress_coeffs_p3(:, 1), 'g');
+    scatter(x4, regress_coeffs_p4(:, 1), 'b'); 
+end
+
+legend(["31";"44"; "57"; "18"])
+title("K vs Sqrt(Triceps Surae)");
+xlabel("Sqrt(Triceps Surae (SOL + GCA)) (%MVC)");
+ylabel("Stiffness (Nm/rad)");
+saveas(gcf,strcat('EMG_TS_plot.jpg'));
+
+%% K vs BW
+figure();
+for subjects = 1:length(SUBJ_DATA_DIRS)
+    temp_cell_array = split(SUBJ_DATA_DIRS{subjects}, '_');
+    sub_name = temp_cell_array{1};
+    curr_results_dir = strcat(RESULTS_DIR, sub_name, '/');
+
+    load(strcat(curr_results_dir, sub_name, "_bootstrap_vars.mat"));
+    
+    %figure();
+    scatter(bio_factors_p1.Weight, regress_coeffs_p1(:, 1), 'k'); hold on;
+    scatter(bio_factors_p2.Weight, regress_coeffs_p2(:, 1), 'r');
+    scatter(bio_factors_p3.Weight, regress_coeffs_p3(:, 1), 'g');
+    scatter(bio_factors_p4.Weight, regress_coeffs_p4(:, 1), 'b'); 
+end
+
+legend(["31";"44"; "57"; "18"])
+title("K vs BodyWeight");
+xlabel("Body Weight (Newtons)");
+ylabel("Stiffness (Nm/rad)");
+saveas(gcf,strcat('BW_plot.jpg'));
 
 %% K vs Time Since Healstrike
 figure();
@@ -99,17 +172,18 @@ for subjects = 1:length(SUBJ_DATA_DIRS)
     load(strcat(curr_results_dir, sub_name, "_bootstrap_vars.mat"));
     
     %figure();
-    scatter(bio_factors_p1.time_since_healstrike, regress_coeffs_p1(:, 1), 'k'); hold on;
-    scatter(bio_factors_p2.time_since_healstrike, regress_coeffs_p2(:, 1), 'r');
-    scatter(bio_factors_p3.time_since_healstrike, regress_coeffs_p3(:, 1), 'g');
-    scatter(bio_factors_p4.time_since_healstrike, regress_coeffs_p4(:, 1), 'b'); %hold off;
-    %title(sub_name;
-    legend(["31";"44"; "57"; "18"])
-    
-    %saveas(gcf,strcat(RESULTS_DIR, sub_name,'copf_plot.jpg'));
-
+    scatter(bio_factors_p1.time_since_healstrike-0.2, regress_coeffs_p1(:, 1), 'k'); hold on;
+    scatter(bio_factors_p2.time_since_healstrike-0.2, regress_coeffs_p2(:, 1), 'r');
+    scatter(bio_factors_p3.time_since_healstrike-0.2, regress_coeffs_p3(:, 1), 'g');
+    scatter(bio_factors_p4.time_since_healstrike-0.2, regress_coeffs_p4(:, 1), 'b'); %hold off;
 
 end
+
+legend(["31";"44"; "57"; "18"])
+title("K vs Time");
+xlabel("Time (s)");
+ylabel("Stiffness (Nm/rad)");
+saveas(gcf,strcat('K_vs_Time_plot.jpg'));
 
 %% K (BodyWeight Normalized) vs Time Since Healstrike 
 DATA_FOLDER_REL_LOC = "./../../data/";
@@ -125,17 +199,48 @@ for subjects = 1:length(SUBJ_DATA_DIRS)
     load(strcat(curr_results_dir, sub_name, "_bootstrap_vars.mat"));
     
     %figure();
-    scatter(bio_factors_p1.time_since_healstrike, regress_coeffs_p1(:, 1)/subj_weight_vec(subjects), 'k'); hold on;
-    scatter(bio_factors_p2.time_since_healstrike, regress_coeffs_p2(:, 1)/subj_weight_vec(subjects), 'r');
-    scatter(bio_factors_p3.time_since_healstrike, regress_coeffs_p3(:, 1)/subj_weight_vec(subjects), 'g');
-    scatter(bio_factors_p4.time_since_healstrike, regress_coeffs_p4(:, 1)/subj_weight_vec(subjects), 'b'); %hold off;
-    %title(sub_name;
-    legend(["31";"44"; "57"; "18"])
-    
-    %saveas(gcf,strcat(RESULTS_DIR, sub_name,'copf_plot.jpg'));
-
+    scatter(bio_factors_p1.time_since_healstrike-0.2, regress_coeffs_p1(:, 1)/subj_weight_vec(subjects), 'k'); hold on;
+    scatter(bio_factors_p2.time_since_healstrike-0.2, regress_coeffs_p2(:, 1)/subj_weight_vec(subjects), 'r');
+    scatter(bio_factors_p3.time_since_healstrike-0.2, regress_coeffs_p3(:, 1)/subj_weight_vec(subjects), 'g');
+    scatter(bio_factors_p4.time_since_healstrike-0.2, regress_coeffs_p4(:, 1)/subj_weight_vec(subjects), 'b'); %hold off;
 
 end
+
+legend(["31";"44"; "57"; "18"])
+title("K/BW vs Time");
+xlabel("Time (s)");
+ylabel("Stiffness/BW ((Nm/rad)/Newtons)");
+saveas(gcf,strcat('K_BW_norm_vs_Time_plot.jpg'));
+
+%% K (Subj. Range Normalized) vs Time Since Healstrike 
+DATA_FOLDER_REL_LOC = "./../../data/";
+
+subj_weight_vec = get_subj_weight(DATA_FOLDER_REL_LOC, "WEIGHT.DAT", SUBJ_DATA_DIRS);
+
+figure();
+for subjects = 1:length(SUBJ_DATA_DIRS)
+    temp_cell_array = split(SUBJ_DATA_DIRS{subjects}, '_');
+    sub_name = temp_cell_array{1};
+    curr_results_dir = strcat(RESULTS_DIR, sub_name, '/');
+
+    load(strcat(curr_results_dir, sub_name, "_bootstrap_vars.mat"));
+    
+    subj_K = [regress_coeffs_p1(:, 1); regress_coeffs_p2(:, 1); regress_coeffs_p3(:, 1); regress_coeffs_p4(:, 1)]; 
+    norm_factor = (max(subj_K) - min(subj_K));
+    
+    %figure();
+    scatter(bio_factors_p1.time_since_healstrike-0.2, regress_coeffs_p1(:, 1)/norm_factor, 'k'); hold on;
+    scatter(bio_factors_p2.time_since_healstrike-0.2, regress_coeffs_p2(:, 1)/norm_factor, 'r');
+    scatter(bio_factors_p3.time_since_healstrike-0.2, regress_coeffs_p3(:, 1)/norm_factor, 'g');
+    scatter(bio_factors_p4.time_since_healstrike-0.2, regress_coeffs_p4(:, 1)/norm_factor, 'b'); %hold off;
+
+end
+
+legend(["31";"44"; "57"; "18"])
+title("K subject range noramlized vs Time");
+xlabel("Time (s)");
+ylabel("Stiffness Range Normalized");
+saveas(gcf,strcat('K_range_norm_vs_Time_plot.jpg'));
 
 
 %% ---- Regression Procedure ---- %%
@@ -205,6 +310,10 @@ for subj_index = 1:length(SUBJ_DATA_DIRS)
 end
 
 pop_stiff_range_norm_K_data = K/(max(K) - min(K));
+
+% Plot the various versions of K vs stance phase:
+figure();
+scatter
 
 
 partialcorr([K, cop_data, emg_data_TA, emg_data_TS, bw_data, ang_data]);
