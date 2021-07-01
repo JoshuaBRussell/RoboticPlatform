@@ -72,7 +72,7 @@ PERT_START_SIG = 22;
 % u_lim is the upper limit of the inertia and lim
 % is the lower limit
 lim= 0.007;
-u_lim=0.25;
+u_lim=0.02;
 % change these flags to 1 for figures (normal fit and constrained fit)
 plot_figs=1;
 % plot_figs_constrained=0;
