@@ -272,6 +272,36 @@ xlabel("Time (s)");
 ylabel("Stiffness Range Normalized");
 saveas(gcf,strcat('K_range_norm_vs_Time_plot.jpg'));
 
+%% K (Subj. Range Normalized) vs Time Since Healstrike 
+DATA_FOLDER_REL_LOC = "./../../data/";
+
+subj_weight_vec = get_subj_weight(DATA_FOLDER_REL_LOC, "WEIGHT.DAT", SUBJ_DATA_DIRS);
+
+figure();
+for subjects = 1:length(SUBJ_DATA_DIRS)
+    temp_cell_array = split(SUBJ_DATA_DIRS{subjects}, '_');
+    sub_name = temp_cell_array{1};
+    curr_results_dir = strcat(RESULTS_DIR, sub_name, '/');
+
+    load(strcat(curr_results_dir, sub_name, "_bootstrap_vars.mat"));
+    
+    subj_K = [regress_coeffs_p1(:, 1); regress_coeffs_p2(:, 1); regress_coeffs_p3(:, 1); regress_coeffs_p4(:, 1)]; 
+    norm_factor = (744); %Find manually
+    
+    %figure();
+    scatter(bio_factors_p1.time_since_healstrike-0.2, regress_coeffs_p1(:, 1)/norm_factor, 'k'); hold on;
+    scatter(bio_factors_p2.time_since_healstrike-0.2, regress_coeffs_p2(:, 1)/norm_factor, 'r');
+    scatter(bio_factors_p3.time_since_healstrike-0.2, regress_coeffs_p3(:, 1)/norm_factor, 'g');
+    scatter(bio_factors_p4.time_since_healstrike-0.2, regress_coeffs_p4(:, 1)/norm_factor, 'b'); %hold off;
+
+end
+
+legend(["31";"44"; "57"; "18"])
+title("K Population range noramlized vs Time");
+xlabel("Time (s)");
+ylabel("Stiffness Pop. Range Normalized");
+saveas(gcf,strcat('K_pop_range_norm_vs_Time_plot.jpg'));
+
 
 %% ---- Regression Procedure ---- %%
 RESULTS_DIR = './results/';
@@ -349,10 +379,13 @@ emg_data_TS = log(emg_data_TS);
 partialcorr([K, cop_data, emg_data_TA, emg_data_TS, bw_data, ang_data]);
 corr([K, cop_data, emg_data_TA, emg_data_TS, bw_data, ang_data]);
 
+% ---- Organize Data Bunches into Tables ---- %
+all_data_K = table(cop_data, emg_data_TA, emg_data_TS, bw_data, ang_data, K);
+all_indep_wo_angle_K = table(cop_data, emg_data_TA, emg_data_TS, bw_data, K);
 % ---- Create Regression Models ---- %
 % Y = K
-mdl_K_1 = fitlm([cop_data, emg_data_TA, emg_data_TS, bw_data, ang_data], K); 
-mdl_K_2 = fitlm([cop_data, emg_data_TS, emg_data_TS, bw_data], K); %same as 1 above but missing ankle angle
+mdl_K_1 = fitlm(all_data_K); 
+mdl_K_2 = fitlm(all_indep_wo_angle_K); %same as 1 above but missing ankle angle
 
 %Y = BW_norm_K_data
 mdl_BW_norm_K_1 = fitlm([cop_data, emg_data_TA, emg_data_TS, bw_data, ang_data], BW_norm_K_data); 
