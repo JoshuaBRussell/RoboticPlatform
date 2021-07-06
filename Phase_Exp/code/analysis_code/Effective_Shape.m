@@ -494,7 +494,7 @@ plot(1:round(0.18*1554), ankle_angle_total(:, 1:round(0.18*1554))', 'k'); hold o
 plot(round(0.18*1554):round(0.33*1554) ,ankle_angle_total(:, round(0.18*1554):round(0.33*1554))', 'r'); hold on;
 plot(round(0.33*1554):round(0.44*1554) ,ankle_angle_total(:, round(0.33*1554):round(0.44*1554))', 'g'); hold on;
 plot(round(0.44*1554):round(0.57*1554) ,ankle_angle_total(:, round(0.44*1554):round(0.57*1554))', 'b'); hold on;
-plot(round(0.57*1554):1554, ankle_angle_total(:, round(0.57*1554):end)', 'k');
+plot(round(0.57*1554):1554 ,ankle_angle_total(:, round(0.57*1554):end)', 'k');
 hold off;
 
 R_vec = [];
@@ -502,7 +502,7 @@ x_vec = [];
 y_vec = [];
 
 for trial_index = 1:size(p0_raw_data_ind, 1)
-    [xc,yc,R,a] = circfit(p_AF_x(trial_index, 1:1200), p_AF_y(trial_index, 1:1200));
+    [xc,yc,R,a] = circfit(p_AF_x(trial_index, round(0.018*1554):round(0.57*1554)), p_AF_y(trial_index, round(0.018*1554):round(0.57*1554)));
     R_vec(trial_index) = R;
     
     x_vec(trial_index) = xc;
@@ -510,5 +510,28 @@ for trial_index = 1:size(p0_raw_data_ind, 1)
 end
 
 th = 0:pi/50:2*pi;
-xunit = mean(R_vec) * cos(th) + mean(x_vec);
-yunit = mean(R_vec) * sin(th) + mean(y_vec);
+xunit = median(R_vec) * cos(th) + median(x_vec);
+yunit = median(R_vec) * sin(th) + median(y_vec);
+
+figure();
+plot(xunit, yunit); hold on;
+
+plot(p_AF_x(:, round(0.18*1554):round(0.33*1554))', p_AF_y(:, round(0.18*1554):round(0.33*1554))', 'r'); hold on;
+plot(p_AF_x(:, round(0.33*1554):round(0.44*1554))', p_AF_y(:, round(0.33*1554):round(0.44*1554))', 'g'); hold on;
+plot(p_AF_x(:, round(0.44*1554):round(0.57*1554))', p_AF_y(:, round(0.44*1554):round(0.57*1554))', 'b'); hold on;
+hold off;
+
+R_matrix = [];
+for trial_index = 1:size(p0_raw_data_ind, 1)
+    [L, R, K] = curvature([p_AF_x(trial_index, round(0.18*1554):round(0.57*1554))', p_AF_y(trial_index, round(0.18*1554):round(0.57*1554))']);
+    R_matrix(trial_index, :) = R;
+end
+
+figure();
+th = 0:pi/50:2*pi;
+for trial_index = 1:size(p0_raw_data_ind, 1)
+    x_i = R_vec(trial_index) * cos(th) + mean(x_vec(trial_index));
+    y_i = R_vec(trial_index) * sin(th) + mean(y_vec(trial_index));
+
+    plot(x_i, y_i); hold on;
+end
