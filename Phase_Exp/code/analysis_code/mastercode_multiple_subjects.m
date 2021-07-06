@@ -90,6 +90,29 @@ xlabel("Ankle Angle (rads)");
 ylabel("Stiffness (Nm/rad)");
 saveas(gcf,strcat('ankle_angle_plot.jpg'));
 
+%% K vs Subject Height
+
+SUBJ_HEIGHT = [1.83; 1.78; 1.60; 1.60; 1.68; 1.77; 1.73; 1.68; 1.80; 1.65];
+figure();
+for subjects = 1:length(SUBJ_DATA_DIRS)
+    temp_cell_array = split(SUBJ_DATA_DIRS{subjects}, '_');
+    sub_name = temp_cell_array{1};
+    curr_results_dir = strcat(RESULTS_DIR, sub_name, '/');
+
+    load(strcat(curr_results_dir, sub_name, "_bootstrap_vars.mat"));
+    
+    %figure();
+    scatter(SUBJ_HEIGHT(subjects)*ones(size(regress_coeffs_p1(:, 1))), regress_coeffs_p1(:, 1), 'k'); hold on;
+    scatter(SUBJ_HEIGHT(subjects)*ones(size(regress_coeffs_p2(:, 1))), regress_coeffs_p2(:, 1), 'r');
+    scatter(SUBJ_HEIGHT(subjects)*ones(size(regress_coeffs_p3(:, 1))), regress_coeffs_p3(:, 1), 'g');
+    scatter(SUBJ_HEIGHT(subjects)*ones(size(regress_coeffs_p4(:, 1))), regress_coeffs_p4(:, 1), 'b'); 
+end
+
+legend(["31";"44"; "57"; "18"])
+title("K vs Subject Height");
+xlabel("Subject Height (m)");
+ylabel("Stiffness (Nm/rad)");
+saveas(gcf,strcat('height_plot.jpg'));
 
 %% K vs EMG TA
 figure();
