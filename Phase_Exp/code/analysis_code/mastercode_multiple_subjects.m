@@ -326,6 +326,30 @@ ylabel("Stiffness Pop. Range Normalized");
 saveas(gcf,strcat('K_pop_range_norm_vs_Time_plot.jpg'));
 
 
+%% B (Weight Normalized) vs Time Since Healstrike
+figure();
+for subjects = 1:length(SUBJ_DATA_DIRS)
+    temp_cell_array = split(SUBJ_DATA_DIRS{subjects}, '_');
+    sub_name = temp_cell_array{1};
+    curr_results_dir = strcat(RESULTS_DIR, sub_name, '/');
+
+    load(strcat(curr_results_dir, sub_name, "_bootstrap_vars.mat"));
+    subj_weight = get_subj_weight(DATA_FOLDER_REL_LOC, "WEIGHT.DAT", SUBJ_DATA_DIRS)
+    %figure();
+    scatter(bio_factors_p1.time_since_healstrike-0.2, 9.8*regress_coeffs_p1(:, 2)./subj_weight(subjects), 'k'); hold on;
+    scatter(bio_factors_p2.time_since_healstrike-0.2, 9.8*regress_coeffs_p2(:, 2)./subj_weight(subjects), 'r');
+    scatter(bio_factors_p3.time_since_healstrike-0.2, 9.8*regress_coeffs_p3(:, 2)./subj_weight(subjects), 'g');
+    scatter(bio_factors_p4.time_since_healstrike-0.2, 9.8*regress_coeffs_p4(:, 2)./subj_weight(subjects), 'b'); %hold off;
+
+end
+
+legend(["31";"44"; "57"; "18"])
+title("B vs Time");
+xlabel("Time (s)");
+ylabel("Damping (Nm*s/rad)/kg");
+saveas(gcf,strcat('B_vs_Time_plot.jpg'));
+
+
 %% ---- Regression Procedure ---- %%
 RESULTS_DIR = './results/';
 DATA_FOLDER_REL_LOC = "./../../data/";
