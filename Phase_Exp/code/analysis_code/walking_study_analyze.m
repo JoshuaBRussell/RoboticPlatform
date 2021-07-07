@@ -469,6 +469,8 @@ end
 [R_vec, x_vec, y_vec, transf_pts] = get_effective_shape(0.074, ankle_angle_total(:, 1:round(0.57*1554)), cop_total(:, 1:round(0.57*1554)));
 
 nominal_ROC = median(R_vec);
+nominal_EFF_SHAPE_x = median(x_vec);
+nominal_EFF_SHAPE_y = median(y_vec);
 
 %% Calculation of means for plotting...not really used in analysis
 % weight1m=nanmean(weight1);
