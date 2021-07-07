@@ -502,7 +502,7 @@ x_vec = [];
 y_vec = [];
 
 for trial_index = 1:size(p0_raw_data_ind, 1)
-    [xc,yc,R,a] = circfit(p_AF_x(trial_index, round(0.018*1554):round(0.57*1554)), p_AF_y(trial_index, round(0.018*1554):round(0.57*1554)));
+    [xc,yc,R,a] = circfit(p_AF_x(trial_index, 1:round(0.57*1554)), p_AF_y(trial_index, 1:round(0.57*1554)));
     R_vec(trial_index) = R;
     
     x_vec(trial_index) = xc;
