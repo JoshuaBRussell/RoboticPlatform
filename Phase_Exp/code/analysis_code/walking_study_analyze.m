@@ -423,7 +423,52 @@ force_plate_data_p4.F6 = force4_6;
 [p4_act_torque, p4_cop_torque] = get_act_and_cop_torque(img4_pos,force_plate_data_p4);
 
 
+%% Find Effective Shape
 
+%Normalize in time the nominal weight, ankle angle, and CoP data:
+
+max_weight = max(weight0, [], 'all');
+for i = 1:size(p0_raw_data_ind, 1)
+    start_index = min(find(weight0(p0_raw_data_ind(i),:) > 0.015*max_weight))
+    end_index = max(find(weight0(p0_raw_data_ind(i),:) > 0.015*max_weight))
+    start_index_vec(i) = start_index;
+    end_index_vec(i) = end_index;
+end
+
+figure();
+for i = 1:size(p0_raw_data_ind, 1)
+    plot(weight0(p0_raw_data_ind(i), start_index_vec(i):end_index_vec(i))'); hold on;
+end
+title("Mean (Normalized Time) GRF");
+hold off;
+
+p0_sample_length = end_index_vec-start_index_vec;
+stance_phase_duration = p0_sample_length * (1/2000);
+
+cop_total = zeros(size(p0_raw_data_ind, 1), max(p0_sample_length)+1);
+ankle_angle_total = zeros(size(p0_raw_data_ind, 1), max(p0_sample_length)+1);
+weight_total = zeros(size(p0_raw_data_ind, 1), max(p0_sample_length)+1);
+for i = 1:size(p0_raw_data_ind, 1)
+   time_i = 0:(1/2000):stance_phase_duration(i);
+   normalized_time_i = time_i/stance_phase_duration(i);
+   
+   cop_torque_i = p0_cop_torque(i, start_index_vec(i):end_index_vec(i));
+   weight_i = weight0(p0_raw_data_ind(i), start_index_vec(i):end_index_vec(i));
+   cop_i = interp1(normalized_time_i', cop_torque_i./weight_i, 0:1/max(p0_sample_length):1);
+   
+   ankle_angle_i = p0_foot_pos(p0_raw_data_ind(i), start_index_vec(i):end_index_vec(i));
+   ankle_angle_i = interp1(normalized_time_i', ankle_angle_i, 0:1/max(p0_sample_length):1);
+   
+   weight_i = interp1(normalized_time_i', weight_i, 0:1/max(p0_sample_length):1);
+   
+   cop_total(i, :) = cop_i;
+   ankle_angle_total(i, :) = ankle_angle_i;
+   weight_total(i, :) = weight_i;
+end
+
+[R_vec, x_vec, y_vec, transf_pts] = get_effective_shape(0.074, ankle_angle_total(:, 1:round(0.57*1554)), cop_total(:, 1:round(0.57*1554)));
+
+nominal_ROC = median(R_vec);
 
 %% Calculation of means for plotting...not really used in analysis
 % weight1m=nanmean(weight1);
