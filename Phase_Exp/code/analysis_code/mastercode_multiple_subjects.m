@@ -349,6 +349,54 @@ xlabel("Time (s)");
 ylabel("Damping (Nm*s/rad)/kg");
 saveas(gcf,strcat('B_vs_Time_plot.jpg'));
 
+%% K (Weight Normalized) vs Nominal Radius of Effective Shape
+figure();
+for subjects = 1:length(SUBJ_DATA_DIRS)
+    temp_cell_array = split(SUBJ_DATA_DIRS{subjects}, '_');
+    sub_name = temp_cell_array{1};
+    curr_results_dir = strcat(RESULTS_DIR, sub_name, '/');
+
+    load(strcat(curr_results_dir, sub_name, "_bootstrap_vars.mat"));
+    load(strcat(curr_results_dir, sub_name, "_effective_shape_mat.mat"));
+    subj_weight = get_subj_weight(DATA_FOLDER_REL_LOC, "WEIGHT.DAT", SUBJ_DATA_DIRS)
+    %figure();
+    scatter(nominal_ROC*ones(size(regress_coeffs_p1(:, 1))), regress_coeffs_p1(:, 1)./subj_weight(subjects), 'k'); hold on;
+    scatter(nominal_ROC*ones(size(regress_coeffs_p2(:, 1))), regress_coeffs_p2(:, 1)./subj_weight(subjects), 'r');
+    scatter(nominal_ROC*ones(size(regress_coeffs_p3(:, 1))), regress_coeffs_p3(:, 1)./subj_weight(subjects), 'g');
+    scatter(nominal_ROC*ones(size(regress_coeffs_p4(:, 1))), regress_coeffs_p4(:, 1)./subj_weight(subjects), 'b'); %hold off;
+
+end
+
+legend(["31";"44"; "57"; "18"])
+title("K/BW vs Time");
+xlabel("Effective Shape Radius (s)");
+ylabel("K (Nm/rad)/Newton");
+saveas(gcf,strcat('K_BW_vs_RoC_plot.jpg'));
+
+%% Body Weight vs Nominal Radius of Effective Shape
+RESULTS_DIR = './results/';
+SUBJ_HEIGHT = [1.83; 1.78; 1.60; 1.60; 1.68; 1.77; 1.73; 1.68; 1.80; 1.65];
+
+figure();
+for subjects = 1:length(SUBJ_DATA_DIRS)
+    temp_cell_array = split(SUBJ_DATA_DIRS{subjects}, '_');
+    sub_name = temp_cell_array{1};
+    curr_results_dir = strcat(RESULTS_DIR, sub_name, '/');
+
+    load(strcat(curr_results_dir, sub_name, "_effective_shape_mat.mat"));
+    
+    subj_weight = get_subj_weight(DATA_FOLDER_REL_LOC, "WEIGHT.DAT", SUBJ_DATA_DIRS)
+    
+    scatter(nominal_ROC, subj_weight(subjects)); hold on;
+    
+end
+
+legend(["31";"44"; "57"; "18"])
+title("BW vs Effective Shape Radius");
+xlabel("Effective Shape Radius (s)");
+ylabel("Body Weight (Newtons)");
+saveas(gcf,strcat('BW_vs_Radious_ES_plot.jpg'));
+
 
 %% ---- Regression Procedure ---- %%
 RESULTS_DIR = './results/';
