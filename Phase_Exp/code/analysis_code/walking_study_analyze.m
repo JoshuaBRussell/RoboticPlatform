@@ -299,6 +299,10 @@ for trials=1:10
                 p0_phase(p0,:)=rigid_phase_tot(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
                 p0_pert(p0,:)=perturb_start(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
                 img0_pos(p0)=getmin(peaks(i),img_st,Img);
+                
+                img_index = round((peaks(i) + TRIAL_WINDOW_PRE_PERT)/MOCAP_SAMPLE_INDEX_CONV_FACTOR) - img_st:round((peaks(i) + TRIAL_WINDOW_POST_PERT)/MOCAP_SAMPLE_INDEX_CONV_FACTOR) - img_st;
+                img_y_coords(p0, :) = Img(img_index, 4);
+                
                 cop4(p0,:)=cop(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
                 [a,b]=findpeaks(abs(diff(p0_pert(p0,:))));
 
@@ -355,6 +359,13 @@ p1_er=0;
 p2_er=0;
 p3_er=0;
 p4_er=0;
+
+MOCAP_TRIAL_WINDOW_LENGTH = (abs(TRIAL_WINDOW_PRE_PERT)+abs(TRIAL_WINDOW_POST_PERT))/MOCAP_SAMPLE_INDEX_CONV_FACTOR+1;
+TRIAL_WINDOW_LENGTH = (abs(TRIAL_WINDOW_PRE_PERT)+abs(TRIAL_WINDOW_POST_PERT))+1
+xi = linspace(1, MOCAP_TRIAL_WINDOW_LENGTH, TRIAL_WINDOW_LENGTH);
+for trial = 1:size(img_y_coords, 1)
+    up_img_y_coords(trial, :) = interp1(1:MOCAP_TRIAL_WINDOW_LENGTH, img_y_coords(trial, :), xi);
+end
 
 %% removing outliers using motion capture data: Its redundant but I left it as it wont really change anything
 img0_pos(img0_pos > MOCAP_OUTLIER_LIMIT) = NaN;
@@ -461,16 +472,22 @@ for i = 1:size(p0_raw_data_ind, 1)
    
    weight_i = interp1(normalized_time_i', weight_i, 0:1/max(p0_sample_length):1);
    
+   vertical_ankle_pos_i = up_img_y_coords(p0_raw_data_ind(i), start_index_vec(i):end_index_vec(i));
+   vertical_ankle_pos_i = interp1(normalized_time_i', vertical_ankle_pos_i, 0:1/max(p0_sample_length):1);
+   
    cop_total(i, :) = cop_i;
    ankle_angle_total(i, :) = ankle_angle_i;
    weight_total(i, :) = weight_i;
+   vertical_ankle_pos_total(i, :) = vertical_ankle_pos_i;
 end
 
-[R_vec, x_vec, y_vec, transf_pts] = get_effective_shape(0.074, ankle_angle_total(:, 1:round(0.57*1554)), cop_total(:, 1:round(0.57*1554)));
+[R_vec, x_vec, y_vec, transf_pts] = get_effective_shape(vertical_ankle_pos_total, ankle_angle_total(:, 1:round(0.57*1554)), cop_total(:, 1:round(0.57*1554)));
 
 nominal_ROC = median(R_vec);
 nominal_EFF_SHAPE_x = median(x_vec);
 nominal_EFF_SHAPE_y = median(y_vec);
+
+
 
 %% Calculation of means for plotting...not really used in analysis
 % weight1m=nanmean(weight1);

@@ -12,7 +12,7 @@ for trial_index = 1:size(ankle_angle_profiles, 1)
        R = [cos(theta), -sin(theta);
             sin(theta),  cos(theta)];
    
-       p_F = [cop_profiles(trial_index, time_index); - vertical_ankle_coord]; 
+       p_F = [100*cop_profiles(trial_index, time_index); - vertical_ankle_coord(trial_index, time_index)]; 
        p_AF = R*p_F;
        
        p_AF_x(trial_index, time_index) = p_AF(1);
