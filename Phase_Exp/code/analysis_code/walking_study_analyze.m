@@ -480,8 +480,8 @@ for i = 1:size(p0_raw_data_ind, 1)
    weight_total(i, :) = weight_i;
    vertical_ankle_pos_total(i, :) = vertical_ankle_pos_i;
 end
-
-[R_vec, x_vec, y_vec, transf_pts] = get_effective_shape(vertical_ankle_pos_total, ankle_angle_total(:, 1:round(0.57*1554)), cop_total(:, 1:round(0.57*1554)));
+time_matched_length = max(p0_sample_length) + 1;
+[R_vec, x_vec, y_vec, transf_pts] = get_effective_shape(vertical_ankle_pos_total, ankle_angle_total(:, 1:round(0.57*time_matched_length)), cop_total(:, 1:round(0.57*time_matched_length)));
 
 nominal_ROC = median(R_vec);
 nominal_EFF_SHAPE_x = median(x_vec);
