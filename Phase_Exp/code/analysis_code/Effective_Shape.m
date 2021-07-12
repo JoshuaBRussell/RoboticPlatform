@@ -299,6 +299,10 @@ for trials=1:10
                 p0_phase(p0,:)=rigid_phase_tot(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
                 p0_pert(p0,:)=perturb_start(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
                 img0_pos(p0)=getmin(peaks(i),img_st,Img);
+                
+                img_index = round((peaks(i) + TRIAL_WINDOW_PRE_PERT)/MOCAP_SAMPLE_INDEX_CONV_FACTOR) - img_st:round((peaks(i) + TRIAL_WINDOW_POST_PERT)/MOCAP_SAMPLE_INDEX_CONV_FACTOR) - img_st;
+                img_y_coords(p0, :) = Img(img_index, 4);
+                
                 cop4(p0,:)=cop(peaks(i)+TRIAL_WINDOW_PRE_PERT:peaks(i)+TRIAL_WINDOW_POST_PERT);
                 [a,b]=findpeaks(abs(diff(p0_pert(p0,:))));
 
@@ -422,7 +426,13 @@ force_plate_data_p4.F6 = force4_6;
 [p3_act_torque, p3_cop_torque] = get_act_and_cop_torque(img3_pos,force_plate_data_p3);
 [p4_act_torque, p4_cop_torque] = get_act_and_cop_torque(img4_pos,force_plate_data_p4);
 
-TEMP_ANKLE_Y = 7.2;
+%% Upsample Ankle Mocap Vertical Axis Data
+MOCAP_TRIAL_WINDOW_LENGTH = (abs(TRIAL_WINDOW_PRE_PERT)+abs(TRIAL_WINDOW_POST_PERT))/MOCAP_SAMPLE_INDEX_CONV_FACTOR+1;
+TRIAL_WINDOW_LENGTH = (abs(TRIAL_WINDOW_PRE_PERT)+abs(TRIAL_WINDOW_POST_PERT))+1
+xi = linspace(1, MOCAP_TRIAL_WINDOW_LENGTH, TRIAL_WINDOW_LENGTH);
+for trial = 1:size(img_y_coords, 1)
+    up_img_y_coords(trial, :) = interp1(1:121, img_y_coords(trial, :), xi);
+end
 
 max_weight = max(weight0, [], 'all');
 for i = 1:size(p0_raw_data_ind, 1)
@@ -437,6 +447,11 @@ for i = 1:size(p0_raw_data_ind, 1)
     plot(weight0(p0_raw_data_ind(i), start_index_vec(i):end_index_vec(i))'); hold on;
 end
 hold off;
+
+figure();
+for i = 1:size(p0_raw_data_ind, 1)
+    plot(up_img_y_coords(p0_raw_data_ind(i), start_index_vec(i):end_index_vec(i))'); hold on;
+end
 
 p0_sample_length = end_index_vec-start_index_vec;
 stance_phase_duration = p0_sample_length * (1/2000);
@@ -457,13 +472,17 @@ for i = 1:size(p0_raw_data_ind, 1)
    
    weight_i = interp1(normalized_time_i', weight_i, 0:1/max(p0_sample_length):1);
    
+   vertical_ankle_pos_i = up_img_y_coords(p0_raw_data_ind(i), start_index_vec(i):end_index_vec(i));
+   vertical_ankle_pos_i = interp1(normalized_time_i', vertical_ankle_pos_i, 0:1/max(p0_sample_length):1);
+   
    cop_total(i, :) = cop_i;
    ankle_angle_total(i, :) = ankle_angle_i;
    weight_total(i, :) = weight_i;
+   vertical_ankle_pos_total(i, :) = vertical_ankle_pos_i;
 end
+time_matched_length = max(p0_sample_length) + 1;
 
 
-plot(cop_total, -TEMP_ANKLE_Y*ones(size(cop_total)))
 p_AF_x = zeros(size(cop_total));
 p_AF_y = zeros(size(cop_total));
 for trial_index = 1:size(p0_raw_data_ind, 1)
@@ -472,7 +491,7 @@ for trial_index = 1:size(p0_raw_data_ind, 1)
        R = [cos(theta), -sin(theta);
             sin(theta),  cos(theta)];
    
-       p_F = [100*cop_total(trial_index, time_index); - TEMP_ANKLE_Y];
+       p_F = [100*cop_total(trial_index, time_index); -1*vertical_ankle_pos_total(trial_index, time_index)];
        p_AF = R*p_F;
        
        p_AF_x(trial_index, time_index) = p_AF(1);
@@ -482,19 +501,19 @@ for trial_index = 1:size(p0_raw_data_ind, 1)
 end
 
 figure();
-plot(p_AF_x(:,                1:round(0.18*1554))', p_AF_y(:, 1:round(0.18*1554))', 'k'); hold on;
-plot(p_AF_x(:, round(0.18*1554):round(0.33*1554))', p_AF_y(:, round(0.18*1554):round(0.33*1554))', 'r'); hold on;
-plot(p_AF_x(:, round(0.33*1554):round(0.44*1554))', p_AF_y(:, round(0.33*1554):round(0.44*1554))', 'g'); hold on;
-plot(p_AF_x(:, round(0.44*1554):round(0.57*1554))', p_AF_y(:, round(0.44*1554):round(0.57*1554))', 'b'); hold on;
-plot(p_AF_x(:, round(0.57*1554):end)',              p_AF_y(:, round(0.57*1554):end)', 'k');
+plot(p_AF_x(:,                1:round(0.18*time_matched_length))', p_AF_y(:, 1:round(0.18*time_matched_length))', 'k'); hold on;
+plot(p_AF_x(:, round(0.18*time_matched_length):round(0.33*time_matched_length))', p_AF_y(:, round(0.18*time_matched_length):round(0.33*time_matched_length))', 'r'); hold on;
+plot(p_AF_x(:, round(0.33*time_matched_length):round(0.44*time_matched_length))', p_AF_y(:, round(0.33*time_matched_length):round(0.44*time_matched_length))', 'g'); hold on;
+plot(p_AF_x(:, round(0.44*time_matched_length):round(0.57*time_matched_length))', p_AF_y(:, round(0.44*time_matched_length):round(0.57*time_matched_length))', 'b'); hold on;
+plot(p_AF_x(:, round(0.57*time_matched_length):end)',              p_AF_y(:, round(0.57*time_matched_length):end)', 'k');
 hold off;
 
 figure();
-plot(1:round(0.18*1554), ankle_angle_total(:, 1:round(0.18*1554))', 'k'); hold on;
-plot(round(0.18*1554):round(0.33*1554) ,ankle_angle_total(:, round(0.18*1554):round(0.33*1554))', 'r'); hold on;
-plot(round(0.33*1554):round(0.44*1554) ,ankle_angle_total(:, round(0.33*1554):round(0.44*1554))', 'g'); hold on;
-plot(round(0.44*1554):round(0.57*1554) ,ankle_angle_total(:, round(0.44*1554):round(0.57*1554))', 'b'); hold on;
-plot(round(0.57*1554):1554 ,ankle_angle_total(:, round(0.57*1554):end)', 'k');
+plot(1:round(0.18*time_matched_length), ankle_angle_total(:, 1:round(0.18*time_matched_length))', 'k'); hold on;
+plot(round(0.18*time_matched_length):round(0.33*time_matched_length) ,ankle_angle_total(:, round(0.18*time_matched_length):round(0.33*time_matched_length))', 'r'); hold on;
+plot(round(0.33*time_matched_length):round(0.44*time_matched_length) ,ankle_angle_total(:, round(0.33*time_matched_length):round(0.44*time_matched_length))', 'g'); hold on;
+plot(round(0.44*time_matched_length):round(0.57*time_matched_length) ,ankle_angle_total(:, round(0.44*time_matched_length):round(0.57*time_matched_length))', 'b'); hold on;
+plot(round(0.57*time_matched_length):time_matched_length ,ankle_angle_total(:, round(0.57*time_matched_length):end)', 'k');
 hold off;
 
 R_vec = [];
@@ -502,7 +521,7 @@ x_vec = [];
 y_vec = [];
 
 for trial_index = 1:size(p0_raw_data_ind, 1)
-    [xc,yc,R,a] = circfit(p_AF_x(trial_index, 1:round(0.57*1554)), p_AF_y(trial_index, 1:round(0.57*1554)));
+    [xc,yc,R,a] = circfit(p_AF_x(trial_index, round(0.18*time_matched_length):round(0.57*time_matched_length)), p_AF_y(trial_index, round(0.18*time_matched_length):round(0.57*time_matched_length)));
     R_vec(trial_index) = R;
     
     x_vec(trial_index) = xc;
@@ -516,14 +535,14 @@ yunit = median(R_vec) * sin(th) + median(y_vec);
 figure();
 plot(xunit, yunit); hold on;
 
-plot(p_AF_x(:, round(0.18*1554):round(0.33*1554))', p_AF_y(:, round(0.18*1554):round(0.33*1554))', 'r'); hold on;
-plot(p_AF_x(:, round(0.33*1554):round(0.44*1554))', p_AF_y(:, round(0.33*1554):round(0.44*1554))', 'g'); hold on;
-plot(p_AF_x(:, round(0.44*1554):round(0.57*1554))', p_AF_y(:, round(0.44*1554):round(0.57*1554))', 'b'); hold on;
+plot(p_AF_x(:, round(0.18*time_matched_length):round(0.33*time_matched_length))', p_AF_y(:, round(0.18*time_matched_length):round(0.33*time_matched_length))', 'r'); hold on;
+plot(p_AF_x(:, round(0.33*time_matched_length):round(0.44*time_matched_length))', p_AF_y(:, round(0.33*time_matched_length):round(0.44*time_matched_length))', 'g'); hold on;
+plot(p_AF_x(:, round(0.44*time_matched_length):round(0.57*time_matched_length))', p_AF_y(:, round(0.44*time_matched_length):round(0.57*time_matched_length))', 'b'); hold on;
 hold off;
 
 R_matrix = [];
 for trial_index = 1:size(p0_raw_data_ind, 1)
-    [L, R, K] = curvature([p_AF_x(trial_index, round(0.18*1554):round(0.57*1554))', p_AF_y(trial_index, round(0.18*1554):round(0.57*1554))']);
+    [L, R, K] = curvature([p_AF_x(trial_index, round(0.18*time_matched_length):round(0.57*time_matched_length))', p_AF_y(trial_index, round(0.18*time_matched_length):round(0.57*time_matched_length))']);
     R_matrix(trial_index, :) = R;
 end
 
